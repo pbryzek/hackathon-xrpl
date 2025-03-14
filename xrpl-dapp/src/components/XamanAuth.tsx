@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { XummPkce } from "xumm-oauth2-pkce";
 import * as xrpl from "xrpl";
 
-const xumm = new XummPkce("bedfb834-633e-4443-9dcc-eebf2bfd9562", "http://localhost:5174"
+const xumm = new XummPkce( "bedfb834-633e-4443-9dcc-eebf2bfd9562","http://localhost:5173",
 );
 
 const XamanAuth: React.FC = () => {
@@ -21,35 +21,27 @@ const XamanAuth: React.FC = () => {
   const connectWallet = async () => {
     setIsLoading(true);
     try {
-      console.log("🔄 Starting Xumm authentication...");
-      await xumm.authorize();  // 🔥 Initiate login
-  
-      console.log("✅ Xumm authorization completed. Checking state...");
-      const state = await xumm.state(); // Get state after authentication
-  
+      await xumm.authorize();
+      const state = await xumm.state();
+
       if (!state) {
-        throw new Error("🚨 Xumm state is undefined!");
+        throw new Error("Xumm state is undefined!");
       }
-  
-      console.log("✅ Xumm state received:", state);
-  
+
       const userAccount = state?.me?.account ?? null;
       if (!userAccount) {
-        throw new Error("🚨 Failed to retrieve XRPL account from Xumm.");
+        throw new Error("Failed to retrieve XRPL account from Xumm.");
       }
-  
-      console.log("✅ User account detected:", userAccount);
-  
+
       setAccount(userAccount);
       localStorage.setItem("xrplAccount", userAccount);
       fetchBalance(userAccount);
     } catch (error) {
-      console.error("❌ Xumm authentication failed:", error);
+      console.error("Xumm authentication failed:", error);
     } finally {
       setIsLoading(false);
     }
   };
-  
 
   const fetchBalance = async (walletAddress: string) => {
     try {
@@ -61,7 +53,7 @@ const XamanAuth: React.FC = () => {
         ledger_index: "validated",
       });
       const xrpBalance = xrpl.dropsToXrp(response.result.account_data.Balance);
-      setBalance(xrpBalance.toString()); // ✅ Fix: Ensure string format
+      setBalance(xrpBalance.toString());
       client.disconnect();
     } catch (error) {
       console.error("Error fetching balance:", error);
@@ -69,18 +61,27 @@ const XamanAuth: React.FC = () => {
   };
 
   return (
-    <div style={{ textAlign: "center", padding: "20px" }}>
-      <h2>XRPL + Xaman DApp</h2>
-      {!account ? (
-        <button onClick={connectWallet} disabled={isLoading}>
-          {isLoading ? "Connecting..." : "Connect Xaman Wallet"}
-        </button>
-      ) : (
-        <>
-          <p><strong>Connected Wallet:</strong> {account}</p>
-          <p><strong>Balance:</strong> {balance} XRP</p>
-        </>
-      )}
+    <div className="flex justify-center items-center h-screen bg-background">
+      <div className="floating glass-card text-center w-[400px]">
+        <h2 className="text-2xl font-semibold text-primary mb-4">XRPL + Xaman DApp</h2>
+
+        {!account ? (
+          <button
+            onClick={connectWallet}
+            disabled={isLoading}
+            className="glass-button transition-all duration-300"
+          >
+            {isLoading ? "Connecting..." : "Connect Xaman Wallet"}
+          </button>
+
+        ) : (
+          <>
+            <p className="text-lg text-white/90 mb-2">Connected Wallet:</p>
+            <p className="text-white text-lg font-bold">{account}</p>
+            <p className="text-sm text-white/70 mt-2">Balance: {balance} XRP</p>
+          </>
+        )}
+      </div>
     </div>
   );
 };
