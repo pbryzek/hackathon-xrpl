@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const xrpl = require("xrpl");
 const XRPLStaking = require("../services/xrplService");
-const { connectXRPL, setupTrustLine, getExistingOffers, purchaseCruViaMakeOfferABI } = require("../helpers/xrplHelper");
+const { setupTrustLine, getExistingOffers, purchaseCruViaMakeOfferABI } = require("../helpers/xrplHelper");
 
 // Middleware to validate request
 const validateRequest = (req, res, next) => {
