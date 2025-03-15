@@ -1,6 +1,8 @@
 const fs = require("fs").promises;
 const path = require("path");
 const BONDS_FILE = path.resolve(__dirname, "../data/bonds.json");
+const XRPLStaking = require("../services/xrplService");
+const PFMU = require("../models/Pfmu");
 
 async function getBondById(id) {
   try {
@@ -130,17 +132,34 @@ async function writeBondsToFile(bonds) {
 // Function to update bond in the file
 async function updateBondsFile(updatedBond) {
   try {
-    const data = await fs.readFile(bondsFilePath, "utf-8");
+    const data = await fs.readFile(BONDS_FILE, "utf-8");
     let bonds = JSON.parse(data);
 
     // Replace the bond in the array
     bonds = bonds.map(bond => (bond.id === updatedBond.id ? updatedBond : bond));
 
     // Write back the updated list
-    await fs.writeFile(bondsFilePath, JSON.stringify(bonds, null, 2));
+    await fs.writeFile(BONDS_FILE, JSON.stringify(bonds, null, 2));
   } catch (error) {
     console.error("Error writing to JSON file:", error);
   }
+}
+
+async function stakePFMU(walletSecret, amount, project, issuanceDate, expirationDate, bond) {
+  let total_amount = 0;
+  for (const bond_pfmu of bond.pfmus) {
+    total_amount += bond_pfmu.amount;
+  }
+
+  if (total_amount >= bond.pfmus_capacity) {
+    console.error("Error unable to stake: as this would exceed the PFMU capacity");
+    return;
+  }
+  const pfmu = new PFMU(amount, project, issuanceDate, expirationDate);
+  const staking = new XRPLStaking();
+  staking.stakePFMU(walletSecret, pfmu);
+  bond.pfmus.push(pfmu);
+  await updateBondsFile(bond);
 }
 
 // Export the functions
@@ -153,4 +172,5 @@ module.exports = {
   getAllBonds,
   getClosedBonds,
   addBond,
+  stakePFMU,
 };
