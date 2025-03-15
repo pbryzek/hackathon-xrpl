@@ -122,3 +122,8 @@
 ::-webkit-scrollbar-thumb:hover {
   background: hsl(var(--bond-blue-light));
 }
+
+/* ✅ Floating effect for navbar */
+header {
+  box-shadow: 0px 4px 30px rgba(0, 255, 128, 0.3);
+}
