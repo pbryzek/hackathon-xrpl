@@ -1,0 +1,89 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
+}
+
+/* ✅ Global Styles */
+body {
+  background: radial-gradient(circle, rgba(2, 96, 64, 0.9) 0%, rgba(0, 0, 0, 0.8) 100%);
+  color: white;
+  font-family: "Inter", sans-serif;
+}
+
+/* ✅ Floating Animation */
+.floating {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* ✅ Glassmorphism Navbar */
+.header {
+  background: rgba(255, 255, 255, 0.1); /* Semi-transparent */
+  backdrop-filter: blur(15px);
+  box-shadow: 0px 4px 30px rgba(0, 255, 128, 0.3);
+  padding: 15px;
+  border-radius: 10px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 50;
+}
+
+/* ✅ Navbar Links */
+.nav-link {
+  color: white;
+  padding: 10px 15px;
+  border-radius: 8px;
+  transition: background 0.3s ease-in-out;
+}
+
+.nav-link:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* ✅ Glass Card */
+.glass-card {
+  background: rgba(255, 255, 255, 0.1); /* Semi-transparent white */
+  backdrop-filter: blur(15px); /* Smooth frosted glass effect */
+  box-shadow: 0px 4px 30px rgba(0, 255, 128, 0.3); /* Stronger green glow */
+  border: 1px solid rgba(255, 255, 255, 0.2); /* Subtle border */
+  padding: 25px;
+  border-radius: 20px;
+  transition: all 0.3s ease-in-out;
+}
+
+.glass-card:hover {
+  box-shadow: 0px 6px 35px rgba(0, 255, 128, 0.5); /* More intense on hover */
+  transform: scale(1.02); /* Slight expansion effect */
+}
+
+/* ✅ Glass Button */
+.glass-button {
+  background: linear-gradient(135deg, rgba(0, 255, 128, 0.8), rgba(0, 150, 100, 0.8));
+  color: white;
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: bold;
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0px 4px 15px rgba(0, 255, 128, 0.5);
+  transition: all 0.3s ease-in-out;
+}
+
+.glass-button:hover {
+  background: linear-gradient(135deg, rgba(0, 255, 128, 1), rgba(0, 150, 100, 1));
+  transform: scale(1.05);
+  box-shadow: 0px 6px 20px rgba(0, 255, 128, 0.7);
+}
+
+.glass-button:disabled {
+  background: rgba(255, 255, 255, 0.2);
+  cursor: not-allowed;
+  box-shadow: none;
+}
