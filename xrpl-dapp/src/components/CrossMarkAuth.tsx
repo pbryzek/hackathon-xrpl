@@ -31,7 +31,7 @@ const CrossmarkAuth: React.FC = () => {
 
       // Step 2: Send wallet address to backend
       console.log("Sending wallet address to backend...");
-      const backendResponse = await signIn(userAccount);
+      const backendResponse = await signIn();
       console.log("Backend Response:", backendResponse);
       
     } catch (error) {
