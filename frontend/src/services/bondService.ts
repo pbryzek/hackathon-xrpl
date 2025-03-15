@@ -45,7 +45,7 @@ export const getUserPFMUs = async () => {
     try {
       const url=BOND_DOMAIN+"/bonds/active";
       const response = await fetch(url, {
-        method: "POST",
+        method: "GET",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ bondId })
       });
@@ -56,7 +56,7 @@ export const getUserPFMUs = async () => {
   
       return await response.json();
     } catch (error) {
-      console.error("Error staking PFMU:", error);
+      console.error("Error getting active bonds:", error);
       throw error;
     }
   };
