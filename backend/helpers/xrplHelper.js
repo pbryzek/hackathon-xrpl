@@ -1,4 +1,5 @@
 const xrpl = require("xrpl");
+const Decimal = require("decimal.js");
 
 class CruBuyData {
   constructor(num_crus_purchased, num_crus_open_orders, date, buyTxLink, currencyCode) {
@@ -9,6 +10,51 @@ class CruBuyData {
     this.currencyCode = currencyCode;
   }
 }
+
+async function tecPathCheck(client, address) {
+  try {
+    // 🔹 Get XRPL reserve requirements
+    const serverInfo = await client.request({ command: "server_info" });
+    const { reserve_base_xrp, reserve_inc_xrp } = serverInfo.result.info.validated_ledger;
+    
+    const baseReserve = new Decimal(reserve_base_xrp);
+    const incReserve = new Decimal(reserve_inc_xrp);
+
+    console.log("Checking balance for address:", address);
+
+    // 🔹 Get the wallet's current XRP balance
+    const accountInfo = await client.request({ command: "account_info", account: address });
+    const xrpBalance = new Decimal(accountInfo.result.account_data.Balance).div(1000000); // Convert drops to XRP
+
+    // 🔹 Calculate required reserve based on account's objects (trust lines, offers, etc.)
+    const ownerCount = new Decimal(accountInfo.result.account_data.OwnerCount);
+    const requiredReserve = baseReserve.plus(ownerCount.mul(incReserve));
+    const availableBalance = xrpBalance.minus(requiredReserve);
+
+    console.log(`Available Balance: ${availableBalance} XRP`);
+
+    // 🔹 If available balance is too low, fund the account
+    if (availableBalance.lt(10)) {  // Adjust minimum reserve as needed
+      console.log("Not enough XRP, funding account...");
+      return await fundAccount(client, address);
+    }
+    
+    return null;
+  } catch (error) {
+    console.error("Error in tecPathCheck:", error.message);
+    return null;
+  }
+}
+
+// 🔹 Funding function for Testnet (Use a pre-funded account for production)
+async function fundAccount(client, address) {
+  console.log("Funding wallet:", address);
+  const result = await client.fundWallet({ wallet: { classicAddress: address } });
+  console.log("Funded successfully:", result);
+  return result;
+}
+
+
 
 /**
  * Sets up a Trust Line if needed
@@ -92,6 +138,40 @@ async function handleCruOfferResult(cruWalletAddress, cruResults, amount, preBuy
   }
 }
 
+async function getLatestLedgerSequence(client) {
+    const ledgerResponse = await client.request({
+      command: "ledger",
+      ledger_index: "validated",
+    });
+    return ledgerResponse.result.ledger_index;
+  }
+
+async function prepareSignSubmitTxWithRetry(client, transactionJson, wallet, maxAttempts = 3) {
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      console.log(`prepareSignSubmitTxWithRetry loop attempt: ${attempt}`);
+      try {
+        // 🔹 Set transaction expiry (LastLedgerSequence)
+        const latestLedgerSequence = await getLatestLedgerSequence(client);
+        transactionJson.LastLedgerSequence = latestLedgerSequence + 50;
+        
+        // 🔹 Prepare, sign, and submit transaction
+        const tx_prepared = await client.autofill(transactionJson);
+        const tx_signed = wallet.sign(tx_prepared);
+        const tx_result = await client.submitAndWait(tx_signed.tx_blob);
+        
+        return createSuccessJSON("Transaction submitted", tx_result);
+      } catch (error) {
+        console.log(`Attempt ${attempt} failed: ${error.message}`);
+        
+        // 🔹 Retry logic: If max attempts reached and error is NOT tefPAST_SEQ, return failure
+        if (!error.message.includes("tefPAST_SEQ") && attempt === maxAttempts) {
+          return createFailJSON("Max retry attempts reached for transaction submission");
+        }
+      }
+    }
+  }
+  
+
 async function offerCreate(client, wallet, takerGets, takerPays, memoData) {
   await tecPathCheck(client, wallet.address);
   console.log("takerPays: ", takerPays);
@@ -100,8 +180,10 @@ async function offerCreate(client, wallet, takerGets, takerPays, memoData) {
     Account: wallet.classicAddress,
     TakerGets: takerGets,
     TakerPays: takerPays,
-    Memos: [JsonToMemo(memoData)],
   };
+  if (memoData) {
+    offerCreateTx.Memos = [{ Memo: { MemoData: memoData } }];
+  }
   return await prepareSignSubmitTxWithRetry(client, offerCreateTx, wallet);
 }
 

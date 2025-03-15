@@ -3,12 +3,12 @@ require("dotenv").config(); // Load environment variables
 
 class XRPLStaking {
   static XRPL_SERVER = "wss://s.altnet.rippletest.net:51233"; // XRPL Testnet
-  static ISSUER_ADDRESS = "rIssuerAddress"; // Change to actual issuer
+  static ISSUER_ADDRESS = "rnQfo2qJeBhoZQRnPfXDH5JuxFhYrHLHxH"; // Change to actual issuer
   static PFMU_XRP_CONVERSION = 10.5;
   static STAKING_ACCOUNT_SECRET = process.env.STAKING_ACCOUNT_SECRET; // Staking Account Private Key
 
   // PFMU and GBOND Currency Codes
-  static PFMU_CURRENCY = "PFMU-BRA-03182024";
+  static PFMU_CURRENCY = "CRU";//"PFMU-BRA-03182024";
   static GBOND_CURRENCY_PREFIX = "GBOND-";
   static GBOND_CURRENCY = XRPLStaking.GBOND_CURRENCY_PREFIX + XRPLStaking.PFMU_CURRENCY;
 

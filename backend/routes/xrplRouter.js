@@ -4,6 +4,37 @@ const xrpl = require("xrpl");
 const XRPLStaking = require("../services/xrplService");
 const { setupTrustLine, getExistingOffers, purchaseCruViaMakeOfferABI } = require("../helpers/xrplHelper");
 
+async function createAndFundWallet() {
+  const client = new xrpl.Client("wss://s.altnet.rippletest.net:51233");
+  await client.connect();
+
+  // 🔹 Generate a new wallet
+  const newWallet = xrpl.Wallet.generate();
+  console.log("Mnemonic:", newWallet.mnemonic);
+  console.log("Classic Address:", newWallet.classicAddress);
+  console.log("Seed:", newWallet.seed);
+  console.log("Private Key:", newWallet.privateKey);
+
+  // 🔹 FUND THE WALLET USING THE TESTNET FAUCET
+  console.log("Funding wallet with Testnet XRP...");
+  const faucetResult = await client.fundWallet(newWallet);
+
+  console.log("Wallet funded:", faucetResult);
+  
+  // 🔹 VERIFY WALLET ACTIVATION
+  const accountInfo = await client.request({
+    command: "account_info",
+    account: newWallet.classicAddress,
+    ledger_index: "current",
+  });
+
+  console.log("Account Info:", accountInfo);
+
+  await client.disconnect();
+  return newWallet;
+}
+
+
 // Middleware to validate request
 const validateRequest = (req, res, next) => {
   if (!req.body.walletSecret || !req.body.amount) {
@@ -45,21 +76,24 @@ router.post("/stake-pfmu", validateRequest, async (req, res) => {
 router.post("/buy-pfmu", validateRequest, async (req, res) => {
   console.log("/buy-pfmu");
   const { walletSecret, amount } = req.body;
+  
+  //const mnemonic = "shoCsz jy4Hxs bwyMHb j4ESZW jWTrG";
+  //const derivedWallet = xrpl.Wallet.fromMnemonic(mnemonic);
 
+ 
   if (!walletSecret || !amount) {
     return res.status(400).json({ error: "Missing required fields" });
   }
 
   const client = new xrpl.Client(XRPLStaking.XRPL_SERVER);
+  console.log("XRPL_SERVER: ", XRPLStaking.XRPL_SERVER);
   await client.connect();
 
   try {
-    console.log("XRPL_SERVER: ", XRPLStaking.XRPL_SERVER);
-    // Load wallet from secret
-    const wallet = xrpl.Wallet.fromSeed(walletSecret);
-    console.log("Wallet loaded:", wallet.classicAddress);
+    const newWallet = await createAndFundWallet();
+    console.log("Our new wallet is:", newWallet.address);
 
-    await setupTrustLine(client, wallet, XRPLStaking.PFMU_CURRENCY, XRPLStaking.ISSUER_ADDRESS);
+    await setupTrustLine(client, newWallet, XRPLStaking.PFMU_CURRENCY, XRPLStaking.ISSUER_ADDRESS);
     console.log("TrustSet transaction submitted");
 
     //Create Offer
@@ -89,7 +123,8 @@ router.post("/buy-pfmu", validateRequest, async (req, res) => {
     }
 
     // Prepare Payment Transaction
-    const purchaseResult = await purchaseCruViaMakeOfferABI(client, wallet, generatedOffer, amount);
+    console.log("purhasing crus...")
+    const purchaseResult = await purchaseCruViaMakeOfferABI(client, newWallet, offer, amount);
     console.log("CRU purchase successful:", purchaseResult);
 
     if (!purchaseResult.success) {
@@ -111,6 +146,7 @@ router.post("/buy-pfmu", validateRequest, async (req, res) => {
     console.error("Error in /buy-pfmu:", error);
     return res.status(500).json({ error: error.message });
   } finally {
+    console.log("/buy-pfmu finished without crashing")
     if (client.isConnected()) {
       await client.disconnect();
       console.log("Disconnected from XRPL client");
