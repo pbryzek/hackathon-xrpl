@@ -18,7 +18,6 @@ const Bond = require("../models/Bond");
 router.get("/active", async (req, res) => {
   try {
     console.log("active");
-
     let activeBonds = await getActiveBonds();
     console.log(activeBonds);
     res.status(200).json(successJSON("activeBonds: success", activeBonds));

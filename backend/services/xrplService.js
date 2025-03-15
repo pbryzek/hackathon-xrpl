@@ -4,6 +4,7 @@ require("dotenv").config(); // Load environment variables
 class XRPLStaking {
   static XRPL_SERVER = "wss://s.altnet.rippletest.net:51233"; // XRPL Testnet
   static ISSUER_ADDRESS = "rIssuerAddress"; // Change to actual issuer
+  static PFMU_XRP_CONVERSION = 10.5;
   static STAKING_ACCOUNT_SECRET = process.env.STAKING_ACCOUNT_SECRET; // Staking Account Private Key
 
   // PFMU and GBOND Currency Codes
