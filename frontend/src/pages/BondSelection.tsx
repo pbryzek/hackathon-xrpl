@@ -1,95 +1,46 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom"; // ✅ Import Link for proper navigation
-
-// API Calls
-const getUserPFMUs = async () => {
-  try {
-    const response = await fetch("http://localhost:5001/get-user-pfmu", {
-      method: "GET",
-      headers: { "Content-Type": "application/json" },
-    });
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! Status: ${response.status}`);
-    }
-
-    const data = await response.json();
-    return data.pfmuBalance;
-  } catch (error) {
-    console.error("Error fetching user PFMUs:", error);
-    return null;
-  }
-};
-
-const stakePFMU = async (bondId: string) => {
-  try {
-    const response = await fetch("http://localhost:5001/stake-pfmu", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ bondId }),
-    });
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! Status: ${response.status}`);
-    }
-
-    return await response.json();
-  } catch (error) {
-    console.error("Error staking PFMU:", error);
-    throw error;
-  }
-};
-
-const bonds = [
-  {
-    id: "solar-california",
-    title: "Solar Energy Farm - California",
-    category: "Solar Energy",
-    yield: "5.2%",
-    term: "5 years",
-    minInvestment: "$5,000",
-    impact: "15,000 tons CO₂ reduction/year",
-    funded: "$367K",
-    goal: "$1.2M",
-  },
-  {
-    id: "wind-texas",
-    title: "Wind Power Project - Texas",
-    category: "Wind Energy",
-    yield: "4.8%",
-    term: "7 years",
-    minInvestment: "$10,000",
-    impact: "22,500 tons CO₂ reduction/year",
-    funded: "$581K",
-    goal: "$1.2M",
-  },
-];
+import { Link } from "react-router-dom";
+import { 
+  // getUserPFMUs,  // ✅ Commented out (not currently needed)
+  // stakePFMU,  // ✅ Commented out (not currently needed)
+  getPendingBonds 
+} from "../services/bondService"; // ✅ Import API services
 
 const BondPage = () => {
-  const [pfmuBalance, setPfmuBalance] = useState<number | null>(null);
+  // const [pfmuBalance, setPfmuBalance] = useState<number | null>(null); // ✅ Commented out (not currently needed)
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [stakeMessage, setStakeMessage] = useState<string | null>(null);
+  const [pendingBonds, setPendingBonds] = useState<any[]>([]); // ✅ Store pending bonds
 
-  // Fetch PFMU balance on mount
+  // ✅ Fetch pending bonds on mount
   useEffect(() => {
-    const fetchBalance = async () => {
-      const balance = await getUserPFMUs();
-      setPfmuBalance(balance);
-      setIsLoading(false);
+    const fetchData = async () => {
+      try {
+        // const balance = await getUserPFMUs(); // ✅ Commented out (not currently needed)
+        const bonds = await getPendingBonds();
+        // setPfmuBalance(balance); // ✅ Commented out (not currently needed)
+        setPendingBonds(bonds);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setIsLoading(false);
+      }
     };
-    fetchBalance();
+    fetchData();
   }, []);
 
-  // Handle Staking
+  // ✅ Commented out staking functionality
+  /*
   const handleStake = async (bondId: string) => {
     setStakeMessage(null);
     try {
-      const response = await stakePFMU(bondId);
+      await stakePFMU(bondId);
       setStakeMessage(`Successfully staked in ${bondId}!`);
     } catch (error) {
       setStakeMessage("Error staking. Try again.");
     }
   };
+  */
 
   return (
     <div className="min-h-screen flex flex-col items-center">
@@ -111,40 +62,38 @@ const BondPage = () => {
         </p>
       </section>
 
-      {/* PFMU Balance */}
+      {/* Pending Bonds Listing */}
       <div className="mt-6 text-center">
         {isLoading ? (
-          <p>Loading PFMU balance...</p>
+          <p>Loading pending bonds...</p>
+        ) : pendingBonds.length === 0 ? (
+          <p>No pending bonds available.</p>
         ) : (
-          <p className="text-lg">Your PFMU Balance: <strong>{pfmuBalance ?? "Error loading balance"}</strong></p>
+          <div className="flex flex-wrap justify-center gap-8 mt-8">
+            {pendingBonds.map((bond) => (
+              <div key={bond.id} className="glass-card p-6 w-96">
+                <h3 className="text-xl font-semibold">{bond.name}</h3> {/* ✅ Adjusted property to match API */}
+                <p className="text-sm opacity-75"><strong>Issuer:</strong> {bond.issuer}</p>
+                <p><strong>Interest Rate:</strong> {bond.interestRate}</p>
+                <p><strong>Created Date:</strong> {new Date(bond.createdDate).toLocaleDateString()}</p>
+                <p><strong>Maturity Date:</strong> {new Date(bond.maturityDate).toLocaleDateString()}</p>
+                <p><strong>Description:</strong> {bond.description}</p>
+                <p><strong>Capacity:</strong> {bond.pfmus_capacity}</p>
+                <p><strong>Investors:</strong> {bond.investors.length}</p>
+
+                {/* <button
+                  className="glass-button mt-4 w-full"
+                  onClick={() => handleStake(bond.id)}
+                >
+                  Stake PFMU
+                </button> */}
+              </div>
+            ))}
+          </div>
         )}
       </div>
 
-      {/* Bonds Listing */}
-      <div className="flex flex-wrap justify-center gap-8 mt-8">
-        {bonds.map((bond) => (
-          <div key={bond.id} className="glass-card p-6 w-96">
-            <h3 className="text-xl font-semibold">{bond.title}</h3>
-            <p className="text-sm opacity-75">{bond.category}</p>
-            <p><strong>Yield:</strong> {bond.yield}</p>
-            <p><strong>Term:</strong> {bond.term}</p>
-            <p><strong>Minimum:</strong> {bond.minInvestment}</p>
-            <p><strong>Impact:</strong> {bond.impact}</p>
-            <div className="flex justify-between mt-4 text-sm opacity-75">
-              <span>Funded: {bond.funded}</span>
-              <span>Goal: {bond.goal}</span>
-            </div>
-            <button
-              className="glass-button mt-4 w-full"
-              onClick={() => handleStake(bond.id)}
-            >
-              Stake PFMU
-            </button>
-          </div>
-        ))}
-      </div>
-
-      {/* Stake Message */}
+      {/* Stake Message (Hidden for now) */}
       {stakeMessage && (
         <div className="mt-4 text-center">
           <p className="text-lg font-semibold">{stakeMessage}</p>
