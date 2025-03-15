@@ -61,6 +61,7 @@ const ActiveBondsList = ({
                 >
                   <TableCell className="font-medium">{bond.name}</TableCell>
                   <TableCell>{bond.issuer}</TableCell>
+                  <TableCell>{bond.issuer}</TableCell> //time till maturity
                   <TableCell>${bond.price}</TableCell>
                   <TableCell>{bond.term}</TableCell>
                   <TableCell className="text-bond-green flex items-center">
