@@ -4,6 +4,7 @@ class Bond {
 
   constructor(name, issuer, interestRate, description) {
     this.pfmus_capacity = Bond.NUM_PFMUS;
+    this.pfmus_staked = 0;
     this.pfmus = [];
     this.name = name;
     this.issuer = issuer;

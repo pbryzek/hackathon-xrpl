@@ -39,7 +39,7 @@ async function getPendingBonds() {
     for (const bond of bonds) {
       let total_pfmus = 0;
       for (const pfmu of bond.pfmus) {
-        total_pfmus += pfmu.quantity;
+        total_pfmus += pfmu.amount;
       }
       if (total_pfmus < bond.pfmus_capacity) {
         pendingBonds.push(bond);
@@ -220,7 +220,10 @@ async function stakePFMU(walletSecret, amount, project, issuanceDate, expiration
   if (!stakeRes) {
     return false;
   }
+
   bond.pfmus.push(pfmu);
+  bond.pfmus_staked += pfmu.amount;
+
   await updateBondsFile(bond);
   return true;
 }

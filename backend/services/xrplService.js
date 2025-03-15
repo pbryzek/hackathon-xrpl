@@ -33,8 +33,12 @@ class XRPLStaking {
   async stakePFMU(walletSecret, pfmu) {
     console.log("stakePFMU");
 
-    const buyOffers = await getBuyOffers();
+    const buyOffers = await this.getBuyOffers();
     console.log(buyOffers);
+
+    if (buyOffers.length == 0) {
+    } else {
+    }
 
     // TODO enable XRPL logic.
     if (true) {
@@ -155,7 +159,7 @@ class XRPLStaking {
     };
 
     try {
-      const xrpBuyResponse = await client.request({
+      const xrpBuyResponse = await this.client.request({
         command: "book_offers",
         taker_pays: { currency: "XRP" },
         taker_gets: pfmuToken,
@@ -164,9 +168,9 @@ class XRPLStaking {
 
       console.log("xrpBuyResponse", xrpBuyResponse);
 
-      const formattedXRPBuyOffers = await formatOffers(xrpBuyResponse.result.offers, true, "XRP");
+      const formattedXRPBuyOffers = await this.formatOffers(xrpBuyResponse.result.offers, true, "XRP");
 
-      const usdBuyResponse = await client.request({
+      const usdBuyResponse = await this.client.request({
         command: "book_offers",
         taker_pays: { currency: "USD", issuer: "rvYAfWj5gh67oV6fW32ZzP3Aw4Eubs59B" },
         taker_gets: pfmuToken,
@@ -175,7 +179,7 @@ class XRPLStaking {
 
       console.log("usdBuyResponse", usdBuyResponse);
 
-      const formattedUSDBuyOffers = await formatOffers(usdBuyResponse.result.offers, true, "USD");
+      const formattedUSDBuyOffers = await this.formatOffers(usdBuyResponse.result.offers, true, "USD");
       console.log(formattedUSDBuyOffers);
 
       const combinedBuyOffers = [...formattedXRPBuyOffers, ...formattedUSDBuyOffers];
@@ -184,7 +188,7 @@ class XRPLStaking {
     } catch (error) {
       console.error("Error fetching offers:", error.message);
     } finally {
-      await client.disconnect();
+      await this.disconnectClient();
     }
   }
 }
