@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const xrpl = require("xrpl");
 const XRPLStaking = require("../services/xrplService");
+const { connectXRPL, setupTrustLine, getExistingOffers, purchaseCruViaMakeOfferABI } = require("./xrplHelper");
 
 // Middleware to validate request
 const validateRequest = (req, res, next) => {
@@ -42,66 +43,80 @@ router.post("/stake-pfmu", async (req, res) => {
 });
 
 router.post("/buy-pfmu", validateRequest, async (req, res) => {
-  const { walletSecret, amount } = req.body;
+  console.log("/buy-pfmu");
+  const { walletSecret, amount} = req.body;
+
+  if (!walletSecret || !amount) {
+    return res.status(400).json({ error: "Missing required fields" });
+  }
+
+  const client = new xrpl.Client(XRPLStaking.XRPL_SERVER);
+  await client.connect();
 
   try {
-    console.log("/buy-pfmu");
-    console.log(XRPLStaking.XRPL_SERVER);
-    const client = new xrpl.Client(XRPLStaking.XRPL_SERVER);
-    await client.connect();
-
+    console.log("XRPL_SERVER: ", XRPLStaking.XRPL_SERVER);
     // Load wallet from secret
     const wallet = xrpl.Wallet.fromSeed(walletSecret);
+    console.log("Wallet loaded:", wallet.classicAddress);
 
-    console.log("TrustSet /buy-pfmu");
+    await setupTrustLine(client, wallet, PFMU_CURRENCY, ISSUER_ADDRESS);
+    console.log("TrustSet transaction submitted");
 
-    // Prepare a Trust Set transaction if required
-    const trustSetTx = {
-      TransactionType: "TrustSet",
-      Account: wallet.classicAddress,
-      LimitAmount: {
-        currency: CURRENCY_CODE,
-        issuer: ISSUER_ADDRESS,
-        value: "1000000", // Set a high enough trust limit
-      },
-    };
+    //Create Offer
+    const existingOffers = await getExistingOffers(client, PFMU_CURRENCY, ISSUER_ADDRESS);
+    let offer;
 
-    const preparedTrustSet = await client.autofill(trustSetTx);
-    const signedTrustSet = wallet.sign(preparedTrustSet);
-    await client.submitAndWait(signedTrustSet.tx_blob);
+    if (existingOffers.length > 0) {
+      console.log("Using existing offer:", existingOffers[0]);
+      offer = {
+        TakerPays: existingOffers[0].TakerPays,
+        TakerGets: existingOffers[0].TakerGets
+      };
+    } else {
+      console.log("No existing offers found, creating a new offer...");
+      offer = {
+        TakerPays: {
+          currency: "XRP",
+          issuer: ISSUER_ADDRESS,
+          value: amount.toString()
+        },
+        TakerGets: {
+          currency: CURRENCY_CODE,
+          issuer: ISSUER_ADDRESS,
+          value: (amount / 2).toString() // Example conversion rate (update dynamically)
+        }
+      };
+    }
 
     // Prepare Payment Transaction
-    const paymentTx = {
-      TransactionType: "Payment",
-      Account: wallet.classicAddress,
-      Destination: ISSUER_ADDRESS,
-      Amount: {
-        currency: CURRENCY_CODE,
-        value: amount,
-        issuer: ISSUER_ADDRESS,
-      },
-    };
+    const purchaseResult = await purchaseCruViaMakeOfferABI(client, wallet, generatedOffer, amount);
+    console.log("CRU purchase successful:", purchaseResult);
 
-    const preparedPayment = await client.autofill(paymentTx);
-    const signedPayment = wallet.sign(preparedPayment);
-    const result = await client.submitAndWait(signedPayment.tx_blob);
-
-    await client.disconnect();
-
-    if (result.result.meta.TransactionResult === "tesSUCCESS") {
+    if (!purchaseResult.success) {
+      await client.disconnect();
+      return res.status(400).json({ error: "CRU purchase failed", details: purchaseResult });
+    }else{
+      console.log("CRU purchase successful:", purchaseResult);
       return res.json({
         message: "PFMU purchase successful!",
-        transactionHash: result.result.hash,
+        transactionHash: purchaseResult.transactionHash,
       });
-    } else {
-      return res.status(400).json({
-        error: "Transaction failed",
-        details: result.result.meta,
-      });
-    }
+    }    
   } catch (error) {
+    if (client.isConnected()) {
+      await client.disconnect();
+      console.log("Disconnected from XRPL client");
+    }
+
+    console.error("Error in /buy-pfmu:", error);
     return res.status(500).json({ error: error.message });
+  } finally {
+    if (client.isConnected()) {
+      await client.disconnect();
+      console.log("Disconnected from XRPL client");
+    }
   }
+
 });
 
 module.exports = router;
