@@ -71,7 +71,6 @@ function getInvestedTotal(bond) {
   for (investor of bond.investors) {
     invested += investor.amount;
   }
-  console.log("invested " + invested);
   return invested;
 }
 
@@ -81,12 +80,10 @@ async function getActiveBonds() {
   let activeBonds = [];
   for (const bond of bonds) {
     let pfmusStaked = getPfmuStaked(bond);
-    console.log("bond.pfmus_capacity " + bond.pfmus_capacity);
     if (pfmusStaked >= bond.pfmus_capacity) {
       activeBonds.push(bond);
     }
   }
-  console.log("activeBonds activeBonds " + activeBonds);
   return activeBonds;
 }
 
@@ -95,7 +92,7 @@ async function getOpenBonds() {
   try {
     let activeBonds = await getActiveBonds();
     let openBonds = [];
-    for (const bond of bonds) {
+    for (const bond of activeBonds) {
       let pfmusStaked = getPfmuStaked(bond);
       const xrpTotal = convertPfmuToXrp(pfmusStaked);
       let investedTotal = getInvestedTotal(bond);
