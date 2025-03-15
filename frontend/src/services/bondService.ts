@@ -41,13 +41,13 @@ export const getUserPFMUs = async () => {
   };
   
 
-  export const getActiveBonds = async (bondId: string) => {
+  export const getActiveBonds = async () => {
     try {
       const url=BOND_DOMAIN+"/bonds/active";
       const response = await fetch(url, {
         method: "GET",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ bondId })
+        body: JSON.stringify({  })
       });
   
       if (!response.ok) {
