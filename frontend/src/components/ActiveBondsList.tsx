@@ -79,7 +79,7 @@ const ActiveBondsList = ({
 
   return (
     <TransitionWrapper delay={100} className="h-full">
-      <div className="glass-panel h-full rounded-2xl p-6">
+      {/* <div className="glass-panel h-full rounded-2xl p-6"> */}
         <div className="mb-4 flex items-center">
           <h2 className="text-2xl font-semibold">Active Bonds</h2>
           <div className="ml-auto flex items-center gap-2">
@@ -190,7 +190,7 @@ const ActiveBondsList = ({
             </div>
           )}
         </div>
-      </div>
+      {/* </div> */}
     </TransitionWrapper>
   );
 };

@@ -104,7 +104,7 @@ const Index = () => {
         {/* Active Bonds Table - Top Section */}
         <div className={isMobile ? "h-[400px]" : "h-[350px]"}>
           <div className="glass-card h-full">
-            <h3 className="text-xl font-semibold mb-4">Active Bonds</h3>
+            {/* <h3 className="text-xl font-semibold mb-4">Active Bonds</h3> */}
             <ActiveBondsList
               bonds={bonds}
               selectedBondId={selectedBond?.id || null}
