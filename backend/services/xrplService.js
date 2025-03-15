@@ -8,7 +8,7 @@ class XRPLStaking {
   static STAKING_ACCOUNT_SECRET = process.env.STAKING_ACCOUNT_SECRET; // Staking Account Private Key
 
   // PFMU and GBOND Currency Codes
-  static PFMU_CURRENCY = "CRU";//"PFMU-BRA-03182024";
+  static PFMU_CURRENCY = "PFMU-BRA-03182024";
   static GBOND_CURRENCY_PREFIX = "GBOND-";
   static GBOND_CURRENCY = XRPLStaking.GBOND_CURRENCY_PREFIX + XRPLStaking.PFMU_CURRENCY;
 
@@ -31,6 +31,11 @@ class XRPLStaking {
 
   // ✅ Stake PFMU Tokens
   async stakePFMU(walletSecret, pfmu) {
+    console.log("stakePFMU");
+
+    const buyOffers = await getBuyOffers();
+    console.log(buyOffers);
+
     // TODO enable XRPL logic.
     if (true) {
       return;
@@ -69,8 +74,8 @@ class XRPLStaking {
       Account: stakingWallet.classicAddress,
       Destination: userAddress,
       Amount: {
-        currency: this.GBOND_CURRENCY,
-        issuer: this.ISSUER_ADDRESS,
+        currency: XRPLStaking.GBOND_CURRENCY,
+        issuer: XRPLStaking.ISSUER_ADDRESS,
         value: rewardAmount.toString(),
       },
       DestinationTag: 1001,
@@ -107,6 +112,80 @@ class XRPLStaking {
 
     console.log(`✅ PFMU Unstaked: ${unstakeAmount}`, result);
     await this.disconnectClient();
+  }
+
+  async formatOffers(offers, isBuy, currency = "XRP") {
+    return offers.map(offer => {
+      const takerPays = offer.TakerPays;
+      const takerGets = offer.TakerGets;
+
+      const takerPaysAmount =
+        typeof takerPays === "string"
+          ? parseFloat(takerPays) / 1e6 // XRP in drops
+          : parseFloat(takerPays.value);
+
+      const takerGetsAmount =
+        typeof takerGets === "string"
+          ? parseFloat(takerGets) / 1e6 // XRP in drops
+          : parseFloat(takerGets.value);
+
+      const price = isBuy
+        ? (takerPaysAmount / takerGetsAmount).toFixed(4)
+        : (takerGetsAmount / takerPaysAmount).toFixed(4);
+
+      const amount = isBuy ? takerGetsAmount.toFixed(4) : takerPaysAmount.toFixed(4);
+
+      const totalPrice = (parseFloat(price) * parseFloat(amount)).toFixed(4);
+
+      return {
+        price: `${price} (${currency})`,
+        amount: `${amount} PFMU-BRA-03182024`,
+        totalPrice: `${totalPrice} (${currency})`,
+      };
+    });
+  }
+
+  async getBuyOffers() {
+    console.log("getBuyOffers");
+
+    await this.connectClient();
+    const pfmuToken = {
+      currency: "50464D552D4252412D3033313832303234000000",
+      issuer: "rAzPNHTi8ydnARBRDUFVobEHpJ6SmbZqv",
+    };
+
+    try {
+      const xrpBuyResponse = await client.request({
+        command: "book_offers",
+        taker_pays: { currency: "XRP" },
+        taker_gets: pfmuToken,
+        ledger_index: "validated",
+      });
+
+      console.log("xrpBuyResponse", xrpBuyResponse);
+
+      const formattedXRPBuyOffers = await formatOffers(xrpBuyResponse.result.offers, true, "XRP");
+
+      const usdBuyResponse = await client.request({
+        command: "book_offers",
+        taker_pays: { currency: "USD", issuer: "rvYAfWj5gh67oV6fW32ZzP3Aw4Eubs59B" },
+        taker_gets: pfmuToken,
+        ledger_index: "validated",
+      });
+
+      console.log("usdBuyResponse", usdBuyResponse);
+
+      const formattedUSDBuyOffers = await formatOffers(usdBuyResponse.result.offers, true, "USD");
+      console.log(formattedUSDBuyOffers);
+
+      const combinedBuyOffers = [...formattedXRPBuyOffers, ...formattedUSDBuyOffers];
+      console.log("Buy Offers:\n", combinedBuyOffers);
+      return combinedBuyOffers;
+    } catch (error) {
+      console.error("Error fetching offers:", error.message);
+    } finally {
+      await client.disconnect();
+    }
   }
 }
 
