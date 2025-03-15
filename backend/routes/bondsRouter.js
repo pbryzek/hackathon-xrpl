@@ -80,9 +80,9 @@ router.post("/", async (req, res) => {
 // Stake in a Green Bond
 router.post("/:id/stake", async (req, res) => {
   try {
-    const { amount, project, issuanceDate, expirationDate, userSecret } = req.body;
-    if (!amount || !project || !issuanceDate || !expirationDate) {
-      return res.status(400).json(failJSON("Missing required fields: amount, project, issuanceDate, expirationDate"));
+    const { amount, project, issuanceDate, userSecret } = req.body;
+    if (!amount || !project || !issuanceDate || !userSecret) {
+      return res.status(400).json(failJSON("Missing required fields: amount, project, issuanceDate, userSecret"));
     }
     const bond = await getBondById(req.params.id);
     if (!bond) return res.status(404).json(failJSON("Bond not found"));
@@ -100,6 +100,9 @@ router.post("/:id/stake", async (req, res) => {
 router.post("/:id/invest", async (req, res) => {
   try {
     const { name, amount, bondId, walletAddress } = req.body;
+    if (!name || !amount || !bondId || !walletAddress) {
+      return res.status(400).json(failJSON("Missing required fields: name, amount, bondId, walletAddress"));
+    }
     const bond = await getBondById(req.params.id);
     if (!bond) return res.status(404).json(failJSON("Bond not found"));
     bond.addInvestor(name, amount, bondId, walletAddress);

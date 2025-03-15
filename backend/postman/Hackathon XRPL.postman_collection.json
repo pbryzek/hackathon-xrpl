@@ -127,8 +127,17 @@
 			"request": {
 				"method": "POST",
 				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"amount\": 0.01,\n    \"project\": \"Brazil Rancho Da Montanha 03182024\",\n    \"issuanceDate\": \"2023-12-31T01:05:00Z\",\n    \"userSecret\": \"SECRETSECRETSECRETSECRET\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
 				"url": {
-					"raw": "http://127.0.0.1:5001/bonds/1/stake",
+					"raw": "http://127.0.0.1:5001/bonds/1/stake?project=Brazil Rancho Da Montanha 03182024&issuanceDate=2025-01-31T00:00:00Z&userSecret=SECRETSECRETSECRETSECRET",
 					"protocol": "http",
 					"host": [
 						"127",
@@ -141,6 +150,25 @@
 						"bonds",
 						"1",
 						"stake"
+					],
+					"query": [
+						{
+							"key": "amount",
+							"value": ".001",
+							"disabled": true
+						},
+						{
+							"key": "project",
+							"value": "Brazil Rancho Da Montanha 03182024"
+						},
+						{
+							"key": "issuanceDate",
+							"value": "2025-01-31T00:00:00Z"
+						},
+						{
+							"key": "userSecret",
+							"value": "SECRETSECRETSECRETSECRET"
+						}
 					]
 				}
 			},
@@ -206,6 +234,131 @@
 					"path": [
 						"bonds",
 						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "xrpl BuyPFMU",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"amount\": 0.01,\n    \"project\": \"Brazil Rancho Da Montanha 03182024\",\n    \"issuanceDate\": \"2023-12-31T01:05:00Z\",\n    \"walletSecret\": \"SECRETSECRETSECRETSECRET\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:5001/xrpl/buy-pfmu?userSecret=userSecretuserSecret&amount=100",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5001",
+					"path": [
+						"xrpl",
+						"buy-pfmu"
+					],
+					"query": [
+						{
+							"key": "amount",
+							"value": ".001",
+							"disabled": true
+						},
+						{
+							"key": "userSecret",
+							"value": "userSecretuserSecret"
+						},
+						{
+							"key": "amount",
+							"value": "100"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "xrpl GetUserPfmu",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{ \n    \"name\": \"Green Bond #1\",\n    \"amount\": 1000000.00, \n    \"issuer\": \"CarbonSustain.io\",\n    \"interestRate\": 2.4,\n    \"description\": \"This is a fully sustainable and green bond that is packed with PFMUs.\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:5001/xrpl/get-user-pfmu/rrrrrrrrrrrrrrrrrrrrrhoLvTp",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5001",
+					"path": [
+						"xrpl",
+						"get-user-pfmu",
+						"rrrrrrrrrrrrrrrrrrrrrhoLvTp"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "xrpl Stake PFMU",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{ \n    \"name\": \"Green Bond #1\",\n    \"amount\": 1000000.00, \n    \"issuer\": \"CarbonSustain.io\",\n    \"interestRate\": 2.4,\n    \"description\": \"This is a fully sustainable and green bond that is packed with PFMUs.\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:5001/xrpl/stake-pfmu?userSecret=userSecretuserSecret&amount=100",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5001",
+					"path": [
+						"xrpl",
+						"stake-pfmu"
+					],
+					"query": [
+						{
+							"key": "userSecret",
+							"value": "userSecretuserSecret"
+						},
+						{
+							"key": "amount",
+							"value": "100"
+						}
 					]
 				}
 			},
