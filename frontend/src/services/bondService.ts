@@ -47,6 +47,8 @@ export const stakePFMU = async (bondId: string) => {
 export const getActiveBonds = async () => {
   try {
     const url = `${BOND_DOMAIN}/bonds/active`;
+    console.log("Fetching active bonds from:", url);
+    
     const response = await fetch(url, {
       method: "GET",
       headers: { "Content-Type": "application/json" }
@@ -56,7 +58,10 @@ export const getActiveBonds = async () => {
       throw new Error(`HTTP error! Status: ${response.status}`);
     }
 
-    return await response.json();
+    const data = await response.json();
+    console.log("Active bonds response:", data);
+    
+    return data;
   } catch (error) {
     console.error("Error fetching active bonds:", error);
     throw error;

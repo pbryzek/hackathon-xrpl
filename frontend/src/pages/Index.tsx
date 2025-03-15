@@ -42,8 +42,14 @@ const Index = () => {
       }
     } catch (error) {
       console.error("Error loading bonds:", error);
-      // setError("Failed to load bonds. Please try again later.");
-      // We're not using mock data as fallback as requested
+      setError("Failed to load bonds. Please try again later.");
+      
+      // Use mock data as fallback if available
+      if (mockBonds && mockBonds.length > 0) {
+        console.log("Using mock data as fallback");
+        setBonds(mockBonds);
+        setLastUpdated(new Date());
+      }
     } finally {
       setIsLoading(false);
       setIsRefreshing(false);

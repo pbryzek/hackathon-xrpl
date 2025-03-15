@@ -10,14 +10,25 @@ interface ApiResponse<T> {
 
 export async function fetchActiveBonds(): Promise<Bond[]> {
   try {
-    const response = await fetch(`${API_BASE_URL}/activeBonds`);
-    const data: ApiResponse<{ active_bonds: Bond[] }> = await response.json();
+    console.log("Fetching active bonds from API...");
+    const response = await fetch(`${API_BASE_URL}/bonds/active`);
     
-    if (!data.success) {
-      throw new Error(data.message || 'Failed to fetch active bonds');
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
     }
     
-    return data.data?.active_bonds || [];
+    const data = await response.json();
+    console.log("Active bonds API response:", data);
+    
+    // Handle different response structures
+    if (data.bonds) {
+      return data.bonds;
+    } else if (data.data && data.data.bonds) {
+      return data.data.bonds;
+    } else {
+      console.warn("Unexpected response structure:", data);
+      return [];
+    }
   } catch (error) {
     console.error('Error fetching active bonds:', error);
     throw error; // Re-throw to handle in the component

@@ -38,8 +38,22 @@ const ActiveBondsList = ({
     setLoading(true);
     setError(null);
     try {
-      const activeBonds = await getActiveBonds();
+      // Use the getActiveBonds function without parameters
+      const response = await getActiveBonds();
+      console.log("Response from getActiveBonds:", response);
+      
+      // Extract bonds from the response based on its structure
+      let activeBonds = [];
+      if (response.bonds) {
+        activeBonds = response.bonds;
+      } else if (response.data && response.data.bonds) {
+        activeBonds = response.data.bonds;
+      } else if (Array.isArray(response)) {
+        activeBonds = response;
+      }
+      
       setBonds(activeBonds);
+      
       // If parent component provided an onRefresh callback, call it
       if (onRefresh) {
         onRefresh();
