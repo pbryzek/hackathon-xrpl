@@ -2,7 +2,14 @@
   {
     "id": 1,
     "pfmus_capacity": 0.1,
-    "pfmus": [],
+    "pfmus": [
+      {
+        "amount": 0.01,
+        "project": "Brazil Rancho Da Montanha 03182024",
+        "issuanceDate": "2023-12-31T01:05:00Z",
+        "expirationDate": "2024-12-31T01:05:00Z"
+      }
+    ],
     "name": "Green Bond #1",
     "issuer": "CarbonSustain.io",
     "interestRate": 1000000,

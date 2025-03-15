@@ -129,7 +129,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"amount\": 0.01,\n    \"project\": \"Brazil Rancho Da Montanha 03182024\",\n    \"issuanceDate\": \"2023-12-31T01:05:00Z\",\n    \"userSecret\": \"SECRETSECRETSECRETSECRET\"\n}",
+					"raw": "{\n    \"amount\": 0.01,\n    \"project\": \"Brazil Rancho Da Montanha 03182024\",\n    \"issuanceDate\": \"2023-12-31T01:05:00Z\",\n    \"walletSecret\": \"SECRETSECRETSECRETSECRET\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -337,7 +337,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://127.0.0.1:5001/xrpl/stake-pfmu?userSecret=userSecretuserSecret&amount=100",
+					"raw": "http://127.0.0.1:5001/xrpl/stake-pfmu?walletSecret=userSecretuserSecret&amount=100",
 					"protocol": "http",
 					"host": [
 						"127",
@@ -352,7 +352,7 @@
 					],
 					"query": [
 						{
-							"key": "userSecret",
+							"key": "walletSecret",
 							"value": "userSecretuserSecret"
 						},
 						{

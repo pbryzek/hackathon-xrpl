@@ -1,5 +1,3 @@
-const XRPLStaking = require("../services/xrplService");
-
 class Bond {
   static MATURITY_LENGTH = 6;
   static NUM_PFMUS = 0.1;
@@ -28,19 +26,6 @@ class Bond {
       totalAmount += pfmu.amount;
     }
     return totalAmount;
-  }
-
-  stakePFMU(walletSecret, amount, project, issuanceDate, expirationDate) {
-    if (this.pfmus_staked.length + amount >= this.pfmus_capacity) {
-      console.error("Error unable to stake: as this would exceed the PFMU capacity");
-      return;
-    }
-
-    const staking = new XRPLStaking();
-    staking.stakePFMU(walletSecret, amount);
-
-    const newPFMU = new PFMU(amount, project, issuanceDate, expirationDate);
-    this.pfmus_staked.push(newPFMU);
   }
 
   getDetails() {

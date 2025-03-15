@@ -26,7 +26,7 @@ router.get("/get-user-pfmu/:address", async (req, res) => {
 });
 
 // ✅ POST Stake PFMU Tokens
-router.post("/stake-pfmu", async (req, res) => {
+router.post("/stake-pfmu", validateRequest, async (req, res) => {
   try {
     const { walletSecret, amount } = req.body;
     if (!walletSecret || !amount) {
