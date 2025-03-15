@@ -27,13 +27,13 @@ router.get("/get-user-pfmu/:address", async (req, res) => {
 // ✅ POST Stake PFMU Tokens
 router.post("/stake-pfmu", async (req, res) => {
   try {
-    const { userSecret, amount } = req.body;
-    if (!userSecret || !amount) {
-      return res.status(400).json({ success: false, error: "Missing userSecret or amount" });
+    const { walletSecret, amount } = req.body;
+    if (!walletSecret || !amount) {
+      return res.status(400).json({ success: false, error: "Missing walletSecret or amount" });
     }
 
     const xrplService = new XRPLService();
-    const result = await xrplService.stakePFMU(userSecret, amount);
+    const result = await xrplService.stakePFMU(walletSecret, amount);
     res.status(200).json({ success: true, transaction: result });
   } catch (error) {
     console.error("❌ Error staking PFMU:", error);

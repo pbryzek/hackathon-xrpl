@@ -80,14 +80,14 @@ router.post("/", async (req, res) => {
 // Stake in a Green Bond
 router.post("/:id/stake", async (req, res) => {
   try {
-    const { amount, project, issuanceDate, userSecret } = req.body;
-    if (!amount || !project || !issuanceDate || !userSecret) {
-      return res.status(400).json(failJSON("Missing required fields: amount, project, issuanceDate, userSecret"));
+    const { amount, project, issuanceDate, walletSecret } = req.body;
+    if (!amount || !project || !issuanceDate || !walletSecret) {
+      return res.status(400).json(failJSON("Missing required fields: amount, project, issuanceDate, walletSecret"));
     }
     const bond = await getBondById(req.params.id);
     if (!bond) return res.status(404).json(failJSON("Bond not found"));
 
-    bond.stakePFMU(userSecret, amount, project, issuanceDate, expirationDate);
+    bond.stakePFMU(walletSecret, amount, project, issuanceDate, expirationDate);
     await updateBondsFile(bond);
 
     res.status(200).json(successJSON("PFMU stake successful", bond));
