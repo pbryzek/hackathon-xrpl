@@ -146,22 +146,3 @@ const writeBondsToFile = bonds => {
     console.error("Error writing bonds file:", error);
   }
 };
-
-// Issue a new Green Bond (write to JSON file)
-app.post("/pendingBonds", (req, res) => {
-  try {
-    const bonds = readBondsFromFile();
-
-    const newBond = {
-      id: Date.now().toString(),
-      ...req.body,
-    };
-
-    bonds.push(newBond);
-    writeBondsToFile(bonds);
-
-    res.status(201).json({ message: "Green Bond issued successfully", bond: newBond });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
