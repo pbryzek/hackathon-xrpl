@@ -2,20 +2,20 @@ const xrpl = require("xrpl");
 require("dotenv").config(); // Load environment variables
 
 class XRPLStaking {
-  constructor() {
-    this.XRPL_SERVER = "wss://s.altnet.rippletest.net:51233"; // XRPL Testnet
-    this.ISSUER_ADDRESS = "rIssuerAddress"; // Change to actual issuer
-    this.STAKING_ACCOUNT_SECRET = process.env.STAKING_ACCOUNT_SECRET; // Staking Account Private Key
+  static XRPL_SERVER = "wss://s.altnet.rippletest.net:51233"; // XRPL Testnet
+  static ISSUER_ADDRESS = "rIssuerAddress"; // Change to actual issuer
+  static STAKING_ACCOUNT_SECRET = process.env.STAKING_ACCOUNT_SECRET; // Staking Account Private Key
 
-    // PFMU and GBOND Currency Codes
-    this.PFMU_CURRENCY = "PFMU-BRA-03182024";
-    this.GBOND_CURRENCY_PREFIX = "GBOND-";
-    this.GBOND_CURRENCY = GBOND_CURRENCY_PREFIX + PFMU_CURRENCY;
-  }
+  // PFMU and GBOND Currency Codes
+  static PFMU_CURRENCY = "PFMU-BRA-03182024";
+  static GBOND_CURRENCY_PREFIX = "GBOND-";
+  static GBOND_CURRENCY = XRPLStaking.GBOND_CURRENCY_PREFIX + XRPLStaking.PFMU_CURRENCY;
+
+  constructor() {}
 
   // ✅ Connect to XRPL
   async connectClient() {
-    this.client = new xrpl.Client(this.XRPL_SERVER);
+    this.client = new xrpl.Client(XRPLStaking.XRPL_SERVER);
     await this.client.connect();
     console.log("✅ Connected to XRPL");
   }
@@ -29,10 +29,10 @@ class XRPLStaking {
   }
 
   // ✅ Stake PFMU Tokens
-  async stakePFMU(userSecret, amount) {
+  async stakePFMU(walletSecret, amount) {
     await this.connectClient();
-    const userWallet = xrpl.Wallet.fromSeed(userSecret);
-    const stakingWallet = xrpl.Wallet.fromSeed(this.STAKING_ACCOUNT_SECRET);
+    const userWallet = xrpl.Wallet.fromSeed(walletSecret);
+    const stakingWallet = xrpl.Wallet.fromSeed(XRPLStaking.STAKING_ACCOUNT_SECRET);
 
     const tx = {
       TransactionType: "Payment",

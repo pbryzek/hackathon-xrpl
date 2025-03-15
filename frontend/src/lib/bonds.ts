@@ -1,4 +1,3 @@
-
 export interface Bond {
   id: string;
   name: string;
@@ -14,6 +13,7 @@ export interface Bond {
   risk: "Low" | "Medium" | "High";
   term: string;
   description: string;
+  timeToMaturity?: string;
 }
 
 export const mockBonds: Bond[] = [
@@ -122,4 +122,41 @@ export interface TradeDetails {
   quantity: number;
   action: TradeAction;
   totalAmount: number;
+}
+
+/**
+ * Calculates the time to maturity for a bond based on its maturity date
+ * @param maturityDate The maturity date of the bond in ISO format (YYYY-MM-DD)
+ * @returns A formatted string representing the time to maturity
+ */
+export function calculateTimeToMaturity(maturityDate: string): string {
+  const now = new Date();
+  const maturity = new Date(maturityDate);
+  
+  // If the date is invalid, return N/A
+  if (isNaN(maturity.getTime())) {
+    return "N/A";
+  }
+  
+  // If the bond has already matured
+  if (maturity < now) {
+    return "Matured";
+  }
+  
+  const diffTime = Math.abs(maturity.getTime() - now.getTime());
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  
+  // Convert to years and months
+  const years = Math.floor(diffDays / 365);
+  const months = Math.floor((diffDays % 365) / 30);
+  
+  if (years > 0 && months > 0) {
+    return `${years}y ${months}m`;
+  } else if (years > 0) {
+    return `${years} years`;
+  } else if (months > 0) {
+    return `${months} months`;
+  } else {
+    return `${diffDays} days`;
+  }
 }

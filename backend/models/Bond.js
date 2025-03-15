@@ -30,14 +30,14 @@ class Bond {
     return totalAmount;
   }
 
-  stakePFMU(userSecret, amount, project, issuanceDate, expirationDate) {
+  stakePFMU(walletSecret, amount, project, issuanceDate, expirationDate) {
     if (this.pfmus_staked.length + amount >= this.pfmus_capacity) {
       console.error("Error unable to stake: as this would exceed the PFMU capacity");
       return;
     }
 
     const staking = new XRPLStaking();
-    staking.stakePFMU(userSecret, amount);
+    staking.stakePFMU(walletSecret, amount);
 
     const newPFMU = new PFMU(amount, project, issuanceDate, expirationDate);
     this.pfmus_staked.push(newPFMU);
