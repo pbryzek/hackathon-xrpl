@@ -53,9 +53,30 @@ async function getPendingBonds() {
 }
 
 // Function to get pending bonds
+async function getActiveBonds() {
+  const bonds = await getAllBonds();
+  let activeBonds = [];
+  for (const bond of bonds) {
+    let pfmusStaked = 0;
+    for (pfmu of bond.pfmus) {
+      pfmusStaked += pfmu.amount;
+    }
+    console.log("pfmusStaked " + pfmusStaked);
+    console.log("bond.pfmus_capacity " + bond.pfmus_capacity);
+
+    if (pfmusStaked >= bond.pfmus_capacity) {
+      activeBonds.push(bond);
+    }
+  }
+  console.log("activeBonds activeBonds " + activeBonds);
+  return activeBonds;
+}
+
+// Function to get pending bonds
 async function getClosedBonds() {
   try {
     const bonds = await getAllBonds();
+    console.log("bonds ", bonds);
 
     // Filter closed Bonds
     const closedBonds = bonds.filter(bond => {
@@ -173,4 +194,5 @@ module.exports = {
   getClosedBonds,
   addBond,
   stakePFMU,
+  getActiveBonds,
 };

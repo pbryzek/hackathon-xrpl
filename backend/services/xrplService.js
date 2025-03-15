@@ -30,6 +30,10 @@ class XRPLStaking {
 
   // ✅ Stake PFMU Tokens
   async stakePFMU(walletSecret, pfmu) {
+    // TODO enable XRPL logic.
+    if (true) {
+      return;
+    }
     await this.connectClient();
     const userWallet = xrpl.Wallet.fromSeed(walletSecret);
     const stakingWallet = xrpl.Wallet.fromSeed(XRPLStaking.STAKING_ACCOUNT_SECRET);

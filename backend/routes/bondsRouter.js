@@ -8,6 +8,7 @@ const {
   getBondById,
   stakePFMU,
   updateBondsFile,
+  getActiveBonds,
 } = require("../services/bondService");
 
 const { successJSON, failJSON } = require("../utils/responseUtils");
@@ -16,13 +17,10 @@ const Bond = require("../models/Bond");
 // Get all Active Green Bonds
 router.get("/active", async (req, res) => {
   try {
-    const bonds = await getAllBonds();
+    console.log("active");
 
-    // Filter active bonds
-    const activeBonds = bonds.filter(bond => {
-      const totalInvested = bond.investors.reduce((sum, investor) => sum + investor.investmentAmount, 0);
-      return totalInvested < bond.amount;
-    });
+    let activeBonds = await getActiveBonds();
+    console.log(activeBonds);
     res.status(200).json(successJSON("activeBonds: success", activeBonds));
   } catch (err) {
     res.status(500).json(failJSON(err));
