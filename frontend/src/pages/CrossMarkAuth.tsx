@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import sdk from "@crossmarkio/sdk";
 import * as xrpl from "xrpl";
 import "../index1.css"
-import { signIn } from "../../../xrpl-dapp/src/services/authService"; // Import service
+import { signIn } from "../services/authService"; // Import service
 
 const CrossmarkAuth: React.FC = () => {
   const [account, setAccount] = useState<string | null>(null);

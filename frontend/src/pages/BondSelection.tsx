@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { getUserPFMUs, stakePFMU } from "../../../xrpl-dapp/src/services/bondService";
+import { getUserPFMUs, stakePFMU } from "../services/bondService";
 import "../index1.css"
 
 const BondSelection: React.FC = () => {
