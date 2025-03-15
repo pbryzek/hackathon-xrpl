@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Bond } from "@/lib/bonds";
 import { Chip } from "@/components/ui/chip";
@@ -43,6 +42,7 @@ const ActiveBondsList = ({
                 <TableHead>Issuer</TableHead>
                 <TableHead>Price</TableHead>
                 <TableHead>Term</TableHead>
+                <TableHead>Maturity</TableHead>
                 <TableHead>Yield</TableHead>
                 <TableHead>Risk</TableHead>
               </TableRow>
@@ -63,6 +63,7 @@ const ActiveBondsList = ({
                   <TableCell>{bond.issuer}</TableCell>
                   <TableCell>${bond.price}</TableCell>
                   <TableCell>{bond.term}</TableCell>
+                  <TableCell>{bond.timeToMaturity || "N/A"}</TableCell>
                   <TableCell className="text-bond-green flex items-center">
                     <TrendingUp className="w-3 h-3 mr-0.5" />
                     {bond.yield}%

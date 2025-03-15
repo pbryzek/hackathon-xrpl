@@ -18,6 +18,7 @@
     "xumm-sdk": "^1.11.2"
   },
   "devDependencies": {
+    "fs": "^0.0.1-security",
     "nodemon": "^3.1.9"
   }
 }
