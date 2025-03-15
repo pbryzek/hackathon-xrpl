@@ -76,23 +76,18 @@ const Index = () => {
 
   return (
     <div className="min-h-screen w-full bg-gradient-to-br from-bond-gray-light to-white p-4 md:p-8">
-      <header className="max-w-7xl mx-auto mb-8">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-          <div>
-            <h1 className="text-3xl md:text-4xl font-bold tracking-tight">Bond Trading</h1>
-            <p className="text-muted-foreground mt-1">Explore and trade premium bonds with competitive yields</p>
-          </div>
-          <div className="flex space-x-3">
-            <div className="glass-card px-4 py-2 rounded-lg" style={{ padding: "12px 16px" }}>
-              <p className="text-xs text-muted-foreground">Market Status</p>
+      <header className="max-w-7xl mx-auto mb-4">
+        <div className="flex items-center justify-between">
+          <h1 className="text-xl font-bold">Bond Trading</h1>
+          <div className="flex items-center space-x-3">
+            <div className="glass-card-compact">
               <div className="flex items-center">
                 <div className="w-2 h-2 rounded-full bg-bond-green animate-pulse-subtle mr-1.5"></div>
-                <p className="font-medium">Open</p>
+                <span className="text-xs font-medium">Market Open</span>
               </div>
             </div>
-            <div className="glass-card px-4 py-2 rounded-lg" style={{ padding: "12px 16px" }}>
-              <p className="text-xs text-muted-foreground">Last Updated</p>
-              <p className="font-medium">{lastUpdated.toLocaleTimeString()}</p>
+            <div className="glass-card-compact">
+              <span className="text-xs font-medium">{lastUpdated.toLocaleTimeString()}</span>
             </div>
           </div>
         </div>

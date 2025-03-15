@@ -109,6 +109,25 @@
   transform: translateY(-5px);
 }
 
+/* Compact glass card for header elements */
+.glass-card-compact {
+  background: rgba(99, 172, 123, 0.15);
+  backdrop-filter: blur(15px);
+  box-shadow: 0px 2px 10px rgba(0, 255, 128, 0.15);
+  padding: 5px 8px;
+  border-radius: 8px;
+  transition: all 0.2s ease-in-out;
+  border: 1px solid rgba(99, 172, 123, 0.3);
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+}
+
+.glass-card-compact:hover {
+  box-shadow: 0px 3px 15px rgba(0, 255, 128, 0.25);
+  transform: translateY(-1px);
+}
+
 /* Glass Button - Inspired by BondSelection.tsx */
 .glass-button {
   background: linear-gradient(135deg, rgba(0, 200, 100, 0.8), rgba(0, 110, 70, 0.8));
