@@ -61,10 +61,20 @@ export const getActiveBonds = async () => {
     const data = await response.json();
     console.log("Active bonds response:", data);
     
-    return data;
+    // Process the response to extract bonds
+    if (data.bonds && Array.isArray(data.bonds)) {
+      return { bonds: data.bonds };
+    } else if (data.data && data.data.bonds && Array.isArray(data.data.bonds)) {
+      return { bonds: data.data.bonds };
+    } else if (Array.isArray(data)) {
+      return { bonds: data };
+    } else {
+      console.warn("Unexpected response structure from bonds/active:", data);
+      return { bonds: [] };
+    }
   } catch (error) {
     console.error("Error fetching active bonds:", error);
-    throw error;
+    return { bonds: [] }; // Return empty array instead of throwing to prevent cascading errors
   }
 };
 

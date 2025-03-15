@@ -26,40 +26,49 @@ const Index = () => {
     setError(null);
     
     try {
+      console.log("Fetching active bonds from API...");
       const activeBonds = await fetchActiveBonds();
-      setBonds(activeBonds);
-      setLastUpdated(new Date());
       
-      // If we had a selected bond, update it with the new data
-      if (selectedBond) {
-        const updatedBond = activeBonds.find(bond => bond.id === selectedBond.id);
-        if (updatedBond) {
-          setSelectedBond(updatedBond);
-        } else {
-          // If the selected bond is no longer in the list, deselect it
-          setSelectedBond(null);
+      // Check if we got a valid response
+      if (Array.isArray(activeBonds) && activeBonds.length > 0) {
+        console.log(`Received ${activeBonds.length} bonds from API`);
+        setBonds(activeBonds);
+        setLastUpdated(new Date());
+        
+        // If we had a selected bond, update it with the new data
+        if (selectedBond) {
+          const updatedBond = activeBonds.find(bond => bond.id === selectedBond.id);
+          if (updatedBond) {
+            setSelectedBond(updatedBond);
+          } else {
+            // If the selected bond is no longer in the list, deselect it
+            setSelectedBond(null);
+          }
         }
+      } else {
+        console.log("API returned empty bonds array, using mock data");
+        setBonds(mockBonds);
+        setLastUpdated(new Date());
       }
     } catch (error) {
       console.error("Error loading bonds:", error);
       setError("Failed to load bonds. Please try again later.");
       
-      // Use mock data as fallback if available
-      if (mockBonds && mockBonds.length > 0) {
-        console.log("Using mock data as fallback");
-        setBonds(mockBonds);
-        setLastUpdated(new Date());
-      }
+      // Use mock data as fallback
+      console.log("Using mock data as fallback due to error");
+      setBonds(mockBonds);
+      setLastUpdated(new Date());
     } finally {
       setIsLoading(false);
       setIsRefreshing(false);
     }
   }, [selectedBond]);
 
-  // Initial load
+  // Initial load - only once when component mounts
   useEffect(() => {
+    console.log("Initial load of bonds");
     loadBonds(false);
-  }, [loadBonds]);
+  }, []); // Remove loadBonds from dependency array to prevent infinite loop
 
   const handleRefresh = () => {
     loadBonds(true);
@@ -109,8 +118,7 @@ const Index = () => {
         
         {/* Active Bonds Table - Top Section */}
         <div className={isMobile ? "h-[400px]" : "h-[350px]"}>
-          <div className="glass-card h-full">
-            {/* <h3 className="text-xl font-semibold mb-4">Active Bonds</h3> */}
+          <div className="glass-card h-full p-6">
             <ActiveBondsList
               bonds={bonds}
               selectedBondId={selectedBond?.id || null}

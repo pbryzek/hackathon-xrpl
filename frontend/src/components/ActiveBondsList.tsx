@@ -68,14 +68,20 @@ const ActiveBondsList = ({
 
   // Initial fetch on component mount if no bonds are provided
   useEffect(() => {
-    if (initialBonds.length === 0) {
+    // Only fetch if we have no bonds AND we're not already loading
+    if (initialBonds.length === 0 && !loading) {
+      console.log("No initial bonds provided, fetching from API...");
       fetchBonds();
+    } else {
+      console.log("Using bonds provided by parent:", initialBonds.length);
     }
-  }, [initialBonds.length, fetchBonds]);
+  }, [initialBonds.length, fetchBonds, loading]);
 
-  // Update local bonds state when initialBonds changes
+  // Update local bonds state when initialBonds changes, but only if we have bonds
   useEffect(() => {
-    setBonds(initialBonds);
+    if (initialBonds.length > 0) {
+      setBonds(initialBonds);
+    }
   }, [initialBonds]);
 
   // Calculate time to maturity for each bond

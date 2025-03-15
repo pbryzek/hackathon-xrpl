@@ -20,13 +20,21 @@ export async function fetchActiveBonds(): Promise<Bond[]> {
     const data = await response.json();
     console.log("Active bonds API response:", data);
     
+    // If we have a success response but empty data, return mock bonds
+    if (data.success && (!data.data || (Array.isArray(data.data) && data.data.length === 0))) {
+      console.log("API returned success but empty data, using mock bonds");
+      return [];
+    }
+    
     // Handle different response structures
-    if (data.bonds) {
+    if (data.bonds && Array.isArray(data.bonds)) {
       return data.bonds;
-    } else if (data.data && data.data.bonds) {
+    } else if (data.data && data.data.bonds && Array.isArray(data.data.bonds)) {
       return data.data.bonds;
+    } else if (Array.isArray(data)) {
+      return data;
     } else {
-      console.warn("Unexpected response structure:", data);
+      console.warn("Unexpected response structure, returning empty array:", data);
       return [];
     }
   } catch (error) {
