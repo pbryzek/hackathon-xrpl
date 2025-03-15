@@ -212,13 +212,17 @@ async function stakePFMU(walletSecret, amount, project, issuanceDate, expiration
 
   if (total_amount >= bond.pfmus_capacity) {
     console.error("Error unable to stake: as this would exceed the PFMU capacity");
-    return;
+    return false;
   }
   const pfmu = new PFMU(amount, project, issuanceDate, expirationDate);
   const staking = new XRPLStaking();
-  staking.stakePFMU(walletSecret, pfmu);
+  let stakeRes = staking.stakePFMU(walletSecret, pfmu);
+  if (!stakeRes) {
+    return false;
+  }
   bond.pfmus.push(pfmu);
   await updateBondsFile(bond);
+  return true;
 }
 
 // Export the functions

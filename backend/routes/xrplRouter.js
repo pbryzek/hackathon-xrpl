@@ -20,7 +20,7 @@ async function createAndFundWallet() {
   const faucetResult = await client.fundWallet(newWallet);
 
   console.log("Wallet funded:", faucetResult);
-  
+
   // 🔹 VERIFY WALLET ACTIVATION
   const accountInfo = await client.request({
     command: "account_info",
@@ -33,7 +33,6 @@ async function createAndFundWallet() {
   await client.disconnect();
   return newWallet;
 }
-
 
 // Middleware to validate request
 const validateRequest = (req, res, next) => {
@@ -63,10 +62,13 @@ router.post("/stake-pfmu", validateRequest, async (req, res) => {
     if (!walletSecret || !amount) {
       return res.status(400).json({ success: false, error: "Missing walletSecret or amount" });
     }
-
     const xrplService = new XRPLService();
     const result = await xrplService.stakePFMU(walletSecret, amount);
-    res.status(200).json({ success: true, transaction: result });
+    if (result) {
+      res.status(200).json({ success: true, transaction: result });
+    } else {
+      res.status(500).json({ success: false, error: "PFMU Stake already at capacity" });
+    }
   } catch (error) {
     console.error("❌ Error staking PFMU:", error);
     res.status(500).json({ success: false, error: "Failed to stake PFMU" });
@@ -76,11 +78,6 @@ router.post("/stake-pfmu", validateRequest, async (req, res) => {
 router.post("/buy-pfmu", validateRequest, async (req, res) => {
   console.log("/buy-pfmu");
   const { walletSecret, amount } = req.body;
-  
-  //const mnemonic = "shoCsz jy4Hxs bwyMHb j4ESZW jWTrG";
-  //const derivedWallet = xrpl.Wallet.fromMnemonic(mnemonic);
-
- 
   if (!walletSecret || !amount) {
     return res.status(400).json({ error: "Missing required fields" });
   }
@@ -123,7 +120,7 @@ router.post("/buy-pfmu", validateRequest, async (req, res) => {
     }
 
     // Prepare Payment Transaction
-    console.log("purhasing crus...")
+    console.log("purhasing crus...");
     const purchaseResult = await purchaseCruViaMakeOfferABI(client, newWallet, offer, amount);
     console.log("CRU purchase successful:", purchaseResult);
 
@@ -146,7 +143,7 @@ router.post("/buy-pfmu", validateRequest, async (req, res) => {
     console.error("Error in /buy-pfmu:", error);
     return res.status(500).json({ error: error.message });
   } finally {
-    console.log("/buy-pfmu finished without crashing")
+    console.log("/buy-pfmu finished without crashing");
     if (client.isConnected()) {
       await client.disconnect();
       console.log("Disconnected from XRPL client");
