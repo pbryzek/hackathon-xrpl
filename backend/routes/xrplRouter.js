@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const xrpl = require("xrpl");
 const XRPLStaking = require("../services/xrplService");
-const { connectXRPL, setupTrustLine, getExistingOffers, purchaseCruViaMakeOfferABI } = require("./xrplHelper");
+const { connectXRPL, setupTrustLine, getExistingOffers, purchaseCruViaMakeOfferABI } = require("../helpers/xrplHelper");
 
 // Middleware to validate request
 const validateRequest = (req, res, next) => {
@@ -44,7 +44,7 @@ router.post("/stake-pfmu", validateRequest, async (req, res) => {
 
 router.post("/buy-pfmu", validateRequest, async (req, res) => {
   console.log("/buy-pfmu");
-  const { walletSecret, amount} = req.body;
+  const { walletSecret, amount } = req.body;
 
   if (!walletSecret || !amount) {
     return res.status(400).json({ error: "Missing required fields" });
@@ -70,7 +70,7 @@ router.post("/buy-pfmu", validateRequest, async (req, res) => {
       console.log("Using existing offer:", existingOffers[0]);
       offer = {
         TakerPays: existingOffers[0].TakerPays,
-        TakerGets: existingOffers[0].TakerGets
+        TakerGets: existingOffers[0].TakerGets,
       };
     } else {
       console.log("No existing offers found, creating a new offer...");
@@ -78,13 +78,13 @@ router.post("/buy-pfmu", validateRequest, async (req, res) => {
         TakerPays: {
           currency: "XRP",
           issuer: ISSUER_ADDRESS,
-          value: amount.toString()
+          value: amount.toString(),
         },
         TakerGets: {
           currency: CURRENCY_CODE,
           issuer: ISSUER_ADDRESS,
-          value: (amount / 2).toString() // Example conversion rate (update dynamically)
-        }
+          value: (amount / 2).toString(), // Example conversion rate (update dynamically)
+        },
       };
     }
 
@@ -95,13 +95,13 @@ router.post("/buy-pfmu", validateRequest, async (req, res) => {
     if (!purchaseResult.success) {
       await client.disconnect();
       return res.status(400).json({ error: "CRU purchase failed", details: purchaseResult });
-    }else{
+    } else {
       console.log("CRU purchase successful:", purchaseResult);
       return res.json({
         message: "PFMU purchase successful!",
         transactionHash: purchaseResult.transactionHash,
       });
-    }    
+    }
   } catch (error) {
     if (client.isConnected()) {
       await client.disconnect();
@@ -116,7 +116,6 @@ router.post("/buy-pfmu", validateRequest, async (req, res) => {
       console.log("Disconnected from XRPL client");
     }
   }
-
 });
 
 module.exports = router;
