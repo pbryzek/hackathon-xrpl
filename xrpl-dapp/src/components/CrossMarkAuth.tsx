@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import sdk from "@crossmarkio/sdk";
 import * as xrpl from "xrpl";
+import { signIn } from "../services/authService"; // Import service
 
 const CrossmarkAuth: React.FC = () => {
   const [account, setAccount] = useState<string | null>(null);
@@ -18,21 +19,27 @@ const CrossmarkAuth: React.FC = () => {
     try {
       console.log("User clicked sign-in, starting authentication...");
       
-      const { response } = await sdk.methods.signInAndWait(); // User-initiated
+      // Step 1: Authenticate via Crossmark
+      const { response } = await sdk.methods.signInAndWait();
       if (!response || !response.data || !response.data.address) {
         throw new Error("Failed to authenticate with Crossmark");
       }
-  
+
       const userAccount = response.data.address;
       setAccount(userAccount);
       fetchBalance(userAccount);
+
+      // Step 2: Send wallet address to backend
+      console.log("Sending wallet address to backend...");
+      const backendResponse = await signIn(userAccount);
+      console.log("Backend Response:", backendResponse);
+      
     } catch (error) {
       console.error("Crossmark sign-in failed:", error);
     } finally {
       setIsLoading(false);
     }
   };
-  
 
   const fetchBalance = async (walletAddress: string) => {
     try {
