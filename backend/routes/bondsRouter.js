@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const { getAllBonds, addBond, getPendingBonds, getClosedBonds, getBondById } = require("../services/bondService");
+
 const { successJSON, failJSON } = require("../utils/responseUtils");
 const Bond = require("../models/Bond");
 
@@ -79,14 +80,14 @@ router.post("/", async (req, res) => {
 // Stake in a Green Bond
 router.post("/:id/stake", async (req, res) => {
   try {
-    const { amount, project, issuanceDate, expirationDate } = req.body;
+    const { amount, project, issuanceDate, expirationDate, userSecret } = req.body;
     if (!amount || !project || !issuanceDate || !expirationDate) {
       return res.status(400).json(failJSON("Missing required fields: amount, project, issuanceDate, expirationDate"));
     }
     const bond = await getBondById(req.params.id);
     if (!bond) return res.status(404).json(failJSON("Bond not found"));
 
-    bond.stakePFMU(amount, project, issuanceDate, expirationDate);
+    bond.stakePFMU(userSecret, amount, project, issuanceDate, expirationDate);
     await updateBondsFile(bond);
 
     res.status(200).json(successJSON("PFMU stake successful", bond));
