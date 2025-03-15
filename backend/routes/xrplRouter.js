@@ -59,11 +59,11 @@ router.post("/buy-pfmu", validateRequest, async (req, res) => {
     const wallet = xrpl.Wallet.fromSeed(walletSecret);
     console.log("Wallet loaded:", wallet.classicAddress);
 
-    await setupTrustLine(client, wallet, PFMU_CURRENCY, ISSUER_ADDRESS);
+    await setupTrustLine(client, wallet, XRPLStaking.PFMU_CURRENCY, XRPLStaking.ISSUER_ADDRESS);
     console.log("TrustSet transaction submitted");
 
     //Create Offer
-    const existingOffers = await getExistingOffers(client, PFMU_CURRENCY, ISSUER_ADDRESS);
+    const existingOffers = await getExistingOffers(client, XRPLStaking.PFMU_CURRENCY, XRPLStaking.ISSUER_ADDRESS);
     let offer;
 
     if (existingOffers.length > 0) {
@@ -77,12 +77,12 @@ router.post("/buy-pfmu", validateRequest, async (req, res) => {
       offer = {
         TakerPays: {
           currency: "XRP",
-          issuer: ISSUER_ADDRESS,
+          issuer: XRPLStaking.ISSUER_ADDRESS,
           value: amount.toString(),
         },
         TakerGets: {
-          currency: CURRENCY_CODE,
-          issuer: ISSUER_ADDRESS,
+          currency: XRPLStaking.PFMU_CURRENCY,
+          issuer: XRPLStaking.ISSUER_ADDRESS,
           value: (amount / 2).toString(), // Example conversion rate (update dynamically)
         },
       };

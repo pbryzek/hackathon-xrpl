@@ -9,6 +9,7 @@ const {
   stakePFMU,
   updateBondsFile,
   getActiveBonds,
+  getOpenBonds,
 } = require("../services/bondService");
 
 const { successJSON, failJSON } = require("../utils/responseUtils");
@@ -18,7 +19,6 @@ const Bond = require("../models/Bond");
 router.get("/active", async (req, res) => {
   try {
     console.log("active");
-
     let activeBonds = await getActiveBonds();
     console.log(activeBonds);
     res.status(200).json(successJSON("activeBonds: success", activeBonds));
@@ -32,6 +32,16 @@ router.get("/closed", async (req, res) => {
   try {
     const closedBonds = await getClosedBonds();
     res.status(200).json(successJSON("closedBonds: success", closedBonds));
+  } catch (err) {
+    res.status(500).json(failJSON(err));
+  }
+});
+
+// Get all Open Green Bonds
+router.get("/open", async (req, res) => {
+  try {
+    const openBonds = await getOpenBonds();
+    res.status(200).json(successJSON("open Bonds: success", openBonds));
   } catch (err) {
     res.status(500).json(failJSON(err));
   }

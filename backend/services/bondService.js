@@ -52,41 +52,79 @@ async function getPendingBonds() {
   }
 }
 
-// Function to get pending bonds
+function convertPfmuToXrp(numPfmus) {
+  const xrpTotal = numPfmus * XRPLStaking.PFMU_XRP_CONVERSION;
+  return xrpTotal;
+}
+
+function getPfmuStaked(bond) {
+  let pfmusStaked = 0;
+  for (pfmu of bond.pfmus) {
+    pfmusStaked += pfmu.amount;
+  }
+  console.log("pfmusStaked " + pfmusStaked);
+  return pfmusStaked;
+}
+
+function getInvestedTotal(bond) {
+  let invested = 0;
+  for (investor of bond.investors) {
+    invested += investor.amount;
+  }
+  return invested;
+}
+
+// Function to get Active bonds: Active defined when pfmus quantity_total >= pfmus_capacity
 async function getActiveBonds() {
   const bonds = await getAllBonds();
   let activeBonds = [];
   for (const bond of bonds) {
-    let pfmusStaked = 0;
-    for (pfmu of bond.pfmus) {
-      pfmusStaked += pfmu.amount;
-    }
-    console.log("pfmusStaked " + pfmusStaked);
-    console.log("bond.pfmus_capacity " + bond.pfmus_capacity);
-
+    let pfmusStaked = getPfmuStaked(bond);
     if (pfmusStaked >= bond.pfmus_capacity) {
       activeBonds.push(bond);
     }
   }
-  console.log("activeBonds activeBonds " + activeBonds);
   return activeBonds;
 }
 
-// Function to get pending bonds
+// Open bonds are active bonds that haven't met the financial threshold.
+async function getOpenBonds() {
+  try {
+    let activeBonds = await getActiveBonds();
+    let openBonds = [];
+    for (const bond of activeBonds) {
+      let pfmusStaked = getPfmuStaked(bond);
+      const xrpTotal = convertPfmuToXrp(pfmusStaked);
+      let investedTotal = getInvestedTotal(bond);
+      // If the total invested is less than the total XRP value then its open
+      if (investedTotal < xrpTotal) {
+        openBonds.push(bond);
+      }
+    }
+    return openBonds;
+  } catch (error) {
+    console.error("Error fetching getOpenBonds:", error);
+    return [];
+  }
+}
+
+// Open bonds are active bonds that haven't met the financial threshold.
 async function getClosedBonds() {
   try {
-    const bonds = await getAllBonds();
-    console.log("bonds ", bonds);
-
-    // Filter closed Bonds
-    const closedBonds = bonds.filter(bond => {
-      const totalInvested = bond.investors.reduce((sum, investor) => sum + investor.investmentAmount, 0);
-      return totalInvested >= bond.amount;
-    });
-
+    let activeBonds = await getActiveBonds();
+    let closedBonds = [];
+    for (const bond of activeBonds) {
+      let pfmusStaked = getPfmuStaked(bond);
+      const xrpTotal = convertPfmuToXrp(pfmusStaked);
+      let investedTotal = getInvestedTotal(bond);
+      // If the total invested is greater than or equal the total XRP value then its closed
+      if (investedTotal >= xrpTotal) {
+        closedBonds.push(bond);
+      }
+    }
     return closedBonds;
   } catch (error) {
-    console.error("Error fetching closed bonds:", error);
+    console.error("Error fetching getClosedBonds:", error);
     return [];
   }
 }
@@ -195,4 +233,6 @@ module.exports = {
   addBond,
   stakePFMU,
   getActiveBonds,
+  getOpenBonds,
+  getClosedBonds,
 };
