@@ -1,12 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const {
-  getAllBonds,
-  readBondsFromFile,
-  writeBondsToFile,
-  getPendingBonds,
-  getClosedBonds,
-} = require("../services/bondService");
+const { getAllBonds, addBond, getPendingBonds, getClosedBonds, getBondById } = require("../services/bondService");
 const { successJSON, failJSON } = require("../utils/responseUtils");
 const Bond = require("../models/Bond");
 
@@ -72,15 +66,10 @@ router.post("/", async (req, res) => {
     if (!name || !amount || !issuer || !interestRate || !description) {
       return res
         .status(400)
-        .json(
-          failJSON("Missing required fields. Ensure you provide name, amount, issuer, interestRate, and description.")
-        );
+        .json(failJSON("Missing required fields: name, amount, issuer, interestRate, and description."));
     }
-    const bonds = await readBondsFromFile();
     const newBond = new Bond(name, issuer, amount, interestRate, description);
-    bonds.push(newBond);
-
-    await writeBondsToFile(bonds);
+    await addBond(newBond);
     res.status(200).json(successJSON("Green Bond issued successfully", newBond));
   } catch (err) {
     res.status(500).json(failJSON(err.message));
@@ -114,7 +103,6 @@ router.post("/:id/invest", async (req, res) => {
     if (!bond) return res.status(404).json(failJSON("Bond not found"));
     bond.addInvestor(name, amount, bondId, walletAddress);
     await updateBondsFile(bond);
-
     res.status(200).json(successJSON("Investment successful", bond));
   } catch (err) {
     res.status(500).json(failJSON(err.message));

@@ -2,16 +2,21 @@ const fs = require("fs").promises;
 const path = require("path");
 const BONDS_FILE = path.resolve(__dirname, "../data/bonds.json");
 
-const getBondById = async id => {
+async function getBondById(id) {
   try {
     const data = await fs.readFile(BONDS_FILE, "utf-8");
     const bonds = JSON.parse(data);
-    return bonds.find(bond => bond.id === id);
+    for (const bond of bonds) {
+      console.log(bond.id);
+      if (bond.id == id) {
+        return bond;
+      }
+    }
   } catch (error) {
     console.error("Error reading JSON file:", error);
     return null;
   }
-};
+}
 
 // Function to get all bonds from JSON file
 async function getAllBonds() {
@@ -87,12 +92,34 @@ async function fileExists(filePath) {
   }
 }
 
+// ✅ Auto-Increment and Add a New Bond
+async function addBond(newBond) {
+  try {
+    // Get all bonds
+    const bonds = await getAllBonds();
+
+    // Get the last bond's ID and increment it (fallback to 1 if no bonds exist)
+    const lastId = bonds.length > 0 ? Math.max(...bonds.map(bond => bond.id)) : 0;
+    const newId = lastId + 1;
+
+    // Assign the new ID to the bond
+    const bondWithId = { id: newId, ...newBond };
+
+    // Add to the array and write to file
+    bonds.push(bondWithId);
+    await writeBondsToFile(bonds);
+
+    console.log(`✅ Bond added successfully with ID: ${newId}`);
+    return bondWithId;
+  } catch (error) {
+    console.error("❌ Error adding bond:", error);
+    return null;
+  }
+}
+
 // Helper function to write bonds to file
 async function writeBondsToFile(bonds) {
   try {
-    console.log(BONDS_FILE);
-    console.log(JSON.stringify(bonds, null, 2));
-
     await fs.writeFile(BONDS_FILE, JSON.stringify(bonds, null, 2), "utf-8");
     console.log("Bonds file updated successfully!");
   } catch (error) {
@@ -125,4 +152,5 @@ module.exports = {
   getPendingBonds,
   getAllBonds,
   getClosedBonds,
+  addBond,
 };
