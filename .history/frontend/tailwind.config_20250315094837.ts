@@ -1,6 +1,8 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
+	darkMode: ["class"],
 	content: [
 		"./pages/**/*.{ts,tsx}",
 		"./components/**/*.{ts,tsx}",
@@ -21,16 +23,11 @@ export default {
 				sans: ['Inter', 'system-ui', 'sans-serif'],
 			},
 			colors: {
-				// ✅ Your Added Theme Colors
-				primary: "#00FF99", // Neon green
-				secondary: "#009DDC", // XRPL blue
-				background: "#001F1F", // Deep green-black for contrast
-				
-				// ✅ Keeps Their Existing Theme Colors
-				border: "hsl(var(--border))",  // ✅ Ensure this exists
-				input: "hsl(var(--input))",
-				ring: "hsl(var(--ring))",
-				foreground: "hsl(var(--foreground))",
+				border: 'hsl(var(--border))',
+				input: 'hsl(var(--input))',
+				ring: 'hsl(var(--ring))',
+				background: 'hsl(var(--background))',
+				foreground: 'hsl(var(--foreground))',
 				bond: {
 					'blue': 'hsl(var(--bond-blue))',
 					'blue-light': 'hsl(var(--bond-blue-light))',
@@ -40,6 +37,34 @@ export default {
 					'gray-dark': 'hsl(var(--bond-gray-dark))',
 					'green': 'hsl(var(--bond-green))',
 					'red': 'hsl(var(--bond-red))',
+				},
+				primary: {
+					DEFAULT: 'hsl(var(--primary))',
+					foreground: 'hsl(var(--primary-foreground))'
+				},
+				secondary: {
+					DEFAULT: 'hsl(var(--secondary))',
+					foreground: 'hsl(var(--secondary-foreground))'
+				},
+				destructive: {
+					DEFAULT: 'hsl(var(--destructive))',
+					foreground: 'hsl(var(--destructive-foreground))'
+				},
+				muted: {
+					DEFAULT: 'hsl(var(--muted))',
+					foreground: 'hsl(var(--muted-foreground))'
+				},
+				accent: {
+					DEFAULT: 'hsl(var(--accent))',
+					foreground: 'hsl(var(--accent-foreground))'
+				},
+				popover: {
+					DEFAULT: 'hsl(var(--popover))',
+					foreground: 'hsl(var(--popover-foreground))'
+				},
+				card: {
+					DEFAULT: 'hsl(var(--card))',
+					foreground: 'hsl(var(--card-foreground))'
 				},
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',
@@ -51,12 +76,6 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				}
-			},
-			backdropBlur: {
-				glass: "30px", // Stronger glass effect
-			},
-			boxShadow: {
-				glow: "0px 0px 30px rgba(0, 255, 128, 0.5)", // More defined green glow
 			},
 			borderRadius: {
 				lg: 'var(--radius)',

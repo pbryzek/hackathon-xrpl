@@ -30,6 +30,7 @@ export default {
 				border: "hsl(var(--border))",  // ✅ Ensure this exists
 				input: "hsl(var(--input))",
 				ring: "hsl(var(--ring))",
+				background: "hsl(var(--background))",
 				foreground: "hsl(var(--foreground))",
 				bond: {
 					'blue': 'hsl(var(--bond-blue))',

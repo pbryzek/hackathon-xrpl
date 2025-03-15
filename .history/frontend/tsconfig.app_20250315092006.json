@@ -26,6 +26,5 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["src", "../frontend/src/pages/BondSelection.tsx", "../frontend/src/pages/CrossMarkAuth.tsx"],
-  "exclude": ["node_modules", "dist"]
+  "include": ["src"]
 }

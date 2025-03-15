@@ -27,10 +27,10 @@ export default {
 				background: "#001F1F", // Deep green-black for contrast
 				
 				// ✅ Keeps Their Existing Theme Colors
-				border: "hsl(var(--border))",  // ✅ Ensure this exists
-				input: "hsl(var(--input))",
-				ring: "hsl(var(--ring))",
-				foreground: "hsl(var(--foreground))",
+				border: 'hsl(var(--border))',
+				input: 'hsl(var(--input))',
+				ring: 'hsl(var(--ring))',
+				foreground: 'hsl(var(--foreground))',
 				bond: {
 					'blue': 'hsl(var(--bond-blue))',
 					'blue-light': 'hsl(var(--bond-blue-light))',

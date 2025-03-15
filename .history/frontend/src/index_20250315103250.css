@@ -85,9 +85,9 @@
   } */
 }
 
-/* .glass-panel {
+.glass-panel {
   @apply bg-white/90 backdrop-blur-md border border-white/40 shadow-lg;
-} */
+}
 
 .animate-enter {
   animation: fade-in 0.4s forwards, slide-up 0.4s forwards;
