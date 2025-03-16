@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Bond } from "@/lib/bonds";
 import { Chip } from "@/components/ui/chip";
@@ -7,6 +6,7 @@ import { Progress } from "@/components/ui/progress";
 import TransitionWrapper from "./TransitionWrapper";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 import { CalendarIcon, BarChart3, TrendingUp, Info, Award, AlertCircle } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface BondDetailPanelProps {
   selectedBond: Bond | null;
@@ -32,7 +32,7 @@ const generateYieldData = (baseYield: number) => {
 const BondDetailPanel = ({ selectedBond }: BondDetailPanelProps) => {
   if (!selectedBond) {
     return (
-      <div className="glass-panel h-full rounded-2xl p-6 flex flex-col justify-center items-center text-center">
+      <div className="glass-card h-full p-6 flex flex-col justify-center items-center text-center">
         <div className="text-muted-foreground">
           <Info className="w-12 h-12 mb-4 mx-auto opacity-40" />
           <h3 className="text-xl font-medium mb-2">Bond Details</h3>
@@ -60,7 +60,7 @@ const BondDetailPanel = ({ selectedBond }: BondDetailPanelProps) => {
 
   return (
     <TransitionWrapper delay={200} className="h-full">
-      <div className="glass-panel h-full rounded-2xl p-6 overflow-auto">
+      <div className="glass-card h-full p-6 overflow-auto">
         <div className="mb-6">
           <div className="flex items-center justify-between mb-1">
             <h2 className="text-2xl font-semibold">Bond Details</h2>
@@ -180,7 +180,9 @@ const BondDetailPanel = ({ selectedBond }: BondDetailPanelProps) => {
                   {selectedBond.risk} Risk
                 </span>
               </div>
-              <Progress value={riskScore} className="h-2" 
+              <Progress 
+                value={riskScore} 
+                className="h-2"
                 indicatorClassName={
                   riskScore < 40 ? "bg-bond-green" : 
                   riskScore < 70 ? "bg-amber-500" : 

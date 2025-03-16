@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -47,7 +46,7 @@ const BondTradePanel = ({ selectedBond }: BondTradePanelProps) => {
 
   if (!selectedBond) {
     return (
-      <div className="glass-panel h-full rounded-2xl p-6 flex flex-col justify-center items-center text-center">
+      <div className="glass-card h-full p-6 flex flex-col justify-center items-center text-center">
         <div className="text-muted-foreground">
           <TrendingUp className="w-12 h-12 mb-4 mx-auto opacity-40" />
           <h3 className="text-xl font-medium mb-2">Select a Bond</h3>
@@ -61,7 +60,7 @@ const BondTradePanel = ({ selectedBond }: BondTradePanelProps) => {
 
   return (
     <TransitionWrapper className="h-full">
-      <div className="glass-panel h-full rounded-2xl p-6">
+      <div className="glass-card h-full p-6">
         <div className="mb-6">
           <div className="flex items-center justify-between">
             <h2 className="text-2xl font-semibold">{action} Bond</h2>
