@@ -38,17 +38,6 @@ class XRPLStaking {
   async stakePFMU(walletSecret, pfmu) {
     console.log("stakePFMU");
 
-    const buyOffers = await this.getBuyOffers();
-    const sellOffers = await this.getSellOffers();
-
-    console.log(buyOffers);
-    console.log("sellOffers");
-    console.log(sellOffers);
-
-    if (buyOffers.length == 0) {
-    } else {
-    }
-
     // TODO enable XRPL logic.
     if (true) {
       return;
@@ -220,7 +209,9 @@ class XRPLStaking {
 
       const formattedUSDSellOffers = await this.formatOffers(usdSellResponse.result.offers, false, "USD");
 
-      const combinedSellOffers = [...formattedXRPSellOffers, ...formattedUSDSellOffers];
+      //const combinedSellOffers = [...formattedXRPSellOffers, ...formattedUSDSellOffers];
+      const combinedSellOffers = [...xrpSellResponse.result.offers, ...usdSellResponse.result.offers];
+
       console.log("Sell Offers:\n", combinedSellOffers);
       return combinedSellOffers;
     } catch (error) {

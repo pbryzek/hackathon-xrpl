@@ -94,7 +94,8 @@ router.post("/buy-pfmu", validateRequest, async (req, res) => {
     console.log("TrustSet transaction submitted");
 
     //Create Offer
-    const existingOffers = await getExistingOffers(client, XRPLStaking.PFMU_CURRENCY, XRPLStaking.ISSUER_ADDRESS);
+    const existingOffers = await getSellOffers();
+    //const existingOffers = await getExistingOffers(client, XRPLStaking.PFMU_CURRENCY, XRPLStaking.ISSUER_ADDRESS);
     let offer;
 
     if (existingOffers.length > 0) {
@@ -103,6 +104,7 @@ router.post("/buy-pfmu", validateRequest, async (req, res) => {
         TakerPays: existingOffers[0].TakerPays,
         TakerGets: existingOffers[0].TakerGets,
       };
+      offer = existingOffers[0];
     } else {
       console.log("No existing offers found, creating a new offer...");
       offer = {
