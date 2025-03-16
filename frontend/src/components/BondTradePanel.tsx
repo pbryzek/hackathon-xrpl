@@ -45,6 +45,11 @@ const BondTradePanel = ({ selectedBond }: BondTradePanelProps) => {
         description: `You have successfully bought 1 unit of ${selectedBond.name} for $${totalCost.toLocaleString()}`,
         variant: "default",
       });
+      
+      // Refresh the page after successful purchase
+      setTimeout(() => {
+        window.location.reload();
+      }, 1500); // Add a small delay to allow the toast to be visible
     } catch (error) {
       console.error("Error investing in bond:", error);
       
