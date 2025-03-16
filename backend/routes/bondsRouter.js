@@ -10,7 +10,6 @@ const {
   updateBondsFile,
   getActiveBonds,
   getOpenBonds,
-  getWalletByClassicAddress,
 } = require("../services/bondService");
 const Investor = require("../models/Investor");
 const { successJSON, failJSON } = require("../utils/responseUtils");

@@ -1,5 +1,6 @@
 const xrpl = require("xrpl");
 require("dotenv").config(); // Load environment variables
+const { getWalletByClassicAddress } = require("./bondService");
 
 class XRPLStaking {
   // Static properties from the first class
