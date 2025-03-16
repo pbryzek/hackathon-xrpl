@@ -14,33 +14,23 @@ interface BondTradePanelProps {
 }
 
 const BondTradePanel = ({ selectedBond }: BondTradePanelProps) => {
-  const [quantity, setQuantity] = useState<number>(1);
   const [totalCost, setTotalCost] = useState<number>(0);
 
   useEffect(() => {
     if (selectedBond) {
       console.log("BondTradePanel received bond:", selectedBond);
-      // Use price if available, otherwise default to 100
-      const bondPrice = selectedBond.price || 100;
-      setTotalCost(Number((bondPrice * quantity).toFixed(2)));
+      // Use amount if available, otherwise fall back to price or default to 100
+      const bondPrice = selectedBond.amount || selectedBond.price || 100;
+      setTotalCost(Number(bondPrice.toFixed(2)));
     }
-  }, [selectedBond, quantity]);
-
-  const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = parseInt(e.target.value);
-    if (!isNaN(value) && value > 0) {
-      setQuantity(value);
-    } else {
-      setQuantity(1);
-    }
-  };
+  }, [selectedBond]);
 
   const handleTrade = () => {
     if (!selectedBond) return;
     
     toast({
       title: "Buy Order Submitted",
-      description: `You have successfully bought ${quantity} unit${quantity > 1 ? 's' : ''} of ${selectedBond.name} for $${totalCost.toLocaleString()}`,
+      description: `You have successfully bought 1 unit of ${selectedBond.name} for $${totalCost.toLocaleString()}`,
       variant: "default",
     });
   };
@@ -59,12 +49,10 @@ const BondTradePanel = ({ selectedBond }: BondTradePanelProps) => {
     );
   }
 
-  // Use price if available, otherwise default to 100
-  const bondPrice = selectedBond.price || 100;
+  // Use amount if available, otherwise fall back to price or default to 100
+  const bondPrice = selectedBond.amount || selectedBond.price || 100;
   // Use interestRate if available, otherwise fall back to yield or couponRate
   const effectiveYield = selectedBond.interestRate || selectedBond.yield || selectedBond.couponRate || 0;
-  // Use minimumInvestment if available, otherwise default to 1000
-  const minInvestment = selectedBond.minimumInvestment || 1000;
 
   return (
     <TransitionWrapper className="h-full">
@@ -86,32 +74,8 @@ const BondTradePanel = ({ selectedBond }: BondTradePanelProps) => {
           <div className="space-y-2">
             <div className="flex justify-between">
               <Label htmlFor="price">Price per Bond</Label>
-              <span className="text-sm text-bond-blue font-medium">${bondPrice}</span>
+              <span className="text-sm text-bond-blue font-medium">${bondPrice.toLocaleString()}</span>
             </div>
-            <div className="relative">
-              <Input
-                id="price"
-                value={`$${bondPrice}`}
-                disabled
-                className="bg-bond-gray-light text-muted-foreground"
-              />
-            </div>
-          </div>
-          
-          <div className="space-y-2">
-            <div className="flex justify-between">
-              <Label htmlFor="quantity">Quantity</Label>
-              <span className="text-sm text-muted-foreground">Min: {Math.ceil(minInvestment / bondPrice)} units</span>
-            </div>
-            <Input
-              id="quantity"
-              type="number"
-              min="1"
-              step="1"
-              value={quantity}
-              onChange={handleQuantityChange}
-              className="bg-bond-gray-light"
-            />
           </div>
           
           <div className="pt-4 border-t border-bond-gray">
