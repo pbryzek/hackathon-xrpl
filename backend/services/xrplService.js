@@ -1,6 +1,8 @@
 const xrpl = require("xrpl");
 require("dotenv").config(); // Load environment variables
 
+const { setupTrustLine } = require("../helpers/xrplHelper");
+
 class XRPLStaking {
   // Static properties from the first class
   static XRPL_SERVER = "wss://s.altnet.rippletest.net:51233"; // XRPL Testnet
@@ -299,10 +301,11 @@ class XRPLStaking {
 
   // ✅ Stake PFMU Tokens
   async tokenizeGreenBond(walletAddress, bond) {
+    console.log("tokenizeGreenBond:\n");
     try {
       await this.connectClient();
-      let wallet = await this.getWalletByClassicAddress(walletAddress);
-      let xrplWallet = xrpl.Wallet.fromSeed(wallet.seed);
+      let wallet = await getWalletByClassicAddress(walletAddress); //web wallet
+      let xrplWallet = xrpl.Wallet.fromSeed(wallet.seed);         //xrpl wallet
 
       let totalAmt = 0;
       for (pfmu of bond.pfmus) {
@@ -312,7 +315,49 @@ class XRPLStaking {
       // TODO add in the tokenization.
       await this.createEscrow(walletAddress);
 
-      console.log("tokenizeGreenBond:\n");
+      console.log(`Total Staked PFMUs: ${totalAmt}`);
+
+      const tokenIssuer = process.env.ISSUER_ADDRESS; // Replace with the issuer's XRPL wallet
+      const tokenName = "d_PFMU"; // Derivative token name
+
+      await setupTrustLine(client, wallet, walletAddress, tokenName, tokenIssuer);
+
+      //Minting new token, and sending it to ourselves
+      console.log("Minting d_PFMU...");
+      const mintTx = {
+        TransactionType: "Payment",
+        Account: tokenIssuer,
+        Destination: tokenIssuer, // Self-issued tokens
+        Amount: {
+          currency: tokenName,
+          issuer: tokenIssuer,
+          value: totalAmt.toString()
+        }
+      };
+
+      const preparedMint = await client.autofill(mintTx);
+      const signedMint = wallet.sign(preparedMint);
+      await client.submitAndWait(signedMint.tx_blob);
+      console.log(`Minted ${totalAmt} d_PFMU ✅`);
+
+      //sending d_PFMU to user
+      console.log("Sending d_PFMU to user...");
+      const sendTx = {
+        TransactionType: "Payment",
+        Account: tokenIssuer,
+        Destination: walletAddress, // User's wallet
+        Amount: {
+          currency: tokenName,
+          issuer: tokenIssuer,
+          value: totalAmt.toString()
+        }
+      };
+  
+      const preparedSend = await client.autofill(sendTx);
+      const signedSend = wallet.sign(preparedSend);
+      await client.submitAndWait(signedSend.tx_blob);
+      console.log(`Sent ${totalAmt} d_PFMU to ${walletAddress} ✅`);
+
       return true;
     } catch (error) {
       console.error("Error tokenizeGreenBond:", error.message);
