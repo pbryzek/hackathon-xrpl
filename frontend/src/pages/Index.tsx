@@ -96,8 +96,11 @@ const Index = () => {
       <header className="max-w-7xl mx-auto mb-6">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">BNP Paribas</h1>
-            <p className="text-gray-600 mt-1 text-sm sm:text-base">France’s premier multinational bank, Leading the Green Bond Revolution 🌍💚</p>
+            <img src="https://assets.weforum.org/organization/image/ZNfR4l-FX0KuRASO1gp_aNmqv4afaFKDbB-D85jEf20.jpg"
+            alt="BNP Paribas - World Economic Forum" 
+            width="300"></img>
+            <br></br>
+            <span className="text-gray-600 mt-1 text-sm sm:text-base">France’s premier multinational bank, Leading the Green Bond Revolution 🌍💚</span>
           </div>
           <div className="flex items-center space-x-3 self-end sm:self-auto">
             <div className="glass-card-compact">
