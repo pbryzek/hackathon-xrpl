@@ -59,7 +59,7 @@ class XRPLStaking {
   async createEscrow(classicAddress) {
     try {
       await this.connectClient();
-      let walletJson = await getWalletByClassicAddress(classicAddress);
+      let walletJson = await this.getWalletByClassicAddress(classicAddress);
 
       const wallet = xrpl.Wallet.fromSeed(walletJson.seed);
       console.log(`Wallet address: ${wallet.address}`);
@@ -77,9 +77,9 @@ class XRPLStaking {
       };
 
       // Submit transaction
-      const preparedTx = await client.autofill(escrowTx);
+      const preparedTx = await this.client.autofill(escrowTx);
       const signedTx = wallet.sign(preparedTx);
-      const result = await client.submitAndWait(signedTx.tx_blob);
+      const result = await this.client.submitAndWait(signedTx.tx_blob);
 
       console.log("Escrow transaction result:", result);
     } finally {
@@ -311,21 +311,23 @@ class XRPLStaking {
       const issuerWallet = xrpl.Wallet.fromSeed(process.env.ISSUER_WALLET_SECRET);
       const tokenName = "d_PFMU"; // Derivative token name
 
+      console.log("The wallet Address is: ", walletAddress);
       let wallet = await this.getWalletByClassicAddress(walletAddress); //web wallet
       console.log("Wallet :", wallet)
       let xrplWallet = xrpl.Wallet.fromSeed(wallet.seed);         //xrpl wallet
 
       let totalAmt = 0;
-      for (pfmu of bond.pfmus) {
+      
+      for (let pfmu of bond.pfmus) {
         totalAmt += pfmu.amount;
       }
 
       // TODO add in the tokenization.
-      await this.createEscrow(walletAddress);
+      await this.createEscrow(wallet.classicAddress);
 
       console.log(`Total Staked PFMUs: ${totalAmt}`);
 
-      await setupTrustLine(client, wallet, walletAddress, tokenName, tokenIssuer);
+      await setupTrustLine(this.client, wallet, walletAddress, tokenName, tokenIssuer);
 
       //Minting new token, and sending it to ourselves
       console.log("Minting d_PFMU...");
@@ -340,9 +342,9 @@ class XRPLStaking {
         }
       };
 
-      const preparedMint = await client.autofill(mintTx);
+      const preparedMint = await this.client.autofill(mintTx);
       const signedMint = issuerWallet.sign(preparedMint);
-      await client.submitAndWait(signedMint.tx_blob);
+      await this.client.submitAndWait(signedMint.tx_blob);
       console.log(`Minted ${totalAmt} d_PFMU ✅`);
 
       //sending d_PFMU to user
@@ -358,9 +360,9 @@ class XRPLStaking {
         }
       };
   
-      const preparedSend = await client.autofill(sendTx);
+      const preparedSend = await this.client.autofill(sendTx);
       const signedSend = issuerWallet.sign(preparedSend);
-      await client.submitAndWait(signedSend.tx_blob);
+      await this.client.submitAndWait(signedSend.tx_blob);
       console.log(`Sent ${totalAmt} d_PFMU to ${walletAddress} ✅`);
 
       return true;
