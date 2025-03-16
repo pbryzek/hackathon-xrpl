@@ -1,6 +1,5 @@
 const xrpl = require("xrpl");
 const Decimal = require("decimal.js");
-const { getWalletByClassicAddress } = require("../services/bondService");
 
 class CruBuyData {
   constructor(num_crus_purchased, num_crus_open_orders, date, buyTxLink, currencyCode) {
@@ -182,6 +181,23 @@ async function prepareSignSubmitTxWithRetry(client, transactionJson, wallet, max
   }
 }
 
+async function getWalletByClassicAddress(classicAddress) {
+  try {
+    const data = await fs.readFile(WALLETS_FILE, "utf-8");
+    const wallets = JSON.parse(data);
+    for (const wallet of wallets) {
+      console.log(wallet);
+      if (wallet.classicAddress == classicAddress) {
+        return wallet;
+      }
+    }
+  } catch (error) {
+    console.error("Error reading JSON file:", error);
+    return null;
+  }
+  return null;
+}
+
 async function offerCreate(client, classicAddress, takerGets, takerPays, amount) {
   await tecPathCheck(client, classicAddress);
   console.log("offerCreate takerPays: ", takerPays);
@@ -324,4 +340,5 @@ module.exports = {
   setupTrustLine,
   getExistingOffers,
   purchaseCruViaMakeOfferABI,
+  getWalletByClassicAddress,
 };
