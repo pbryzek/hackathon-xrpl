@@ -194,6 +194,10 @@ router.post("/:id/tokenize", async (req, res) => {
 
     // TODO add in the tokenization.
     // Access all of the pfmus bond.pfmus;
+    let totalAmt = 0;
+    for (pfmu of bond.pfmus) {
+      totalAmt += pfmu.amount;
+    }
 
     // TODO have all of the PFMUs into escrow.
     let xrpl_service = new XRPLStaking();
