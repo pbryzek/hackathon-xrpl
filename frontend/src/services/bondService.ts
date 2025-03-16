@@ -21,6 +21,35 @@ export const getUserPFMUs = async () => {
   }
 };
 
+// ✅ Buy PFMU Tokens
+export const buyPFMUTokens = async (amount: number) => {
+  try {
+    // Using the format from the Postman collection
+    const url = `${BOND_DOMAIN}/xrpl/buy-pfmu?userSecret=userSecretuserSecret&amount=${amount}`;
+    
+    //hard coded tho?
+    const response = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        amount: amount,
+        project: "Brazil Rancho Da Montanha 03182024",
+        issuanceDate: "2023-12-31T01:05:00Z",
+        walletSecret: "SECRETSECRETSECRETSECRET"
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error buying PFMU tokens:", error);
+    throw error;
+  }
+};
+
 // ✅ Stake PFMU
 export const stakePFMU = async (bondId: string) => {
   try {
