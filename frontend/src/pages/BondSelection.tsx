@@ -74,7 +74,9 @@ const BondPage = () => {
     <div className="min-h-screen flex flex-col items-center">
       {/* Header */}
       <header className="header flex justify-between items-center w-full px-6">
-        <h1 className="logo text-2xl">XRPL Green Bonds</h1>
+        <Link to="/" className="logo text-2xl no-underline flex items-center gap-2">
+          <span className="text-green-600">XRPL</span> Green Bonds
+        </Link>
         <nav className="flex space-x-4">
           <Link to="/bonds" className="nav-link active">Bonds</Link>
           <Link to="/marketplace" className="nav-link">Marketplace</Link>
