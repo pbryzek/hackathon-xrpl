@@ -1,5 +1,10 @@
 const xrpl = require("xrpl");
 const Decimal = require("decimal.js");
+const fs = require("fs").promises; // Use promises for async/await support
+const path = require("path");
+
+const WALLETS_FILE = path.resolve(__dirname, "../data/wallets.json");
+
 
 class CruBuyData {
   constructor(num_crus_purchased, num_crus_open_orders, date, buyTxLink, currencyCode) {

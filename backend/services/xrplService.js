@@ -312,6 +312,7 @@ class XRPLStaking {
       const tokenName = "d_PFMU"; // Derivative token name
 
       let wallet = await this.getWalletByClassicAddress(walletAddress); //web wallet
+      console.log("Wallet :", wallet)
       let xrplWallet = xrpl.Wallet.fromSeed(wallet.seed);         //xrpl wallet
 
       let totalAmt = 0;
