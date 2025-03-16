@@ -160,7 +160,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://127.0.0.1:5001/bonds/1/stake?project=Brazil Rancho Da Montanha 03182024&issuanceDate=2025-01-31T00:00:00Z&userSecret=SECRETSECRETSECRETSECRET",
+					"raw": "http://127.0.0.1:5001/bonds/1/stake",
 					"protocol": "http",
 					"host": [
 						"127",
@@ -182,15 +182,18 @@
 						},
 						{
 							"key": "project",
-							"value": "Brazil Rancho Da Montanha 03182024"
+							"value": "Brazil Rancho Da Montanha 03182024",
+							"disabled": true
 						},
 						{
 							"key": "issuanceDate",
-							"value": "2025-01-31T00:00:00Z"
+							"value": "2025-01-31T00:00:00Z",
+							"disabled": true
 						},
 						{
 							"key": "userSecret",
-							"value": "SECRETSECRETSECRETSECRET"
+							"value": "SECRETSECRETSECRETSECRET",
+							"disabled": true
 						}
 					]
 				}
@@ -231,13 +234,46 @@
 			"response": []
 		},
 		{
+			"name": "Tokenize",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{ \n    \"bondId\": 1,\n    \"walletAddress\": \"X7CKi2abDKpCYJRswXKL9dbQmSpR9q8RhCVh6DnLkbB9R8M\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:5001/bonds/1/tokenize",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5001",
+					"path": [
+						"bonds",
+						"1",
+						"tokenize"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "bond",
 			"request": {
 				"method": "POST",
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{ \n    \"name\": \"Green Bond #1\",\n    \"amount\": 1000000.00, \n    \"issuer\": \"CarbonSustain.io\",\n    \"interestRate\": 2.4,\n    \"description\": \"This is a fully sustainable and green bond that is packed with PFMUs.\"\n}",
+					"raw": "{ \n    \"name\": \"Green Bond #1\",\n    \"amount\": 1000000.00, \n    \"issuer\": \"CarbonSustain.io\",\n    \"interestRate\": 5.5,\n    \"description\": \"This is a fully sustainable and green bond that is packed with PFMUs.\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -269,7 +305,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"amount\": 0.01,\n    \"project\": \"Brazil Rancho Da Montanha 03182024\",\n    \"issuanceDate\": \"2023-12-31T01:05:00Z\",\n    \"walletSecret\": \"SECRETSECRETSECRETSECRET\"\n}",
+					"raw": "{\n    \"amount\": 0.01,\n    \"walletSecret\": \"SECRETSECRETSECRETSECRET\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -277,7 +313,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://127.0.0.1:5001/xrpl/buy-pfmu?userSecret=userSecretuserSecret&amount=100",
+					"raw": "http://127.0.0.1:5001/xrpl/buy-pfmu",
 					"protocol": "http",
 					"host": [
 						"127",
@@ -298,11 +334,13 @@
 						},
 						{
 							"key": "userSecret",
-							"value": "userSecretuserSecret"
+							"value": "userSecretuserSecret",
+							"disabled": true
 						},
 						{
 							"key": "amount",
-							"value": "100"
+							"value": "100",
+							"disabled": true
 						}
 					]
 				}
