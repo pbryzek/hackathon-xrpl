@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Chip } from "@/components/ui/chip";
@@ -107,13 +106,13 @@ const BondTradePanel = ({ selectedBond }: BondTradePanelProps) => {
               <p className="text-sm text-muted-foreground">Total Amount</p>
               <p className="text-2xl font-semibold">${totalCost.toLocaleString()}</p>
             </div>
-            <Button 
+            <button 
               onClick={handleTrade} 
-              className="px-6 bg-bond-blue hover:bg-bond-blue-dark"
+              className="buy-tokens-button flex items-center"
             >
               Buy Now
               <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
+            </button>
           </div>
         </div>
       </div>
