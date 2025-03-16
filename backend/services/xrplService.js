@@ -304,6 +304,10 @@ class XRPLStaking {
     console.log("tokenizeGreenBond:\n");
     try {
       await this.connectClient();
+      const tokenIssuer = process.env.ISSUER_ADDRESS; // Replace with the issuer's XRPL wallet
+      const issuerWallet = xrpl.Wallet.fromSeed(process.env.ISSUER_WALLET_SECRET);
+      const tokenName = "d_PFMU"; // Derivative token name
+
       let wallet = await getWalletByClassicAddress(walletAddress); //web wallet
       let xrplWallet = xrpl.Wallet.fromSeed(wallet.seed);         //xrpl wallet
 
@@ -316,9 +320,6 @@ class XRPLStaking {
       await this.createEscrow(walletAddress);
 
       console.log(`Total Staked PFMUs: ${totalAmt}`);
-
-      const tokenIssuer = process.env.ISSUER_ADDRESS; // Replace with the issuer's XRPL wallet
-      const tokenName = "d_PFMU"; // Derivative token name
 
       await setupTrustLine(client, wallet, walletAddress, tokenName, tokenIssuer);
 
@@ -336,7 +337,7 @@ class XRPLStaking {
       };
 
       const preparedMint = await client.autofill(mintTx);
-      const signedMint = wallet.sign(preparedMint);
+      const signedMint = issuerWallet.sign(preparedMint);
       await client.submitAndWait(signedMint.tx_blob);
       console.log(`Minted ${totalAmt} d_PFMU ✅`);
 
@@ -354,7 +355,7 @@ class XRPLStaking {
       };
   
       const preparedSend = await client.autofill(sendTx);
-      const signedSend = wallet.sign(preparedSend);
+      const signedSend = issuerWallet.sign(preparedSend);
       await client.submitAndWait(signedSend.tx_blob);
       console.log(`Sent ${totalAmt} d_PFMU to ${walletAddress} ✅`);
 
