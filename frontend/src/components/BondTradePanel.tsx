@@ -49,7 +49,7 @@ const BondTradePanel = ({ selectedBond }: BondTradePanelProps) => {
       // Refresh the page after successful purchase
       setTimeout(() => {
         window.location.reload();
-      }, 1500); // Add a small delay to allow the toast to be visible
+      }, 500); // Reduced delay from 1500ms to 500ms for faster refresh
     } catch (error) {
       console.error("Error investing in bond:", error);
       

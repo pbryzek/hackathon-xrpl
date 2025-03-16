@@ -207,7 +207,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{ \n    \"name\": \"Green Bond #1\",\n    \"amount\": 1000000.00, \n    \"bondId\": 1,\n    \"walletAddress\": \"X7CKi2abDKpCYJRswXKL9dbQmSpR9q8RhCVh6DnLkbB9R8M\"\n}",
+					"raw": "{ \n    \"name\": \"BNP Paribas Multinational Bank\",\n    \"amount\": 1000000.00, \n    \"bondId\": 1,\n    \"walletAddress\": \"X7CKi2abDKpCYJRswXKL9dbQmSpR9q8RhCVh6DnLkbB9R8M\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
