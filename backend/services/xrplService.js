@@ -1,6 +1,5 @@
 const xrpl = require("xrpl");
 require("dotenv").config(); // Load environment variables
-const { getWalletByClassicAddress } = require("./bondService");
 
 class XRPLStaking {
   // Static properties from the first class
@@ -250,11 +249,28 @@ class XRPLStaking {
     return [];
   }
 
+  async getWalletByClassicAddress(classicAddress) {
+    try {
+      const data = await fs.readFile(WALLETS_FILE, "utf-8");
+      const wallets = JSON.parse(data);
+      for (const wallet of wallets) {
+        console.log(wallet);
+        if (wallet.classicAddress == classicAddress) {
+          return wallet;
+        }
+      }
+    } catch (error) {
+      console.error("Error reading JSON file:", error);
+      return null;
+    }
+    return null;
+  }
+
   // ✅ Stake PFMU Tokens
   async tokenizeGreenBond(walletAddress, bond) {
     try {
       await this.connectClient();
-      let wallet = await getWalletByClassicAddress(walletAddress);
+      let wallet = await this.getWalletByClassicAddress(walletAddress);
       let xrplWallet = xrpl.Wallet.fromSeed(wallet.seed);
 
       let totalAmt = 0;
