@@ -158,6 +158,7 @@ async function prepareSignSubmitTxWithRetry(client, transactionJson, wallet, max
 
       const tx_signed = wallet.sign(tx_prepared);
       console.log("Flow 6");
+      console.log(tx_signed);
 
       const tx_result = await client.submitAndWait(tx_signed.tx_blob);
       console.log("Flow 7");
