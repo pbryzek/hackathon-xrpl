@@ -93,10 +93,13 @@ const Index = () => {
 
   return (
     <div className="min-h-screen w-full bg-gradient-to-br from-bond-gray-light to-white p-4 md:p-8">
-      <header className="max-w-7xl mx-auto mb-4">
-        <div className="flex items-center justify-between">
-          <h1 className="text-xl font-bold">Bond Trading</h1>
-          <div className="flex items-center space-x-3">
+      <header className="max-w-7xl mx-auto mb-6">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">BNP Paribas</h1>
+            <p className="text-gray-600 mt-1 text-sm sm:text-base">France’s premier multinational bank, Leading the Green Bond Revolution 🌍💚</p>
+          </div>
+          <div className="flex items-center space-x-3 self-end sm:self-auto">
             <div className="glass-card-compact">
               <div className="flex items-center">
                 <div className="w-2 h-2 rounded-full bg-bond-green animate-pulse-subtle mr-1.5"></div>
