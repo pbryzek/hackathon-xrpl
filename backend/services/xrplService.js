@@ -258,7 +258,9 @@ class XRPLStaking {
         NFTokenTaxon: 0,
         Flags: 8,
       };
-      console.log(`🎉 txn: ${txn}`);
+      console.log(`🎉 txn:`);
+      console.log(txn);
+
       let response = await this.client.submitAndWait(txn, { wallet: this.issuerWallet });
       console.log(`🎉 response: ${response}`);
       if (!response.result.meta) throw new Error("NFT minting failed");
