@@ -96,11 +96,13 @@ const Index = () => {
       <header className="max-w-7xl mx-auto mb-6">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <img src="https://assets.weforum.org/organization/image/ZNfR4l-FX0KuRASO1gp_aNmqv4afaFKDbB-D85jEf20.jpg"
+          <img src="https://assets.weforum.org/organization/image/ZNfR4l-FX0KuRASO1gp_aNmqv4afaFKDbB-D85jEf20.jpg"
             alt="BNP Paribas - World Economic Forum" 
             width="300"></img>
             <br></br>
             <span className="text-gray-600 mt-1 text-sm sm:text-base">France’s premier multinational bank, Leading the Green Bond Revolution 🌍💚</span>
+            {/* <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">BNP Paribas</h1>
+            <p className="text-gray-600 mt-1 text-sm sm:text-base">France's premier multinational bank, Leading the Green Bond Revolution 🌍💚</p> */}
           </div>
           <div className="flex items-center space-x-3 self-end sm:self-auto">
             <div className="glass-card-compact">
@@ -123,6 +125,55 @@ const Index = () => {
             <p>{error}</p>
           </div>
         )}
+        
+        {/* Tile Cards Section */}
+        <div className="flex flex-row w-full gap-6 mb-2">
+          {/* Issuance Card */}
+          <div className="glass-card p-6 card-hover-effect border-l-4 border-bond-blue w-1/2 min-h-[180px] flex flex-col justify-between">
+            <div className="flex justify-between items-start">
+              <h3 className="text-xl font-semibold text-gray-800 mb-2">Issuance</h3>
+              <div className="bg-bond-blue/10 p-2 rounded-full">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-bond-blue animate-pulse-subtle">
+                  <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                </svg>
+              </div>
+            </div>
+            <div>
+              <div className="flex items-baseline mt-2">
+                <span className="text-3xl font-bold text-bond-blue">$25.6</span>
+                <span className="ml-1 text-xl text-gray-600">Billion</span>
+              </div>
+              <p className="text-gray-600 mt-2 text-sm">Total green bond issuance volume</p>
+              <div className="mt-3 flex items-center">
+                <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse-subtle mr-1.5"></div>
+                <span className="text-xs font-medium text-gray-600">12.4% increase from last year</span>
+              </div>
+            </div>
+          </div>
+          
+          {/* ESG Loans & Bonds Card */}
+          <div className="glass-card p-6 card-hover-effect border-l-4 border-green-500 w-1/2 min-h-[180px] flex flex-col justify-between">
+            <div className="flex justify-between items-start">
+              <h3 className="text-xl font-semibold text-gray-800 mb-2">ESG Loans & Bonds</h3>
+              <div className="bg-green-500/10 p-2 rounded-full">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-green-500 animate-pulse-subtle">
+                  <path d="M21 12a9 9 0 0 1-9 9m9-9a9 9 0 0 0-9-9m9 9H3m9 9a9 9 0 0 1-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9" />
+                </svg>
+              </div>
+            </div>
+            <div>
+              <div className="flex items-baseline mt-2">
+                <span className="text-3xl font-bold text-green-600">$62.5</span>
+                <span className="ml-1 text-xl text-gray-600">Billion</span>
+              </div>
+              <p className="text-gray-600 mt-2 text-sm">Total ESG financing portfolio</p>
+              <div className="mt-3 flex items-center">
+                <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse-subtle mr-1.5"></div>
+                <span className="text-xs font-medium text-gray-600">Market leader in sustainable finance</span>
+              </div>
+            </div>
+          </div>
+        </div>
         
         {/* Active Bonds Table - Top Section */}
         <div className={isMobile ? "h-[400px]" : "h-[350px]"}>
