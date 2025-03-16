@@ -135,29 +135,28 @@ router.post("/:id/stake", async (req, res) => {
     let resStake = await stakePFMU(walletSecret, amount, project, issuanceDate, expirationDate, bond);
     if (!resStake) {
       // TODO: Make API to create Green Bond.
-      return res.status(500).json(failJSON("PFMU staking failed"));
-    }
-    
-    console.log("✅ Stake successful, checking NFT status...");
+      // ✅ Step 2: Mint Green Bond NFT if not already minted
+      if (!bond.nftId) {
+        console.log("🔄 No NFT found for this bond. Minting NFT now...");
+        let nftId = await xrplService.mintGreenBond();
 
-    // ✅ Step 2: Mint Green Bond NFT if not already minted
-    if (!bond.nftId) {
-      console.log("🔄 No NFT found for this bond. Minting NFT now...");
-      let nftId = await xrplService.mintGreenBond();
+        if (!nftId) {
+          return res.status(200).json(successJSON("PFMU stake successful & Green Bond minted", bond));
+        }
 
-      if (!nftId) {
-        return res.status(500).json(failJSON("Failed to mint Green Bond NFT."));
+        console.log(`🎉 Green Bond NFT Minted: ${nftId}`);
+        bond.nftId = nftId; // ✅ Store the minted NFT ID
+      } else {
+        console.log(`✅ Green Bond already has NFT: ${bond.nftId}`);
       }
 
-      console.log(`🎉 Green Bond NFT Minted: ${nftId}`);
-      bond.nftId = nftId; // ✅ Store the minted NFT ID
-    } else {
-      console.log(`✅ Green Bond already has NFT: ${bond.nftId}`);
+      return res.status(500).json(failJSON("PFMU staking failed"));
     }
 
-    await updateBondsFile(bond);
+    console.log("✅ Stake successful, checking NFT status...");
 
-    res.status(200).json(successJSON("PFMU stake successful & Green Bond minted", bond));
+
+    await updateBondsFile(bond);
   } catch (err) {
     console.error("❌ Error during staking & minting:", err);
     res.status(500).json(failJSON(err.message));

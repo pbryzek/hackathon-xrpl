@@ -231,4 +231,70 @@ class XRPLStaking {
   }
 }
 
+class XRPLStaking {
+  constructor() {
+    this.client = new xrpl.Client("wss://s.altnet.rippletest.net/");
+    this.issuerWallet = null; // Will be set after connecting
+  }
+
+  // ✅ Connect to XRPL
+  async connect() {
+    await this.client.connect();
+    this.issuerWallet = xrpl.Wallet.fromSeed(process.env.ISSUER_WALLET_SECRET);
+  }
+
+  // ✅ Mint Green Bond NFT
+  async mintGreenBond() {
+    try {
+      await this.connect();
+
+      const txn = {
+        TransactionType: "NFTokenMint",
+        Account: this.issuerWallet.classicAddress,
+        URI: xrpl.convertStringToHex("https://metadata-url.com/greenbond"),
+        NFTokenTaxon: 0,
+      };
+
+      let response = await this.client.submitAndWait(txn, { wallet: this.issuerWallet });
+      
+      if (!response.result.meta) throw new Error("NFT minting failed");
+
+      let GREEN_BOND_NFT_ID = response.result.meta.nftoken_id;
+      console.log(`🎉 Green Bond NFT Minted: ${GREEN_BOND_NFT_ID}`);
+
+      return GREEN_BOND_NFT_ID;
+    } catch (error) {
+      console.error("Error minting Green Bond NFT:", error);
+      return null;
+    } finally {
+      await this.client.disconnect();
+    }
+  }
+
+  // ✅ Issue fractionalized Green Bond Tokens
+  async issueGBNDTokens() {
+    try {
+      await this.connect();
+      
+      const txn = {
+        TransactionType: "Payment",
+        Account: this.issuerWallet.classicAddress,
+        Destination: this.issuerWallet.classicAddress,
+        Amount: {
+          currency: "GBND",
+          value: "1000000",
+          issuer: this.issuerWallet.classicAddress,
+        },
+      };
+
+      let response = await this.client.submitAndWait(txn, { wallet: this.issuerWallet });
+      console.log("✅ GBND Tokens Issued:", response.result);
+    } catch (error) {
+      console.error("Error issuing GBND tokens:", error);
+    } finally {
+      await this.client.disconnect();
+    }
+  }
+}
+
 module.exports = XRPLStaking;
