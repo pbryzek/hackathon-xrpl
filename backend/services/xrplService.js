@@ -51,6 +51,37 @@ class XRPLStaking {
     }
   }
 
+  async createEscrow(classicAddress) {
+    try {
+      await this.connectClient();
+      let walletJson = await getWalletByClassicAddress(classicAddress);
+
+      const wallet = xrpl.Wallet.fromSeed(walletJson.seed);
+      console.log(`Wallet address: ${wallet.address}`);
+
+      // Set the escrow release time (Unix timestamp, must be in the future)
+      const finishAfter = Math.floor(Date.now() / 1000) + 60; // 1 minutes from now
+
+      const escrowTx = {
+        TransactionType: "EscrowCreate",
+        Account: classicAddress,
+        Amount: xrpl.xrpToDrops("10"), // 10 XRP
+        Destination: XRPLStaking.ISSUER_ADDRESS,
+        FinishAfter: finishAfter, // Timestamp after which funds can be released
+        Fee: "12", // Adjust based on network conditions
+      };
+
+      // Submit transaction
+      const preparedTx = await client.autofill(escrowTx);
+      const signedTx = wallet.sign(preparedTx);
+      const result = await client.submitAndWait(signedTx.tx_blob);
+
+      console.log("Escrow transaction result:", result);
+    } finally {
+      await this.disconnectClient();
+    }
+  }
+
   // ✅ Stake PFMU Tokens
   async stakePFMU(walletSecret, pfmu) {
     console.log("stakePFMU");
@@ -277,7 +308,9 @@ class XRPLStaking {
       for (pfmu of bond.pfmus) {
         totalAmt += pfmu.amount;
       }
+
       // TODO add in the tokenization.
+      await this.createEscrow(walletAddress);
 
       console.log("tokenizeGreenBond:\n");
       return true;
