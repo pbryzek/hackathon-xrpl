@@ -226,16 +226,19 @@ export const getOpenBonds = async () => {
 export const investInBond = async (bondId: string, amount: number, name: string) => {
   try {
     const url = `${BOND_DOMAIN}/bonds/${bondId}/invest`;
-    console.log("Investing in bond:", bondId, "amount:", amount);
+    console.log("Investing in bond:", bondId, "amount:", amount, "investor name:", name);
     
     // Using a default wallet address for demo purposes
     const walletAddress = "X7CKi2abDKpCYJRswXKL9dbQmSpR9q8RhCVh6DnLkbB9R8M";
+    
+    // Ensure the name is properly formatted to avoid confusion with bond names/IDs
+    const formattedName = name.startsWith('Investor:') ? name : `Investor: ${name}`;
     
     const response = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        name: name,
+        name: formattedName,
         amount: amount,
         bondId: bondId,
         walletAddress: walletAddress
@@ -243,7 +246,15 @@ export const investInBond = async (bondId: string, amount: number, name: string)
     });
     
     if (!response.ok) {
-      throw new Error(`HTTP error! Status: ${response.status}`);
+      // Try to get more detailed error information from the response
+      try {
+        const errorData = await response.json();
+        console.error("Investment error details:", errorData);
+        throw new Error(`HTTP error! Status: ${response.status}, Details: ${JSON.stringify(errorData)}`);
+      } catch (parseError) {
+        // If we can't parse the error response, throw the original error
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
     }
     
     return await response.json();

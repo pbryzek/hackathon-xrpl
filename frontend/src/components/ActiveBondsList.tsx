@@ -211,11 +211,33 @@ const ActiveBondsList = ({
                         <div>
                           {bond.investors.slice(0, 3).map((investor, index) => {
                             let investorName = 'Investor';
+                            
+                            // Handle different investor data structures
                             if (typeof investor === 'string') {
+                              // If investor is a string, use it directly
                               investorName = investor;
                             } else if (investor && typeof investor === 'object') {
-                              investorName = investor.id || investor.name || investor.address || 'Investor';
+                              // If investor is an object, try to extract the name
+                              if (investor.name && investor.name.startsWith('Investor:')) {
+                                // Use our specially formatted investor name but remove the prefix
+                                investorName = investor.name.replace('Investor: ', '');
+                              } else if (investor.name) {
+                                // Use regular name property
+                                investorName = investor.name;
+                              } else if (investor.bondId) {
+                                // If bondId is being used as name, replace with generic investor name
+                                investorName = `Investor ${index + 1}`;
+                              } else {
+                                // Fallback to other properties
+                                investorName = investor.id || investor.address || `Investor ${index + 1}`;
+                              }
                             }
+                            
+                            // Remove any remaining "Investor:" prefix if it exists
+                            if (typeof investorName === 'string' && investorName.startsWith('Investor:')) {
+                              investorName = investorName.replace('Investor:', '').trim();
+                            }
+                            
                             return (
                               <div key={index} className="text-xs text-muted-foreground truncate max-w-[150px]">
                                 {investorName}

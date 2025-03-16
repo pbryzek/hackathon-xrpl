@@ -34,9 +34,13 @@ const BondTradePanel = ({ selectedBond }: BondTradePanelProps) => {
     try {
       // Call the invest API
       const bondId = selectedBond.id?.toString() || "1"; // Default to "1" if id is undefined
-      const bondName = selectedBond.name || "Unnamed Bond";
       
-      const response = await investInBond(bondId, totalCost, bondName);
+      // Create a distinctive investor name that won't be confused with bond name or ID
+      const investorName = "BNP Paribas Multinational Bank";
+      
+      console.log("Investing in bond with investor name:", investorName); // Add logging for debugging
+      
+      const response = await investInBond(bondId, totalCost, investorName);
       
       console.log("Investment response:", response);
       
@@ -53,9 +57,14 @@ const BondTradePanel = ({ selectedBond }: BondTradePanelProps) => {
     } catch (error) {
       console.error("Error investing in bond:", error);
       
+      // Extract error message for the toast
+      const errorMessage = error instanceof Error 
+        ? error.message 
+        : "Unknown error occurred";
+      
       toast({
         title: "Investment Failed",
-        description: "There was an error processing your investment. Please try again.",
+        description: `There was an error processing your investment: ${errorMessage}`,
         variant: "destructive",
       });
     } finally {
