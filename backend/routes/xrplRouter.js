@@ -80,31 +80,24 @@ router.post("/buy-pfmu", validateRequest, async (req, res) => {
   if (!walletSecret || !amount) {
     return res.status(400).json({ error: "Missing required fields" });
   }
-
   const client = new xrpl.Client(XRPLStaking.XRPL_SERVER);
   console.log("XRPL_SERVER: ", XRPLStaking.XRPL_SERVER);
   await client.connect();
-
   try {
     const newWallet = await createAndFundWallet();
     console.log("Our new wallet is:", newWallet.address);
-
     await setupTrustLine(client, newWallet, XRPLStaking.PFMU_CURRENCY_HEX, XRPLStaking.ISSUER_ADDRESS);
     console.log("TrustSet transaction submitted");
-
     const accountInfo = await client.request({
       command: "account_info",
-      account: "rhGiVDJ56vmEHbiVJ4KZRCPysudgWaRzu3",
+      account: XRPLStaking.ISSUER_ADDRESS,
       ledger_index: "validated",
     });
-
     console.log("Available XRP:", accountInfo.result.account_data.Balance / 1000000, "XRP");
-
     const trustLines = await client.request({
       command: "account_lines",
-      account: "rhGiVDJ56vmEHbiVJ4KZRCPysudgWaRzu3",
+      account: XRPLStaking.ISSUER_ADDRESS,
     });
-
     console.log(trustLines);
 
     //Create Offer

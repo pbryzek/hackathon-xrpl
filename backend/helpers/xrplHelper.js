@@ -160,7 +160,7 @@ async function prepareSignSubmitTxWithRetry(client, transactionJson, wallet, max
 
       const balance = await client.request({
         command: "account_info",
-        account: "rF35kVEfmp5XyFtYMcmWEZK5BTgHBJtY9",
+        account: XRPLStaking.ISSUER_XRPL_ADDRESS,
         ledger_index: "validated",
       });
 
@@ -183,7 +183,7 @@ async function offerCreate(client, wallet, takerGets, takerPays, amount) {
   console.log("offerCreate takerGets: ", takerGets);
 
   let takerGetsStr = "" + takerGets.value * 100000;
-  let takerPaysStr = "" + takerPays.value * 100000;
+  let takerPaysStr = "" + takerPays.value * 10000;
 
   const offerCreateTx = {
     TransactionType: "OfferCreate",

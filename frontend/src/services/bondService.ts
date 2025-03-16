@@ -24,25 +24,20 @@ export const getUserPFMUs = async () => {
 // ✅ Buy PFMU Tokens
 export const buyPFMUTokens = async (amount: number) => {
   try {
-    // Using the format from the Postman collection
-    const url = `${BOND_DOMAIN}/xrpl/buy-pfmu?userSecret=userSecretuserSecret&amount=${amount}`;
-    
-    //hard coded tho?
+    const url = `${BOND_DOMAIN}/xrpl/buy-pfmu`;
+    // TODO: add the walletaddress to the walletSecret. 
+    // hard coded tho?
     const response = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         amount: amount,
-        project: "Brazil Rancho Da Montanha 03182024",
-        issuanceDate: "2023-12-31T01:05:00Z",
         walletSecret: "SECRETSECRETSECRETSECRET"
       })
     });
-
     if (!response.ok) {
       throw new Error(`HTTP error! Status: ${response.status}`);
     }
-
     return await response.json();
   } catch (error) {
     console.error("Error buying PFMU tokens:", error);
@@ -53,7 +48,7 @@ export const buyPFMUTokens = async (amount: number) => {
 // ✅ Stake PFMU
 export const stakePFMU = async (bondId: string) => {
   try {
-    
+
     const url = `${BOND_DOMAIN}/stake?project=Brazil Rancho Da Montanha 03182024&issuanceDate=2025-01-31T00:00:00Z&userSecret=SECRETSECRETSECRETSECRET`;
     const response = await fetch(url, {
       method: "POST",
@@ -77,7 +72,7 @@ export const getActiveBonds = async () => {
   try {
     const url = `${BOND_DOMAIN}/bonds/active`;
     console.log("Fetching active bonds from:", url);
-    
+
     const response = await fetch(url, {
       method: "GET",
       headers: { "Content-Type": "application/json" }
@@ -89,7 +84,7 @@ export const getActiveBonds = async () => {
 
     const data = await response.json();
     console.log("Active bonds response:", data);
-    
+
     // Process the response to extract bonds
     if (data.bonds && Array.isArray(data.bonds)) {
       return { bonds: data.bonds };
@@ -221,9 +216,9 @@ export const getOpenBonds = async () => {
     } else {
       console.error("Error fetching open bonds:", error);
     }
-    
+
     // Return empty array instead of throwing to prevent cascading errors
-    return []; 
+    return [];
   }
 };
 
