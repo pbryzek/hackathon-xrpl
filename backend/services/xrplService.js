@@ -77,10 +77,13 @@ class XRPLStaking {
       };
 
       // Submit transaction
-      const preparedTx = await this.client.autofill(escrowTx);
+      //const preparedTx = await this.client.autofill(escrowTx);
+      const preparedTx = await this.client.autofill({
+        ...escrowTx,
+        NetworkID: 21337,
+      });
       const signedTx = wallet.sign(preparedTx);
       const result = await this.client.submitAndWait(signedTx.tx_blob);
-
       console.log("Escrow transaction result:", result);
     } finally {
       await this.disconnectClient();
@@ -111,7 +114,12 @@ class XRPLStaking {
       DestinationTag: 1001, // Staking identifier
     };
 
-    const prepared = await this.client.autofill(tx);
+    //const prepared = await this.client.autofill(tx);
+    const prepared = await this.client.autofill({
+      ...tx,
+      NetworkID: 21337,
+    });
+
     const signed = userWallet.sign(prepared);
     const result = await this.client.submitAndWait(signed.tx_blob);
 
@@ -136,7 +144,12 @@ class XRPLStaking {
       DestinationTag: 1001,
     };
 
-    const prepared = await this.client.autofill(tx);
+    //const prepared = await this.client.autofill(tx);
+    const prepared = await this.client.autofill({
+      ...tx,
+      NetworkID: 21337,
+    });
+
     const signed = stakingWallet.sign(prepared);
     const result = await this.client.submitAndWait(signed.tx_blob);
 
@@ -161,7 +174,11 @@ class XRPLStaking {
       DestinationTag: 1001, // Unstake identifier
     };
 
-    const prepared = await this.client.autofill(tx);
+    //const prepared = await this.client.autofill(tx);
+    const prepared = await this.client.autofill({
+      ...tx,
+      NetworkID: 21337,
+    });
     const signed = stakingWallet.sign(prepared);
     const result = await this.client.submitAndWait(signed.tx_blob);
 
@@ -313,11 +330,11 @@ class XRPLStaking {
 
       console.log("The wallet Address is: ", walletAddress);
       let wallet = await this.getWalletByClassicAddress(walletAddress); //web wallet
-      console.log("Wallet :", wallet)
-      let xrplWallet = xrpl.Wallet.fromSeed(wallet.seed);         //xrpl wallet
+      console.log("Wallet :", wallet);
+      let xrplWallet = xrpl.Wallet.fromSeed(wallet.seed); //xrpl wallet
 
       let totalAmt = 0;
-      
+
       for (let pfmu of bond.pfmus) {
         totalAmt += pfmu.amount;
       }
@@ -338,11 +355,15 @@ class XRPLStaking {
         Amount: {
           currency: tokenName,
           issuer: tokenIssuer,
-          value: totalAmt.toString()
-        }
+          value: totalAmt.toString(),
+        },
       };
 
-      const preparedMint = await this.client.autofill(mintTx);
+      //const preparedMint = await this.client.autofill(mintTx);
+      const preparedMint = await this.client.autofill({
+        ...mintTx,
+        NetworkID: 21337,
+      });
       const signedMint = issuerWallet.sign(preparedMint);
       await this.client.submitAndWait(signedMint.tx_blob);
       console.log(`Minted ${totalAmt} d_PFMU ✅`);
@@ -356,11 +377,16 @@ class XRPLStaking {
         Amount: {
           currency: tokenName,
           issuer: tokenIssuer,
-          value: totalAmt.toString()
-        }
+          value: totalAmt.toString(),
+        },
       };
-  
-      const preparedSend = await this.client.autofill(sendTx);
+
+      //const preparedSend = await this.client.autofill(sendTx);
+      const preparedSend = await this.client.autofill({
+        ...sendTx,
+        NetworkID: 21337,
+      });
+
       const signedSend = issuerWallet.sign(preparedSend);
       await this.client.submitAndWait(signedSend.tx_blob);
       console.log(`Sent ${totalAmt} d_PFMU to ${walletAddress} ✅`);

@@ -67,7 +67,12 @@ async function setupTrustLine(client, wallet, classicAddress, currencyCode, issu
     },
   };
   console.log("1", trustSetTx);
-  const preparedTrustSet = await client.autofill(trustSetTx);
+  //const preparedTrustSet = await client.autofill(trustSetTx);
+  const preparedTrustSet = await client.autofill({
+    ...trustSetTx,
+    NetworkID: 21337,
+  });
+
   console.log(preparedTrustSet);
   const signedTrustSet = wallet.sign(preparedTrustSet);
   console.log(signedTrustSet);
