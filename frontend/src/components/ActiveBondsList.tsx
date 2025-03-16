@@ -11,7 +11,7 @@ import {
   TableHeader, 
   TableRow 
 } from "@/components/ui/table";
-import { TrendingUp, AlertCircle, RefreshCw } from "lucide-react";
+import { TrendingUp, AlertCircle, RefreshCw, Users, Shield } from "lucide-react";
 import { getAllBonds } from "@/services/bondService";
 
 interface ActiveBondsListProps {
@@ -134,12 +134,14 @@ const ActiveBondsList = ({
             </div>
           ) : bondsWithTimeToMaturity.length > 0 ? (
             <Table>
-              <TableHeader>
+              <TableHeader className="sticky top-0 bg-white z-10">
                 <TableRow className="hover:bg-transparent">
                   <TableHead>Name</TableHead>
                   <TableHead>Issuer</TableHead>
                   <TableHead>Interest Rate</TableHead>
                   <TableHead>Maturity Date</TableHead>
+                  <TableHead className="text-center">Investors</TableHead>
+                  <TableHead className="text-center">Stakers</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -161,6 +163,12 @@ const ActiveBondsList = ({
                     <TableCell>{bond.issuer || 'Unknown Issuer'}</TableCell>
                     <TableCell>{bond.interestRate ? `${bond.interestRate}%` : (bond.couponRate ? `${bond.couponRate}%` : 'N/A')}</TableCell>
                     <TableCell>{bond.maturityDate ? new Date(bond.maturityDate).toLocaleDateString() : 'No date specified'}</TableCell>
+                    <TableCell className="text-center">
+                      {bond.investors && Array.isArray(bond.investors) ? bond.investors.length : 0}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      {bond.stakers && Array.isArray(bond.stakers) ? bond.stakers.length : 0}
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
