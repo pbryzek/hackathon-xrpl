@@ -122,8 +122,10 @@ export const getAllBonds = async () => {
     const data = await response.json();
     console.log("All bonds response:", data);
 
-    // Handle different possible response structures
-    if (data.data && data.data.bonds) {
+    // Handle the specific response structure we're seeing in the console
+    if (data.data && data.data.all_bonds && Array.isArray(data.data.all_bonds)) {
+      return data.data.all_bonds;
+    } else if (data.data && data.data.bonds) {
       return data.data.bonds;
     } else if (data.bonds) {
       return data.bonds;
