@@ -147,10 +147,17 @@ export const getOpenBonds = async () => {
     const url = `${BOND_DOMAIN}/bonds/open`;
     console.log("Fetching open bonds from:", url);
 
+    // Add timeout to prevent hanging requests
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+
     const response = await fetch(url, {
       method: "GET",
       headers: { "Content-Type": "application/json" },
+      signal: controller.signal
     });
+
+    clearTimeout(timeoutId); // Clear the timeout if the request completes
 
     if (!response.ok) {
       console.error(`HTTP error! Status: ${response.status}`);
@@ -171,13 +178,23 @@ export const getOpenBonds = async () => {
       return data.bonds;
     } else if (Array.isArray(data)) {
       return data;
+    } else if (data.success && data.data && Array.isArray(data.data)) {
+      // Handle the format seen in the console: {success: true, message: 'Open Bonds: success', data: Array(1)}
+      return data.data;
     } else {
       console.warn("Unexpected response structure from bonds/open:", data);
       return [];
     }
   } catch (error) {
-    console.error("Error fetching open bonds:", error);
-    return []; // Return empty array instead of throwing to prevent cascading errors
+    // Check if it's an abort error (timeout)
+    if (error.name === 'AbortError') {
+      console.error("Request timed out when fetching open bonds");
+    } else {
+      console.error("Error fetching open bonds:", error);
+    }
+    
+    // Return empty array instead of throwing to prevent cascading errors
+    return []; 
   }
 };
 

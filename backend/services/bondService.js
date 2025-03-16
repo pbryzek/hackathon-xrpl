@@ -76,7 +76,7 @@ function getInvestedTotal(bond) {
 
 // Function to get Active bonds: Active defined when pfmus quantity_total >= pfmus_capacity
 async function getActiveBonds() {
-  const bonds = await getAllBonds();
+  const bonds = await getOpenBonds();
   let activeBonds = [];
   for (const bond of bonds) {
     let pfmusStaked = getPfmuStaked(bond);

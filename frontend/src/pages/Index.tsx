@@ -3,7 +3,7 @@ import BondTradePanel from "@/components/BondTradePanel";
 import ActiveBondsList from "@/components/ActiveBondsList";
 import BondDetailPanel from "@/components/BondDetailPanel";
 import { mockBonds, Bond } from "@/lib/bonds";
-import { getAllBonds } from "@/services/bondService";
+import { getOpenBonds } from "@/services/bondService";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 const Index = () => {
@@ -26,21 +26,21 @@ const Index = () => {
     setError(null);
     
     try {
-      console.log("Fetching all bonds from API...");
-      const allBonds = await getAllBonds();
+      console.log("Fetching open bonds from API...");
+      const openBonds = await getOpenBonds();
       
-      console.log("Received bonds data:", allBonds);
+      console.log("Received open bonds data:", openBonds);
       
       // Check if we got a valid response
-      if (allBonds && Array.isArray(allBonds)) {
-        if (allBonds.length > 0) {
-          console.log(`Received ${allBonds.length} bonds from API`);
-          setBonds(allBonds);
+      if (openBonds && Array.isArray(openBonds)) {
+        if (openBonds.length > 0) {
+          console.log(`Received ${openBonds.length} open bonds from API`);
+          setBonds(openBonds);
           setLastUpdated(new Date());
           
           // If we had a selected bond, update it with the new data
           if (selectedBond) {
-            const updatedBond = allBonds.find(bond => bond.id === selectedBond.id);
+            const updatedBond = openBonds.find(bond => bond.id === selectedBond.id);
             if (updatedBond) {
               setSelectedBond(updatedBond);
             } else {
@@ -54,13 +54,13 @@ const Index = () => {
           setLastUpdated(new Date());
         }
       } else {
-        console.error("API returned invalid data format:", allBonds);
+        console.error("API returned invalid data format:", openBonds);
         setBonds(mockBonds);
         setLastUpdated(new Date());
       }
     } catch (error) {
       console.error("Error loading bonds:", error);
-      setError("Failed to load bonds. Please try again later.");
+      setError("Failed to load open bonds. Using mock data as fallback.");
       
       // Use mock data as fallback
       console.log("Using mock data as fallback due to error");
@@ -74,9 +74,9 @@ const Index = () => {
 
   // Initial load - only once when component mounts
   useEffect(() => {
-    console.log("Initial load of bonds");
+    console.log("Initial load of open bonds");
     loadBonds(false);
-  }, []); // Remove loadBonds from dependency array to prevent infinite loop
+  }, []); // Empty dependency array to run only once
 
   const handleRefresh = () => {
     loadBonds(true);

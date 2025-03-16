@@ -39,16 +39,32 @@ const ActiveBondsList = ({
     setLoading(true);
     setError(null);
     try {
-      // Use getOpenBonds instead of getAllBonds
+      // Use getOpenBonds to fetch open bonds
       const openBonds = await getOpenBonds();
-      console.log("Response from getOpenBonds:", openBonds);
+      console.log("ActiveBondsList: Response from getOpenBonds:", openBonds);
       
       // Set bonds directly from the response
       if (openBonds && Array.isArray(openBonds)) {
-        setBonds(openBonds);
+        if (openBonds.length > 0) {
+          console.log(`ActiveBondsList: Received ${openBonds.length} open bonds`);
+          setBonds(openBonds);
+        } else {
+          console.log("ActiveBondsList: No open bonds available, using initial bonds");
+          // If no open bonds are available, use the initial bonds provided by parent
+          if (initialBonds.length > 0) {
+            setBonds(initialBonds);
+          } else {
+            setBonds([]);
+          }
+        }
       } else {
-        console.warn("Unexpected response structure from getOpenBonds:", openBonds);
-        setBonds([]);
+        console.warn("ActiveBondsList: Unexpected response structure from getOpenBonds:", openBonds);
+        // Fall back to initial bonds if available
+        if (initialBonds.length > 0) {
+          setBonds(initialBonds);
+        } else {
+          setBonds([]);
+        }
       }
       
       // If parent component provided an onRefresh callback, call it
@@ -56,12 +72,17 @@ const ActiveBondsList = ({
         onRefresh();
       }
     } catch (err) {
-      console.error("Error fetching bonds:", err);
-      setError("Failed to load bonds. Please try again.");
+      console.error("ActiveBondsList: Error fetching bonds:", err);
+      setError("Failed to load open bonds. Please try again.");
+      
+      // Fall back to initial bonds if available
+      if (initialBonds.length > 0) {
+        setBonds(initialBonds);
+      }
     } finally {
       setLoading(false);
     }
-  }, [onRefresh]);
+  }, [onRefresh, initialBonds]);
 
   // Initial fetch on component mount if no bonds are provided
   useEffect(() => {
