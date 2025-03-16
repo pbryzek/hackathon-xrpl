@@ -3,7 +3,7 @@ import BondTradePanel from "@/components/BondTradePanel";
 import ActiveBondsList from "@/components/ActiveBondsList";
 import BondDetailPanel from "@/components/BondDetailPanel";
 import { mockBonds, Bond } from "@/lib/bonds";
-import { fetchActiveBonds } from "@/lib/api";
+import { getAllBonds } from "@/services/bondService";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 const Index = () => {
@@ -26,27 +26,35 @@ const Index = () => {
     setError(null);
     
     try {
-      console.log("Fetching active bonds from API...");
-      const activeBonds = await fetchActiveBonds();
+      console.log("Fetching all bonds from API...");
+      const allBonds = await getAllBonds();
+      
+      console.log("Received bonds data:", allBonds);
       
       // Check if we got a valid response
-      if (Array.isArray(activeBonds) && activeBonds.length > 0) {
-        console.log(`Received ${activeBonds.length} bonds from API`);
-        setBonds(activeBonds);
-        setLastUpdated(new Date());
-        
-        // If we had a selected bond, update it with the new data
-        if (selectedBond) {
-          const updatedBond = activeBonds.find(bond => bond.id === selectedBond.id);
-          if (updatedBond) {
-            setSelectedBond(updatedBond);
-          } else {
-            // If the selected bond is no longer in the list, deselect it
-            setSelectedBond(null);
+      if (allBonds && Array.isArray(allBonds)) {
+        if (allBonds.length > 0) {
+          console.log(`Received ${allBonds.length} bonds from API`);
+          setBonds(allBonds);
+          setLastUpdated(new Date());
+          
+          // If we had a selected bond, update it with the new data
+          if (selectedBond) {
+            const updatedBond = allBonds.find(bond => bond.id === selectedBond.id);
+            if (updatedBond) {
+              setSelectedBond(updatedBond);
+            } else {
+              // If the selected bond is no longer in the list, deselect it
+              setSelectedBond(null);
+            }
           }
+        } else {
+          console.log("API returned empty bonds array, using mock data");
+          setBonds(mockBonds);
+          setLastUpdated(new Date());
         }
       } else {
-        console.log("API returned empty bonds array, using mock data");
+        console.error("API returned invalid data format:", allBonds);
         setBonds(mockBonds);
         setLastUpdated(new Date());
       }

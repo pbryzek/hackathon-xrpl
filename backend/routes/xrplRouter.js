@@ -2,7 +2,8 @@ const express = require("express");
 const router = express.Router();
 const xrpl = require("xrpl");
 const XRPLStaking = require("../services/xrplService");
-const { setupTrustLine, getExistingOffers, purchaseCruViaMakeOfferABI } = require("../helpers/xrplHelper");
+const { setupTrustLine, purchaseCruViaMakeOfferABI } = require("../helpers/xrplHelper");
+const { getUserPFMUs, stakePFMU } = require("../services/bondService");
 
 async function createAndFundWallet() {
   const client = new xrpl.Client("wss://s.altnet.rippletest.net:51233");
@@ -46,8 +47,7 @@ const validateRequest = (req, res, next) => {
 router.get("/get-user-pfmu/:address", async (req, res) => {
   try {
     const { address } = req.params;
-    const xrplService = new XRPLService();
-    const balance = await xrplService.getUserPFMU(address);
+    const balance = await getUserPFMUs(address);
     res.status(200).json({ success: true, balance });
   } catch (error) {
     console.error("❌ Error fetching PFMU balance:", error);
@@ -62,8 +62,7 @@ router.post("/stake-pfmu", validateRequest, async (req, res) => {
     if (!walletSecret || !amount) {
       return res.status(400).json({ success: false, error: "Missing walletSecret or amount" });
     }
-    const xrplService = new XRPLService();
-    const result = await xrplService.stakePFMU(walletSecret, amount);
+    const result = await stakePFMU(walletSecret, amount);
     if (result) {
       res.status(200).json({ success: true, transaction: result });
     } else {
@@ -90,20 +89,18 @@ router.post("/buy-pfmu", validateRequest, async (req, res) => {
     const newWallet = await createAndFundWallet();
     console.log("Our new wallet is:", newWallet.address);
 
-    await setupTrustLine(client, newWallet, XRPLStaking.PFMU_CURRENCY, XRPLStaking.ISSUER_ADDRESS);
+    await setupTrustLine(client, newWallet, XRPLStaking.PFMU_CURRENCY_HEX, XRPLStaking.ISSUER_ADDRESS);
     console.log("TrustSet transaction submitted");
 
     //Create Offer
-    const existingOffers = await getSellOffers();
+    const xrpl_service = new XRPLStaking();
+
+    const existingOffers = await xrpl_service.getSellOffers();
     //const existingOffers = await getExistingOffers(client, XRPLStaking.PFMU_CURRENCY, XRPLStaking.ISSUER_ADDRESS);
     let offer;
 
     if (existingOffers.length > 0) {
       console.log("Using existing offer:", existingOffers[0]);
-      offer = {
-        TakerPays: existingOffers[0].TakerPays,
-        TakerGets: existingOffers[0].TakerGets,
-      };
       offer = existingOffers[0];
     } else {
       console.log("No existing offers found, creating a new offer...");
