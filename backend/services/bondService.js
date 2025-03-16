@@ -1,8 +1,103 @@
 const fs = require("fs").promises;
 const path = require("path");
 const BONDS_FILE = path.resolve(__dirname, "../data/bonds.json");
+const WALLETS_FILE = path.resolve(__dirname, "../data/wallets.json");
 const XRPLStaking = require("../services/xrplService");
 const PFMU = require("../models/Pfmu");
+
+// Add a New Wallet
+async function addWallet(userWalletAddress, publicKey, privateKey, classicAddress, seed) {
+  try {
+    // Get all wallets
+    let wallets = await getAllWallets();
+
+    // Find existing wallet index
+    const index = wallets.findIndex(wallet => wallet.userWalletAddress === userWalletAddress);
+    if (index !== -1) {
+      // ✅ Update existing wallet
+      console.log(`✅ Wallet is updating.`);
+      wallets[index] = {
+        ...wallets[index], // Preserve existing properties
+        ...newWalletDict, // Overwrite updated fields
+      };
+    } else {
+      // Create new wallet object
+      let newWalletDict = {
+        userWalletAddress,
+        publicKey,
+        privateKey,
+        classicAddress,
+        seed,
+      };
+      // 🆕 Add new wallet if no match is found
+      wallets.push(newWalletDict);
+      console.log(`✅ New wallet added.`);
+    }
+
+    // Write updated wallets to file
+    await writeWalletsToFile(wallets);
+
+    console.log(`✅ Wallet saved successfully.`);
+    return true;
+  } catch (error) {
+    console.error("❌ Error adding wallet:", error);
+    return false;
+  }
+}
+async function getWalletByUserAddress(userWalletAddress) {
+  try {
+    const data = await fs.readFile(WALLETS_FILE, "utf-8");
+    const wallets = JSON.parse(data);
+    for (const wallet of wallets) {
+      console.log(wallet);
+      if (wallet.userWalletAddress == userWalletAddress) {
+        return wallet;
+      }
+    }
+  } catch (error) {
+    console.error("Error reading JSON file:", error);
+    return null;
+  }
+  return null;
+}
+
+async function getWalletByClassicAddress(classicAddress) {
+  try {
+    const data = await fs.readFile(WALLETS_FILE, "utf-8");
+    const wallets = JSON.parse(data);
+    for (const wallet of wallets) {
+      console.log(wallet);
+      if (wallet.classicAddress == classicAddress) {
+        return wallet;
+      }
+    }
+  } catch (error) {
+    console.error("Error reading JSON file:", error);
+    return null;
+  }
+  return null;
+}
+
+// Function to get all bonds from JSON file
+async function getAllWallets() {
+  try {
+    const data = await fs.readFile(WALLETS_FILE, "utf-8");
+    return JSON.parse(data);
+  } catch (error) {
+    console.error("Error reading wallets file:", error);
+    return [];
+  }
+}
+
+// Helper function to write bonds to file
+async function writeWalletsToFile(wallets) {
+  try {
+    await fs.writeFile(WALLETS_FILE, JSON.stringify(wallets, null, 2), "utf-8");
+    console.log("Bonds file updated successfully!");
+  } catch (error) {
+    console.error("Error writing bonds file:", error);
+  }
+}
 
 async function getBondById(id) {
   try {
@@ -245,4 +340,7 @@ module.exports = {
   getActiveBonds,
   getOpenBonds,
   getClosedBonds,
+  addWallet,
+  getWalletByUserAddress,
+  getWalletByClassicAddress,
 };

@@ -1,5 +1,6 @@
 const xrpl = require("xrpl");
 const Decimal = require("decimal.js");
+const { getWalletByClassicAddress } = require("../services/bondService");
 
 class CruBuyData {
   constructor(num_crus_purchased, num_crus_open_orders, date, buyTxLink, currencyCode) {
@@ -52,10 +53,10 @@ async function fundAccount(client, address) {
 /**
  * Sets up a Trust Line if needed
  */
-async function setupTrustLine(client, wallet, currencyCode, issuerAddress) {
+async function setupTrustLine(client, wallet, classicAddress, currencyCode, issuerAddress) {
   const trustSetTx = {
     TransactionType: "TrustSet",
-    Account: wallet.classicAddress,
+    Account: classicAddress,
     LimitAmount: {
       currency: currencyCode,
       issuer: issuerAddress,
@@ -97,10 +98,10 @@ async function getExistingOffers(client, currencyCode, issuerAddress) {
 /**
  * Places a Buy Order for CRUs on XRPL DEX
  */
-async function purchaseCruViaMakeOfferABI(client, wallet, offer, amount) {
-  const preBuyAmt = await getBalancefromLines(wallet.address, client, offer.TakerGets.currency);
+async function purchaseCruViaMakeOfferABI(client, classicAddress, offer, amount) {
+  const preBuyAmt = await getBalancefromLines(classicAddress, client, offer.TakerGets.currency);
   console.log("purchaseCruViaMakeOfferABI" + offer);
-  const cruResults = await offerCreate(client, wallet, offer.TakerGets, offer.TakerPays, amount);
+  const cruResults = await offerCreate(client, classicAddress, offer.TakerGets, offer.TakerPays, amount);
   if (!cruResults.success) {
     return cruResults;
   }
@@ -135,6 +136,8 @@ async function getLatestLedgerSequence(client) {
 }
 
 async function prepareSignSubmitTxWithRetry(client, transactionJson, wallet, maxAttempts = 3) {
+  this.issuerWallet = xrpl.Wallet.fromSeed(process.env.ISSUER_WALLET_SECRET);
+
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     console.log(`prepareSignSubmitTxWithRetry loop attempt: ${attempt}`);
     try {
@@ -177,8 +180,8 @@ async function prepareSignSubmitTxWithRetry(client, transactionJson, wallet, max
   }
 }
 
-async function offerCreate(client, wallet, takerGets, takerPays, amount) {
-  await tecPathCheck(client, wallet.address);
+async function offerCreate(client, classicAddress, takerGets, takerPays, amount) {
+  await tecPathCheck(client, classicAddress);
   console.log("offerCreate takerPays: ", takerPays);
   console.log("offerCreate takerGets: ", takerGets);
 
@@ -187,12 +190,17 @@ async function offerCreate(client, wallet, takerGets, takerPays, amount) {
 
   const offerCreateTx = {
     TransactionType: "OfferCreate",
-    Account: wallet.classicAddress,
+    Account: classicAddress,
     TakerGets: takerGets,
     TakerPays: takerPaysStr,
   };
   console.log("offerCreate offerCreateTx: ", offerCreateTx);
-  return await prepareSignSubmitTxWithRetry(client, offerCreateTx, wallet);
+  let wallet = await getWalletByClassicAddress(classicAddress);
+  let xrplWallet = xrpl.Wallet.fromSeed(process.env.ISSUER_WALLET_SECRET);
+
+  console.log("offerCreate xrplWallet: ", xrplWallet);
+
+  return await prepareSignSubmitTxWithRetry(client, offerCreateTx, xrplWallet);
 }
 
 async function handleSuccessfulCruOffer(cruWalletAddress, cruResults, amount, preBuyAmt, currencyCode, client) {

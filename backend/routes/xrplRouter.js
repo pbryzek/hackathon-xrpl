@@ -3,10 +3,10 @@ const router = express.Router();
 const xrpl = require("xrpl");
 const XRPLStaking = require("../services/xrplService");
 const { setupTrustLine, purchaseCruViaMakeOfferABI } = require("../helpers/xrplHelper");
-const { getUserPFMUs, stakePFMU } = require("../services/bondService");
+const { getUserPFMUs, stakePFMU, addWallet, getWalletByUserAddress } = require("../services/bondService");
 
 async function createAndFundWallet() {
-  const client = new xrpl.Client("wss://s.altnet.rippletest.net:51233");
+  const client = new xrpl.Client(XRPLStaking.XRPL_SERVER);
   await client.connect();
 
   // 🔹 Generate a new wallet
@@ -19,7 +19,6 @@ async function createAndFundWallet() {
   // 🔹 FUND THE WALLET USING THE TESTNET FAUCET
   console.log("Funding wallet with Testnet XRP...");
   const faucetResult = await client.fundWallet(newWallet);
-
   console.log("Wallet funded:", faucetResult);
 
   // 🔹 VERIFY WALLET ACTIVATION
@@ -28,7 +27,6 @@ async function createAndFundWallet() {
     account: newWallet.classicAddress,
     ledger_index: "current",
   });
-
   console.log("Account Info:", accountInfo);
 
   await client.disconnect();
@@ -62,6 +60,12 @@ router.post("/stake-pfmu", validateRequest, async (req, res) => {
     if (!walletSecret || !amount) {
       return res.status(400).json({ success: false, error: "Missing walletSecret or amount" });
     }
+    const userWallet = getWalletByUserAddress(walletSecret);
+    if (!userWallet) {
+      res.status(500).json({ success: false, error: "Failed to find walletSecret:" + walletSecret });
+    }
+    let walletAddress = userWallet.classicAddress;
+    console.log("walletAddress ", walletAddress);
     const result = await stakePFMU(walletSecret, amount);
     if (result) {
       res.status(200).json({ success: true, transaction: result });
@@ -81,24 +85,38 @@ router.post("/buy-pfmu", validateRequest, async (req, res) => {
     return res.status(400).json({ error: "Missing required fields" });
   }
   const client = new xrpl.Client(XRPLStaking.XRPL_SERVER);
-  console.log("XRPL_SERVER: ", XRPLStaking.XRPL_SERVER);
   await client.connect();
   try {
-    const newWallet = await createAndFundWallet();
-    console.log("Our new wallet is:", newWallet.address);
-    await setupTrustLine(client, newWallet, XRPLStaking.PFMU_CURRENCY_HEX, XRPLStaking.ISSUER_ADDRESS);
-    console.log("TrustSet transaction submitted");
-    const accountInfo = await client.request({
-      command: "account_info",
-      account: XRPLStaking.ISSUER_ADDRESS,
-      ledger_index: "validated",
-    });
-    console.log("Available XRP:", accountInfo.result.account_data.Balance / 1000000, "XRP");
-    const trustLines = await client.request({
-      command: "account_lines",
-      account: XRPLStaking.ISSUER_ADDRESS,
-    });
-    console.log(trustLines);
+    const userWallet = await getWalletByUserAddress(walletSecret);
+    let classicAddress;
+    if (userWallet) {
+      classicAddress = userWallet.classicAddress;
+    } else {
+      const newWallet = await createAndFundWallet(walletSecret);
+      console.log("Our new wallet is:", newWallet.address);
+      classicAddress = newWallet.classicAddress;
+      addWallet(walletSecret, newWallet.publicKey, newWallet.privateKey, newWallet.classicAddress, newWallet.seed);
+      console.log("classicAddress ", classicAddress);
+      await setupTrustLine(
+        client,
+        newWallet,
+        classicAddress,
+        XRPLStaking.PFMU_CURRENCY_HEX,
+        XRPLStaking.ISSUER_ADDRESS
+      );
+      console.log("TrustSet transaction submitted");
+      const accountInfo = await client.request({
+        command: "account_info",
+        account: XRPLStaking.ISSUER_ADDRESS,
+        ledger_index: "validated",
+      });
+      console.log("Available XRP:", accountInfo.result.account_data.Balance / 1000000, "XRP");
+      const trustLines = await client.request({
+        command: "account_lines",
+        account: XRPLStaking.ISSUER_ADDRESS,
+      });
+      console.log(trustLines);
+    }
 
     //Create Offer
     const xrpl_service = new XRPLStaking();
@@ -128,7 +146,7 @@ router.post("/buy-pfmu", validateRequest, async (req, res) => {
 
     // Prepare Payment Transaction
     console.log("purhasing crus...");
-    const purchaseResult = await purchaseCruViaMakeOfferABI(client, newWallet, offer, amount);
+    const purchaseResult = await purchaseCruViaMakeOfferABI(client, classicAddress, offer, amount);
     console.log("CRU purchase successful:", purchaseResult);
 
     if (!purchaseResult.success) {

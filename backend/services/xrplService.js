@@ -6,7 +6,6 @@ class XRPLStaking {
   static XRPL_SERVER = "wss://s.altnet.rippletest.net:51233"; // XRPL Testnet
   static ISSUER_ADDRESS = "rhGiVDJ56vmEHbiVJ4KZRCPysudgWaRzu3"; // Change to actual issuer'
   static ISSUER_XRPL_ADDRESS = "rF35kVEfmp5XyFtYMcmWEZK5BTgHBJtY9";
-
   static PFMU_XRP_CONVERSION = 10.5;
   static STAKING_ACCOUNT_SECRET = process.env.STAKING_ACCOUNT_SECRET; // Staking Account Private Key
 
@@ -146,7 +145,6 @@ class XRPLStaking {
         : (takerGetsAmount / takerPaysAmount).toFixed(4);
 
       const amount = isBuy ? takerGetsAmount.toFixed(4) : takerPaysAmount.toFixed(4);
-
       const totalPrice = (parseFloat(price) * parseFloat(amount)).toFixed(4);
 
       return {
@@ -159,7 +157,6 @@ class XRPLStaking {
 
   async getBuyOffers() {
     console.log("getBuyOffers");
-
     await this.connectClient();
 
     try {
@@ -169,10 +166,8 @@ class XRPLStaking {
         taker_gets: XRPLStaking.PFMU_TOKEN,
         ledger_index: "validated",
       });
-
       console.log("xrpBuyResponse", xrpBuyResponse);
       const formattedXRPBuyOffers = await this.formatOffers(xrpBuyResponse.result.offers, true, "XRP");
-
       const usdBuyResponse = await this.client.request({
         command: "book_offers",
         taker_pays: { currency: "USD", issuer: "rvYAfWj5gh67oV6fW32ZzP3Aw4Eubs59B" },
@@ -181,10 +176,8 @@ class XRPLStaking {
       });
 
       console.log("usdBuyResponse", usdBuyResponse);
-
       const formattedUSDBuyOffers = await this.formatOffers(usdBuyResponse.result.offers, true, "USD");
       console.log(formattedUSDBuyOffers);
-
       const combinedBuyOffers = [...formattedXRPBuyOffers, ...formattedUSDBuyOffers];
       console.log("Buy Offers:\n", combinedBuyOffers);
       return combinedBuyOffers;
@@ -218,9 +211,11 @@ class XRPLStaking {
       return combinedSellOffers;
     } catch (error) {
       console.error("Error fetching offers:", error.message);
+      return [];
     } finally {
       await this.client.disconnect();
     }
+    return [];
   }
 
   // ✅ Stake PFMU Tokens
@@ -241,15 +236,12 @@ class XRPLStaking {
   async mintGreenBond() {
     try {
       console.log(`🎉 mintGreenBondmintGreenBondmintGreenBond`);
-
       await this.connectClient();
-
       // To stake, 1. Send PFMU
       // 2. Receive Derivative PFMU (new token)
       console.log(`🎉 mintGreenBond`);
       console.log(`🎉 this.issuerWallet`);
       console.log(this.issuerWallet);
-
       const txn = {
         TransactionType: "NFTokenMint",
         Account: this.issuerWallet.classicAddress,
@@ -258,15 +250,11 @@ class XRPLStaking {
         Flags: 8,
       };
       console.log(`🎉 txn: ${txn}`);
-
       let response = await this.client.submitAndWait(txn, { wallet: this.issuerWallet });
       console.log(`🎉 response: ${response}`);
-
       if (!response.result.meta) throw new Error("NFT minting failed");
-
       let GREEN_BOND_NFT_ID = response.result.meta.nftoken_id;
       console.log(`🎉 Green Bond NFT Minted: ${GREEN_BOND_NFT_ID}`);
-
       return GREEN_BOND_NFT_ID;
     } catch (error) {
       console.error("Error minting Green Bond NFT:", error);
