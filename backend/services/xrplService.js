@@ -4,14 +4,14 @@ require("dotenv").config(); // Load environment variables
 class XRPLStaking {
   // Static properties from the first class
   static XRPL_SERVER = "wss://s.altnet.rippletest.net:51233"; // XRPL Testnet
-  static ISSUER_ADDRESS = "rnQfo2qJeBhoZQRnPfXDH5JuxFhYrHLHxH"; // Change to actual issuer
+  static ISSUER_ADDRESS = "rhGiVDJ56vmEHbiVJ4KZRCPysudgWaRzu3"; // Change to actual issuer
   static PFMU_XRP_CONVERSION = 10.5;
   static STAKING_ACCOUNT_SECRET = process.env.STAKING_ACCOUNT_SECRET; // Staking Account Private Key
 
   // PFMU and GBOND Currency Codes
+  //static PFMU_CURRENCY_HEX = "50464D552D4252412D3033313832303234AABBCCDD";
   static PFMU_CURRENCY = "PFMU-BRA-03182024";
   static PFMU_CURRENCY_HEX = "50464D552D4252412D3033313832303234000000";
-
   static GBOND_CURRENCY_PREFIX = "GBOND-";
   static GBOND_CURRENCY = XRPLStaking.GBOND_CURRENCY_PREFIX + XRPLStaking.PFMU_CURRENCY;
 
@@ -109,7 +109,7 @@ class XRPLStaking {
       Account: stakingWallet.classicAddress,
       Destination: userAddress,
       Amount: {
-        currency: XRPLStaking.PFMU_CURRENCY,
+        currency: XRPLStaking.PFMU_CURRENCY_HEX,
         issuer: XRPLStaking.ISSUER_ADDRESS,
         value: unstakeAmount.toString(),
       },

@@ -92,6 +92,21 @@ router.post("/buy-pfmu", validateRequest, async (req, res) => {
     await setupTrustLine(client, newWallet, XRPLStaking.PFMU_CURRENCY_HEX, XRPLStaking.ISSUER_ADDRESS);
     console.log("TrustSet transaction submitted");
 
+    const accountInfo = await client.request({
+      command: "account_info",
+      account: "rhGiVDJ56vmEHbiVJ4KZRCPysudgWaRzu3",
+      ledger_index: "validated",
+    });
+
+    console.log("Available XRP:", accountInfo.result.account_data.Balance / 1000000, "XRP");
+
+    const trustLines = await client.request({
+      command: "account_lines",
+      account: "rhGiVDJ56vmEHbiVJ4KZRCPysudgWaRzu3",
+    });
+
+    console.log(trustLines);
+
     //Create Offer
     const xrpl_service = new XRPLStaking();
 
@@ -111,7 +126,7 @@ router.post("/buy-pfmu", validateRequest, async (req, res) => {
           value: amount.toString(),
         },
         TakerGets: {
-          currency: XRPLStaking.PFMU_CURRENCY,
+          currency: XRPLStaking.PFMU_CURRENCY_HEX,
           issuer: XRPLStaking.ISSUER_ADDRESS,
           value: (amount / 2).toString(), // Example conversion rate (update dynamically)
         },

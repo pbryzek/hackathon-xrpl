@@ -16,21 +16,16 @@ async function tecPathCheck(client, address) {
     // 🔹 Get XRPL reserve requirements
     const serverInfo = await client.request({ command: "server_info" });
     const { reserve_base_xrp, reserve_inc_xrp } = serverInfo.result.info.validated_ledger;
-
     const baseReserve = new Decimal(reserve_base_xrp);
     const incReserve = new Decimal(reserve_inc_xrp);
-
     console.log("Checking balance for address:", address);
-
     // 🔹 Get the wallet's current XRP balance
     const accountInfo = await client.request({ command: "account_info", account: address });
     const xrpBalance = new Decimal(accountInfo.result.account_data.Balance).div(1000000); // Convert drops to XRP
-
     // 🔹 Calculate required reserve based on account's objects (trust lines, offers, etc.)
     const ownerCount = new Decimal(accountInfo.result.account_data.OwnerCount);
     const requiredReserve = baseReserve.plus(ownerCount.mul(incReserve));
     const availableBalance = xrpBalance.minus(requiredReserve);
-
     console.log(`Available Balance: ${availableBalance} XRP`);
 
     // 🔹 If available balance is too low, fund the account
@@ -39,7 +34,6 @@ async function tecPathCheck(client, address) {
       console.log("Not enough XRP, funding account...");
       return await fundAccount(client, address);
     }
-
     return null;
   } catch (error) {
     console.error("Error in tecPathCheck:", error.message);
@@ -106,12 +100,10 @@ async function getExistingOffers(client, currencyCode, issuerAddress) {
 async function purchaseCruViaMakeOfferABI(client, wallet, offer, amount) {
   const preBuyAmt = await getBalancefromLines(wallet.address, client, offer.TakerGets.currency);
   console.log("purchaseCruViaMakeOfferABI" + offer);
-  const cruResults = await offerCreate(client, wallet, offer.TakerPays, offer.TakerGets);
-
+  const cruResults = await offerCreate(client, wallet, offer.TakerGets, offer.TakerPays, amount);
   if (!cruResults.success) {
     return cruResults;
   }
-
   return handleCruOfferResult(
     wallet.address,
     cruResults,
@@ -185,23 +177,21 @@ async function prepareSignSubmitTxWithRetry(client, transactionJson, wallet, max
   }
 }
 
-async function offerCreate(client, wallet, takerGets, takerPays) {
+async function offerCreate(client, wallet, takerGets, takerPays, amount) {
   await tecPathCheck(client, wallet.address);
   console.log("offerCreate takerPays: ", takerPays);
+  console.log("offerCreate takerGets: ", takerGets);
 
-  let takerPaysStr = "" + takerPays * 100000;
-  let takerPaysDict = {
-    currency: "TOKEN_CODE",
-    issuer: "rIssuerAddress",
-    value: takerPaysStr,
-  };
+  let takerGetsStr = "" + takerGets.value * 100000;
+  let takerPaysStr = "" + takerPays.value * 100000;
 
   const offerCreateTx = {
     TransactionType: "OfferCreate",
     Account: wallet.classicAddress,
     TakerGets: takerGets,
-    TakerPays: takerPaysDict,
+    TakerPays: takerPaysStr,
   };
+  console.log("offerCreate offerCreateTx: ", offerCreateTx);
   return await prepareSignSubmitTxWithRetry(client, offerCreateTx, wallet);
 }
 
