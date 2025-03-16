@@ -149,16 +149,19 @@ const Index = () => {
                 </svg>
               </div>
             </div>
-            <div>
-              <div className="flex items-baseline mt-2">
-                <span className="text-3xl font-bold text-bond-blue">$25.6</span>
-                <span className="ml-1 text-xl text-gray-600">Billion</span>
+            
+            <div className="flex justify-between items-center mt-2">
+              <div className="text-center flex-1 mr-4">
+                <h1 className="text-center mb-2">
+                  <span className="text-7xl font-bold text-bond-blue tracking-tight">$25.6</span>
+                  <span className="ml-1 text-2xl text-gray-600 align-top"> Billion</span>
+                </h1>
+                <p className="text-gray-600 text-sm">Total green bond issuance volume</p>
               </div>
-              <p className="text-gray-600 mt-2 text-sm">Total green bond issuance volume</p>
-              <div className="mt-3 flex items-center">
-                <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse-subtle mr-1.5"></div>
-                <span className="text-xs font-medium text-gray-600">12.4% increase from last year</span>
-              </div>
+              
+              {/* <div className="flex items-center bg-green-50 px-4 py-2 rounded-full shadow-sm">
+                <span className="text-base font-medium text-green-600">12.4% ↗</span>
+              </div> */}
             </div>
           </div>
           
@@ -172,16 +175,19 @@ const Index = () => {
                 </svg>
               </div>
             </div>
-            <div>
-              <div className="flex items-baseline mt-2">
-                <span className="text-3xl font-bold text-green-600">$62.5</span>
-                <span className="ml-1 text-xl text-gray-600">Billion</span>
+            
+            <div className="flex justify-between items-center mt-2">
+              <div className="text-center flex-1 mr-4">
+                <h1 className="text-center mb-2">
+                  <span className="text-7xl font-bold text-green-600 tracking-tight">$62.5</span>
+                  <span className="ml-1 text-2xl text-gray-600 align-top">Billion</span>
+                </h1>
+                <p className="text-gray-600 text-sm">Total ESG financing portfolio</p>
               </div>
-              <p className="text-gray-600 mt-2 text-sm">Total ESG financing portfolio</p>
-              <div className="mt-3 flex items-center">
-                <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse-subtle mr-1.5"></div>
-                <span className="text-xs font-medium text-gray-600">Market leader in sustainable finance</span>
-              </div>
+              
+              {/* <div className="flex items-center bg-green-50 px-4 py-2 rounded-full shadow-sm">
+                <span className="text-base font-medium text-green-600">Leader ↗</span>
+              </div> */}
             </div>
           </div>
         </div>
