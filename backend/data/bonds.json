@@ -103,5 +103,19 @@
     "maturityDate": 1757986911799,
     "description": "This is a fully sustainable and green bond that is packed with PFMUs.",
     "investors": []
+  },
+  {
+    "id": 7,
+    "pfmus_capacity": 0.1,
+    "pfmus_staked": 0,
+    "pfmus": [],
+    "name": "Green Bond #1",
+    "issuer": "CarbonSustain.io",
+    "interestRate": 2.4,
+    "amount": 1000000,
+    "createdDate": "2025-09-16T03:35:21.014Z",
+    "maturityDate": 1757993721014,
+    "description": "This is a fully sustainable and green bond that is packed with PFMUs.",
+    "investors": []
   }
 ]

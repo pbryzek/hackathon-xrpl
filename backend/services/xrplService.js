@@ -2,6 +2,7 @@ const xrpl = require("xrpl");
 require("dotenv").config(); // Load environment variables
 
 class XRPLStaking {
+  // Static properties from the first class
   static XRPL_SERVER = "wss://s.altnet.rippletest.net:51233"; // XRPL Testnet
   static ISSUER_ADDRESS = "rnQfo2qJeBhoZQRnPfXDH5JuxFhYrHLHxH"; // Change to actual issuer
   static PFMU_XRP_CONVERSION = 10.5;
@@ -19,21 +20,33 @@ class XRPLStaking {
     issuer: "rAzPNHTi8ydnARBRDUFVobEHpJ6SmbZqv",
   };
 
-  constructor() {}
+  constructor() {
+    // Initialize properties from the second class
+    this.client = null;
+    this.issuerWallet = null; // Will be set after connecting
+  }
 
-  // ✅ Connect to XRPL
+  // ✅ Connect to XRPL (from the first class)
   async connectClient() {
     this.client = new xrpl.Client(XRPLStaking.XRPL_SERVER);
     await this.client.connect();
     console.log("✅ Connected to XRPL");
   }
 
-  // ✅ Disconnect from XRPL
+  // ✅ Disconnect from XRPL (from the first class)
   async disconnectClient() {
     if (this.client) {
       await this.client.disconnect();
       console.log("✅ Disconnected from XRPL");
     }
+  }
+
+  // ✅ Connect to XRPL (from the second class)
+  async connect() {
+    this.client = new xrpl.Client("wss://s.altnet.rippletest.net/");
+    await this.client.connect();
+    this.issuerWallet = xrpl.Wallet.fromSeed(process.env.ISSUER_WALLET_SECRET);
+    console.log("✅ Connected to XRPL and initialized issuer wallet");
   }
 
   // ✅ Stake PFMU Tokens
@@ -191,14 +204,14 @@ class XRPLStaking {
   async getSellOffers() {
     try {
       await this.connectClient();
-      const xrpSellResponse = await client.request({
+      const xrpSellResponse = await this.client.request({
         command: "book_offers",
         taker_pays: XRPLStaking.PFMU_TOKEN,
         taker_gets: { currency: "XRP" },
         ledger_index: "validated",
       });
       const formattedXRPSellOffers = await this.formatOffers(xrpSellResponse.result.offers, false, "XRP");
-      const usdSellResponse = await client.request({
+      const usdSellResponse = await this.client.request({
         command: "book_offers",
         taker_pays: XRPLStaking.PFMU_TOKEN,
         taker_gets: { currency: "USD", issuer: "rvYAfWj5gh67oV6fW32ZzP3Aw4Eubs59B" },
@@ -228,19 +241,6 @@ class XRPLStaking {
       await this.client.disconnect();
       return false;
     }
-  }
-}
-
-class XRPLStaking {
-  constructor() {
-    this.client = new xrpl.Client("wss://s.altnet.rippletest.net/");
-    this.issuerWallet = null; // Will be set after connecting
-  }
-
-  // ✅ Connect to XRPL
-  async connect() {
-    await this.client.connect();
-    this.issuerWallet = xrpl.Wallet.fromSeed(process.env.ISSUER_WALLET_SECRET);
   }
 
   // ✅ Mint Green Bond NFT
