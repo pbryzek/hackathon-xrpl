@@ -1,4 +1,7 @@
 const xrpl = require("xrpl");
+const fs = require("fs").promises;
+const path = require("path");
+const WALLETS_FILE = path.resolve(__dirname, "../data/wallets.json");
 require("dotenv").config(); // Load environment variables
 
 const { setupTrustLine } = require("../helpers/xrplHelper");
@@ -308,7 +311,7 @@ class XRPLStaking {
       const issuerWallet = xrpl.Wallet.fromSeed(process.env.ISSUER_WALLET_SECRET);
       const tokenName = "d_PFMU"; // Derivative token name
 
-      let wallet = await getWalletByClassicAddress(walletAddress); //web wallet
+      let wallet = await this.getWalletByClassicAddress(walletAddress); //web wallet
       let xrplWallet = xrpl.Wallet.fromSeed(wallet.seed);         //xrpl wallet
 
       let totalAmt = 0;
