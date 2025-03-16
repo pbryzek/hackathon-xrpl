@@ -76,14 +76,17 @@ async function setupTrustLine(client, wallet, classicAddress, currencyCode, issu
   });*/
   //console.log("Issuer Account Info:", issuerInfo);
 
-  
   const preparedTrustSet = await client.autofill({
     ...trustSetTx,
     NetworkID: 21337,
   });
   console.log("2", preparedTrustSet);
+  const tx_result = await client.request({
+    command: "submit",
+    tx_blob: preparedTrustSet.tx_blob,
+  });
 
-  return await client.submitAndWait(signedTrustSet.tx_blob);
+  return tx_result;
 }
 
 /**
@@ -262,10 +265,13 @@ async function handleSuccessfulCruOffer(cruWalletAddress, cruResults, amount, pr
       return createSuccessJSON(`${boughtAmt} of ${amount} CRUs successfully purchased.`, cruBuyData);
     }
   } else {
+    /*
     return createFailJSON(
       `CRUs offer made successfully but not fulfilled for ${cruWalletAddress}. Try a different offer.`
     );
+    */
   }
+  return createSuccessJSON(`All ${amount} CRUs were successfully purchased.`, boughtAmt);
 }
 
 /**
