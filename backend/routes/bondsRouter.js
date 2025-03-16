@@ -94,6 +94,32 @@ router.post("/", async (req, res) => {
   }
 });
 
+// ✅ Mint Green Bond NFT and Tokenize it
+router.post("/mint", async (req, res) => {
+  try {
+    console.log("Minting new Green Bond NFT...");
+
+    // Create instance of XRPL Staking Service
+    let xrpl_service = new XRPLStaking();
+    let nftId = await xrpl_service.mintGreenBond(); // Mint the NFT
+
+    if (!nftId) {
+      return res.status(500).json(failJSON("Green Bond NFT minting failed."));
+    }
+
+    console.log(`🎉 Green Bond NFT Minted: ${nftId}`);
+    
+    // Call issue_gbnd_tokens() to fractionalize bond after minting
+    await xrpl_service.issueGBNDTokens();
+
+    res.status(200).json(successJSON("Green Bond NFT minted successfully", { nftId }));
+  } catch (err) {
+    console.error("Error minting Green Bond NFT:", err);
+    res.status(500).json(failJSON(err.message));
+  }
+});
+
+
 // Stake in a Green Bond
 router.post("/:id/stake", async (req, res) => {
   try {
@@ -109,12 +135,31 @@ router.post("/:id/stake", async (req, res) => {
     let resStake = await stakePFMU(walletSecret, amount, project, issuanceDate, expirationDate, bond);
     if (!resStake) {
       // TODO: Make API to create Green Bond.
+      return res.status(500).json(failJSON("PFMU staking failed"));
+    }
+    
+    console.log("✅ Stake successful, checking NFT status...");
+
+    // ✅ Step 2: Mint Green Bond NFT if not already minted
+    if (!bond.nftId) {
+      console.log("🔄 No NFT found for this bond. Minting NFT now...");
+      let nftId = await xrplService.mintGreenBond();
+
+      if (!nftId) {
+        return res.status(500).json(failJSON("Failed to mint Green Bond NFT."));
+      }
+
+      console.log(`🎉 Green Bond NFT Minted: ${nftId}`);
+      bond.nftId = nftId; // ✅ Store the minted NFT ID
+    } else {
+      console.log(`✅ Green Bond already has NFT: ${bond.nftId}`);
     }
 
     await updateBondsFile(bond);
 
-    res.status(200).json(successJSON("PFMU stake successful", bond));
+    res.status(200).json(successJSON("PFMU stake successful & Green Bond minted", bond));
   } catch (err) {
+    console.error("❌ Error during staking & minting:", err);
     res.status(500).json(failJSON(err.message));
   }
 });
