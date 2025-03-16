@@ -2,9 +2,8 @@ const xrpl = require("xrpl");
 const Decimal = require("decimal.js");
 const fs = require("fs").promises; // Use promises for async/await support
 const path = require("path");
-
 const WALLETS_FILE = path.resolve(__dirname, "../data/wallets.json");
-
+const ISSUER_XRPL_ADDRESS = "rF35kVEfmp5XyFtYMcmWEZK5BTgHBJtY9";
 
 class CruBuyData {
   constructor(num_crus_purchased, num_crus_open_orders, date, buyTxLink, currencyCode) {
@@ -111,7 +110,7 @@ async function purchaseCruViaMakeOfferABI(client, classicAddress, offer, amount)
     return cruResults;
   }
   return handleCruOfferResult(
-    wallet.address,
+    classicAddress,
     cruResults,
     offer.TakerGets.value,
     preBuyAmt,
@@ -121,15 +120,19 @@ async function purchaseCruViaMakeOfferABI(client, classicAddress, offer, amount)
 }
 
 async function handleCruOfferResult(cruWalletAddress, cruResults, amount, preBuyAmt, currencyCode, client) {
-  const transResult = cruResults.data.result.meta.TransactionResult;
-
-  if (transResult === "tesSUCCESS") {
+  console.log("handleCruOfferResult");
+  console.log(cruResults);
+  const transResult = cruResults?.data?.result?.meta?.TransactionResult ?? "";
+  if (transResult && transResult === "tesSUCCESS") {
     return await handleSuccessfulCruOffer(cruWalletAddress, cruResults, amount, preBuyAmt, currencyCode, client);
   } else if (transResult === "tecUNFUNDED_OFFER") {
     return createFailJSON(`CRUs failed to buy because of insufficient funds. Attempted to buy ${amount} PFMUs.`);
-  } else {
-    return createFailJSON(`CRUs failed to buy. Unaccounted for status: ${transResult}`);
   }
+  const isAccepted = cruResults.data.result.accepted;
+  if (isAccepted) {
+    return await handleSuccessfulCruOffer(cruWalletAddress, cruResults, amount, preBuyAmt, currencyCode, client);
+  }
+  return createFailJSON(`CRUs failed to buy. Unaccounted for status: ${transResult}`);
 }
 
 async function getLatestLedgerSequence(client) {
@@ -141,8 +144,6 @@ async function getLatestLedgerSequence(client) {
 }
 
 async function prepareSignSubmitTxWithRetry(client, transactionJson, wallet, maxAttempts = 3) {
-  this.issuerWallet = xrpl.Wallet.fromSeed(process.env.ISSUER_WALLET_SECRET);
-
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     console.log(`prepareSignSubmitTxWithRetry loop attempt: ${attempt}`);
     try {
@@ -151,30 +152,35 @@ async function prepareSignSubmitTxWithRetry(client, transactionJson, wallet, max
       const latestLedgerSequence = await getLatestLedgerSequence(client);
       console.log("Flow 3");
 
-      transactionJson.LastLedgerSequence = latestLedgerSequence + 50;
+      transactionJson.LastLedgerSequence = latestLedgerSequence + 500;
       // 🔹 Prepare, sign, and submit transaction
       console.log("Flow 4");
       console.log(transactionJson);
 
-      const tx_prepared = await client.autofill(transactionJson);
+      //let tx_prepared = await client.autofill(transactionJson);
+      let tx_prepared = await client.autofill({
+        ...transactionJson,
+        NetworkID: 21337,
+      });
       console.log("Flow 5");
       console.log(tx_prepared);
-
       const tx_signed = wallet.sign(tx_prepared);
       console.log("Flow 6");
       console.log(tx_signed);
+      //const tx_result = await client.submitAndWait(tx_signed.tx_blob);
 
-      const tx_result = await client.submitAndWait(tx_signed.tx_blob);
-      console.log("Flow 7");
-
-      const balance = await client.request({
-        command: "account_info",
-        account: XRPLStaking.ISSUER_XRPL_ADDRESS,
-        ledger_index: "validated",
+      const tx_result = await client.request({
+        command: "submit",
+        tx_blob: tx_signed.tx_blob,
       });
 
+      console.log("Flow 7");
+      const balance = await client.request({
+        command: "account_info",
+        account: ISSUER_XRPL_ADDRESS,
+        ledger_index: "validated",
+      });
       console.log("Account Balance:", balance.result.account_data.Balance / 1000000, "XRP");
-
       return createSuccessJSON("Transaction submitted", tx_result);
     } catch (error) {
       console.log(`Attempt ${attempt} failed: ${error.message}`);
@@ -242,7 +248,9 @@ async function handleSuccessfulCruOffer(cruWalletAddress, cruResults, amount, pr
       return createSuccessJSON(`${boughtAmt} of ${amount} CRUs successfully purchased.`, cruBuyData);
     }
   } else {
-    return createFailJSON(`CRUs offer made successfully but not fulfilled for ${companyName}. Try a different offer.`);
+    return createFailJSON(
+      `CRUs offer made successfully but not fulfilled for ${cruWalletAddress}. Try a different offer.`
+    );
   }
 }
 
