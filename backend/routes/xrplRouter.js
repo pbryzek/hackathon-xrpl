@@ -94,6 +94,7 @@ router.post("/buy-pfmu", validateRequest, async (req, res) => {
   }
   const client = new xrpl.Client(XRPLStaking.XRPL_SERVER);
   await client.connect();
+
   try {
     const userWallet = await getWalletByUserAddress(walletSecret);
     let classicAddress;

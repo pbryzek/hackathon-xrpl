@@ -81,9 +81,12 @@ async function setupTrustLine(client, wallet, classicAddress, currencyCode, issu
     NetworkID: 21337,
   });
   console.log("2", preparedTrustSet);
+
+  const signedTx = wallet.sign(preparedTrustSet);
+
   const tx_result = await client.request({
     command: "submit",
-    tx_blob: preparedTrustSet.tx_blob,
+    tx_blob: signedTx.tx_blob,
   });
 
   return tx_result;
