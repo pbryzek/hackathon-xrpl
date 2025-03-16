@@ -103,4 +103,41 @@ export const getPendingBonds = async () => {
   }
 };
 
+// ✅ Fetch All Bonds
+export const getAllBonds = async () => {
+  try {
+    const url = `${BOND_DOMAIN}/bonds/all`;
+    console.log("Fetching all bonds from:", url);
+
+    const response = await fetch(url, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+    });
+
+    if (!response.ok) {
+      console.error(`HTTP error! Status: ${response.status}`);
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    console.log("All bonds response:", data);
+
+    // Handle different possible response structures
+    if (data.data && data.data.bonds) {
+      return data.data.bonds;
+    } else if (data.bonds) {
+      return data.bonds;
+    } else if (Array.isArray(data)) {
+      return data;
+    } else {
+      console.warn("Unexpected response structure from bonds/all:", data);
+      return [];
+    }
+  } catch (error) {
+    console.error("Error fetching all bonds:", error);
+    return []; // Return empty array instead of throwing to prevent cascading errors
+  }
+};
+
+
 
