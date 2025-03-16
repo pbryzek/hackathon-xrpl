@@ -7,6 +7,7 @@ import { ArrowRight, TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 import TransitionWrapper from "./TransitionWrapper";
 import { toast } from "@/components/ui/use-toast";
+import { investInBond } from "@/services/bondService";
 
 interface BondTradePanelProps {
   selectedBond: Bond | null;
@@ -14,6 +15,7 @@ interface BondTradePanelProps {
 
 const BondTradePanel = ({ selectedBond }: BondTradePanelProps) => {
   const [totalCost, setTotalCost] = useState<number>(0);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   useEffect(() => {
     if (selectedBond) {
@@ -24,14 +26,36 @@ const BondTradePanel = ({ selectedBond }: BondTradePanelProps) => {
     }
   }, [selectedBond]);
 
-  const handleTrade = () => {
+  const handleTrade = async () => {
     if (!selectedBond) return;
     
-    toast({
-      title: "Buy Order Submitted",
-      description: `You have successfully bought 1 unit of ${selectedBond.name} for $${totalCost.toLocaleString()}`,
-      variant: "default",
-    });
+    setIsLoading(true);
+    
+    try {
+      // Call the invest API
+      const bondId = selectedBond.bondId?.toString() || "1"; // Default to "1" if id is undefined
+      const bondName = selectedBond.name || "Unnamed Bond";
+      
+      const response = await investInBond(bondId, totalCost, bondName);
+      
+      console.log("Investment response:", response);
+      
+      toast({
+        title: "Buy Order Submitted",
+        description: `You have successfully bought 1 unit of ${selectedBond.name} for $${totalCost.toLocaleString()}`,
+        variant: "default",
+      });
+    } catch (error) {
+      console.error("Error investing in bond:", error);
+      
+      toast({
+        title: "Investment Failed",
+        description: "There was an error processing your investment. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   if (!selectedBond) {
@@ -109,6 +133,7 @@ const BondTradePanel = ({ selectedBond }: BondTradePanelProps) => {
             <button 
               onClick={handleTrade} 
               className="buy-tokens-button flex items-center"
+              disabled={isLoading}
             >
               Buy Now
               <ArrowRight className="ml-2 h-4 w-4" />

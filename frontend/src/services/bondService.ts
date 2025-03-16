@@ -222,5 +222,36 @@ export const getOpenBonds = async () => {
   }
 };
 
+// ✅ Invest in a Bond
+export const investInBond = async (bondId: string, amount: number, name: string) => {
+  try {
+    const url = `${BOND_DOMAIN}/bonds/${bondId}/invest`;
+    console.log("Investing in bond:", bondId, "amount:", amount);
+    
+    // Using a default wallet address for demo purposes
+    const walletAddress = "X7CKi2abDKpCYJRswXKL9dbQmSpR9q8RhCVh6DnLkbB9R8M";
+    
+    const response = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: name,
+        amount: amount,
+        bondId: bondId,
+        walletAddress: walletAddress
+      })
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error("Error investing in bond:", error);
+    throw error;
+  }
+};
+
 
 
