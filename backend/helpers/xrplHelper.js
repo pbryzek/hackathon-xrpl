@@ -159,7 +159,7 @@ async function prepareSignSubmitTxWithRetry(client, transactionJson, wallet, max
       const latestLedgerSequence = await getLatestLedgerSequence(client);
       console.log("Flow 3");
 
-      transactionJson.LastLedgerSequence = latestLedgerSequence + 500;
+      transactionJson.LastLedgerSequence = latestLedgerSequence + 5000;
       // 🔹 Prepare, sign, and submit transaction
       console.log("Flow 4");
       console.log(transactionJson);
