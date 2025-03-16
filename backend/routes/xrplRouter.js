@@ -78,6 +78,14 @@ router.post("/stake-pfmu", validateRequest, async (req, res) => {
   }
 });
 
+function encodeCurrency(currency) {
+  if (currency.length > 3) {
+    let hex = Buffer.from(currency, "utf8").toString("hex").toUpperCase();
+    return (hex + "0".repeat(40)).slice(0, 40); // ✅ Ensure 40-character HEX
+  }
+  return currency; // ✅ If it's 3 characters (ISO), use it as-is
+}
+
 router.post("/buy-pfmu", validateRequest, async (req, res) => {
   console.log("/buy-pfmu");
   const { walletSecret, amount } = req.body;
@@ -101,7 +109,7 @@ router.post("/buy-pfmu", validateRequest, async (req, res) => {
         client,
         newWallet,
         classicAddress,
-        XRPLStaking.PFMU_CURRENCY_HEX,
+        encodeCurrency(XRPLStaking.PFMU_CURRENCY),
         XRPLStaking.ISSUER_ADDRESS
       );
       console.log("TrustSet transaction submitted");
@@ -137,7 +145,7 @@ router.post("/buy-pfmu", validateRequest, async (req, res) => {
           value: amount.toString(),
         },
         TakerGets: {
-          currency: XRPLStaking.PFMU_CURRENCY_HEX,
+          currency: encodeCurrency(XRPLStaking.PFMU_CURRENCY),
           issuer: XRPLStaking.ISSUER_ADDRESS,
           value: (amount / 2).toString(), // Example conversion rate (update dynamically)
         },
