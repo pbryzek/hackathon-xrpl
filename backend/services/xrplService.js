@@ -57,6 +57,7 @@ class XRPLStaking {
   }
 
   async createEscrow(classicAddress) {
+    console.log("createEscrow called")
     try {
       await this.connectClient();
       let walletJson = await this.getWalletByClassicAddress(classicAddress);
@@ -76,14 +77,22 @@ class XRPLStaking {
         Fee: "12", // Adjust based on network conditions
       };
 
+      console.log("escrowTx", escrowTx);
+
       // Submit transaction
       //const preparedTx = await this.client.autofill(escrowTx);
       const preparedTx = await this.client.autofill({
         ...escrowTx,
         NetworkID: 21337,
       });
+      console.log("preparedTx", escrowTx);
       const signedTx = wallet.sign(preparedTx);
-      const result = await this.client.submitAndWait(signedTx.tx_blob);
+      console.log("signedTx", escrowTx);
+      //const result = await this.client.submitAndWait(signedTx.tx_blob);
+      const result = await this.client.request({
+        command: "submit",
+        tx_blob: signedTx.tx_blob,
+      });
       console.log("Escrow transaction result:", result);
     } finally {
       await this.disconnectClient();
@@ -326,7 +335,7 @@ class XRPLStaking {
       await this.connectClient();
       const tokenIssuer = process.env.ISSUER_ADDRESS; // Replace with the issuer's XRPL wallet
       const issuerWallet = xrpl.Wallet.fromSeed(process.env.ISSUER_WALLET_SECRET);
-      const tokenName = "d_PFMU"; // Derivative token name
+      const tokenName = await this.encodeCurrency("d_PFMU"); // Derivative token name
 
       console.log("The wallet Address is: ", walletAddress);
       let wallet = await this.getWalletByClassicAddress(walletAddress); //web wallet
@@ -340,7 +349,7 @@ class XRPLStaking {
       }
 
       // TODO add in the tokenization.
-      await this.createEscrow(wallet.classicAddress);
+      await this.createEscrow(wallet.classicAddress); //we disconnect after returning
 
       console.log(`Total Staked PFMUs: ${totalAmt}`);
 
@@ -354,7 +363,7 @@ class XRPLStaking {
         Destination: tokenIssuer, // Self-issued tokens
         Amount: {
           currency: tokenName,
-          issuer: tokenIssuer,
+          issuer: xrplWallet.classicAddress,
           value: totalAmt.toString(),
         },
       };
@@ -376,7 +385,7 @@ class XRPLStaking {
         Destination: walletAddress, // User's wallet
         Amount: {
           currency: tokenName,
-          issuer: tokenIssuer,
+          issuer: issuerWallet.classicAddress,
           value: totalAmt.toString(),
         },
       };
