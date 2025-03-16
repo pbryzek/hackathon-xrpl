@@ -104,12 +104,9 @@ async function getExistingOffers(client, currencyCode, issuerAddress) {
  * Places a Buy Order for CRUs on XRPL DEX
  */
 async function purchaseCruViaMakeOfferABI(client, wallet, offer, amount) {
-  offer.TakerGets.value = amount + "";
-  console.log("offer.TakerGets.currency: ", offer.TakerGets.currency);
-
-  const memoData = { amount };
   const preBuyAmt = await getBalancefromLines(wallet.address, client, offer.TakerGets.currency);
-  const cruResults = await offerCreate(client, wallet, offer.TakerPays, offer.TakerGets, memoData);
+  console.log("purchaseCruViaMakeOfferABI" + offer);
+  const cruResults = await offerCreate(client, wallet, offer.TakerPays, offer.TakerGets);
 
   if (!cruResults.success) {
     return cruResults;
@@ -150,18 +147,36 @@ async function prepareSignSubmitTxWithRetry(client, transactionJson, wallet, max
     console.log(`prepareSignSubmitTxWithRetry loop attempt: ${attempt}`);
     try {
       // 🔹 Set transaction expiry (LastLedgerSequence)
+      console.log("Flow 2");
       const latestLedgerSequence = await getLatestLedgerSequence(client);
-      transactionJson.LastLedgerSequence = latestLedgerSequence + 50;
+      console.log("Flow 3");
 
+      transactionJson.LastLedgerSequence = latestLedgerSequence + 50;
       // 🔹 Prepare, sign, and submit transaction
+      console.log("Flow 4");
+      console.log(transactionJson);
+
       const tx_prepared = await client.autofill(transactionJson);
+      console.log("Flow 5");
+      console.log(tx_prepared);
+
       const tx_signed = wallet.sign(tx_prepared);
+      console.log("Flow 6");
+
       const tx_result = await client.submitAndWait(tx_signed.tx_blob);
+      console.log("Flow 7");
+
+      const balance = await client.request({
+        command: "account_info",
+        account: "rF35kVEfmp5XyFtYMcmWEZK5BTgHBJtY9",
+        ledger_index: "validated",
+      });
+
+      console.log("Account Balance:", balance.result.account_data.Balance / 1000000, "XRP");
 
       return createSuccessJSON("Transaction submitted", tx_result);
     } catch (error) {
       console.log(`Attempt ${attempt} failed: ${error.message}`);
-
       // 🔹 Retry logic: If max attempts reached and error is NOT tefPAST_SEQ, return failure
       if (!error.message.includes("tefPAST_SEQ") && attempt === maxAttempts) {
         return createFailJSON("Max retry attempts reached for transaction submission");
@@ -170,18 +185,18 @@ async function prepareSignSubmitTxWithRetry(client, transactionJson, wallet, max
   }
 }
 
-async function offerCreate(client, wallet, takerGets, takerPays, memoData) {
+async function offerCreate(client, wallet, takerGets, takerPays) {
   await tecPathCheck(client, wallet.address);
-  console.log("takerPays: ", takerPays);
+  takerPays = takerPays / 1000000;
+  console.log("offerCreate takerPays: ", takerPays);
+
+  let takerPaysStr = "" + takerPays * 100000;
   const offerCreateTx = {
     TransactionType: "OfferCreate",
     Account: wallet.classicAddress,
     TakerGets: takerGets,
-    TakerPays: takerPays,
+    TakerPays: takerPaysStr,
   };
-  if (memoData) {
-    offerCreateTx.Memos = [{ Memo: { MemoData: memoData } }];
-  }
   return await prepareSignSubmitTxWithRetry(client, offerCreateTx, wallet);
 }
 
