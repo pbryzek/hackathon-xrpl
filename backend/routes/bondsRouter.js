@@ -189,19 +189,9 @@ router.post("/:id/tokenize", async (req, res) => {
     const bond = await getBondById(req.params.id);
     if (!bond) return res.status(404).json(failJSON("Bond not found"));
 
-    let wallet = await getWalletByClassicAddress(walletAddress);
-    let xrplWallet = xrpl.Wallet.fromSeed(wallet.seed);
-
-    // TODO add in the tokenization.
-    // Access all of the pfmus bond.pfmus;
-    let totalAmt = 0;
-    for (pfmu of bond.pfmus) {
-      totalAmt += pfmu.amount;
-    }
-
     // TODO have all of the PFMUs into escrow.
     let xrpl_service = new XRPLStaking();
-    if (xrpl_service.tokenizeGreenBond()) {
+    if (xrpl_service.tokenizeGreenBond(walletAddress, bond)) {
       res.status(200).json(successJSON("Green Bond tokenized successfully", bond));
     } else {
       res.status(500).json(successJSON("Green Bond tokenized not successfull", bond));

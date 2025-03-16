@@ -219,9 +219,18 @@ class XRPLStaking {
   }
 
   // ✅ Stake PFMU Tokens
-  async tokenizeGreenBond(walletSecret, bond) {
+  async tokenizeGreenBond(walletAddress, bond) {
     try {
       await this.connectClient();
+      let wallet = await getWalletByClassicAddress(walletAddress);
+      let xrplWallet = xrpl.Wallet.fromSeed(wallet.seed);
+
+      let totalAmt = 0;
+      for (pfmu of bond.pfmus) {
+        totalAmt += pfmu.amount;
+      }
+      // TODO add in the tokenization.
+
       console.log("tokenizeGreenBond:\n");
       return true;
     } catch (error) {
