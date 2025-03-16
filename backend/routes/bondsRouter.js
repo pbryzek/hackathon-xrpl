@@ -124,7 +124,8 @@ router.post("/:id/invest", async (req, res) => {
     }
     const bond = await getBondById(req.params.id);
     if (!bond) return res.status(404).json(failJSON("Bond not found"));
-    bond.addInvestor(name, amount, bondId, walletAddress);
+    const investor = new Investor(name, amount, bondId, walletAddress);
+    bond.investors.push(investor);
     await updateBondsFile(bond);
     res.status(200).json(successJSON("Investment successful", bond));
   } catch (err) {

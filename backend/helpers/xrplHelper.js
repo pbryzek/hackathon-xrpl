@@ -187,10 +187,15 @@ async function prepareSignSubmitTxWithRetry(client, transactionJson, wallet, max
 
 async function offerCreate(client, wallet, takerGets, takerPays) {
   await tecPathCheck(client, wallet.address);
-  takerPays = takerPays / 1000000;
   console.log("offerCreate takerPays: ", takerPays);
 
   let takerPaysStr = "" + takerPays * 100000;
+  let takerPays = {
+    currency: "TOKEN_CODE",
+    issuer: "rIssuerAddress",
+    value: takerPaysStr,
+  };
+
   const offerCreateTx = {
     TransactionType: "OfferCreate",
     Account: wallet.classicAddress,

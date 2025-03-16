@@ -15,12 +15,6 @@ class Bond {
     this.investors = [];
   }
 
-  // Method to add an investor
-  addInvestor(name, amount, bondType, walletAddress) {
-    const investor = new Investor(name, amount, bondType, walletAddress);
-    this.investors.push(investor);
-  }
-
   getPfmuAmount() {
     let totalAmount = 0;
     for (let pfmu in this.pfmus) {
