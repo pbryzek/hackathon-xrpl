@@ -233,7 +233,13 @@ body {
   padding: 2rem;
 }
 
+.green-bond-offerings{
+  margin-top:50px;
+  font-size: 28px;
+}
+
 .hero-text {
+  font-size: 16px;
   text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
 }
 
@@ -244,3 +250,57 @@ body {
   backdrop-filter: blur(4px);
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
 }
+
+/* Bond Card */
+.bond-card {
+  width: 100%;
+  max-width: 400px; /* Prevents cards from getting too large */
+  background: rgba(255, 255, 255, 0.303);
+  border-radius: 15px;
+  backdrop-filter: blur(10px);
+  padding: 20px;
+  box-shadow: 0px 4px 30px rgba(0, 255, 128, 0.2);
+  transition: all 0.3s ease-in-out;
+}
+
+.bond-card:hover {
+  box-shadow: 0px 6px 35px rgba(0, 255, 128, 0.4);
+  transform: translateY(-5px);
+}
+
+/* ✅ Progress Bar */
+.progress-bar-container {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  height: 8px;
+  margin-top: 10px;
+  position: relative;
+}
+
+.progress-bar {
+  height: 100%;
+  background: #00ff80;
+  border-radius: 10px;
+}
+
+/* ✅ Stake Button */
+.stake-button {
+  margin-top: 15px;
+  width: 100%;
+  background: linear-gradient(135deg, rgba(0, 180, 100, 0.8), rgba(0, 100, 60, 0.8));
+  color: white;
+  padding: 12px;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: bold;
+  box-shadow: 0px 4px 15px rgba(0, 180, 100, 0.5);
+  transition: all 0.3s ease-in-out;
+}
+
+.stake-button:hover {
+  background: linear-gradient(135deg, rgba(0, 220, 110, 0.9), rgba(0, 130, 80, 0.9));
+  transform: translateY(-3px);
+  box-shadow: 0px 6px 20px rgba(0, 255, 128, 0.6);
+}
+

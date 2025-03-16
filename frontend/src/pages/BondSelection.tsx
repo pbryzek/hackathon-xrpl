@@ -1,27 +1,19 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { 
-  // getUserPFMUs,  // ✅ Commented out (not currently needed)
-  // stakePFMU,  // ✅ Commented out (not currently needed)
-  getPendingBonds 
-} from "../services/bondService"; // ✅ Import API services
+import { getPendingBonds, stakePFMU } from "../services/bondService"; // ✅ Import API services
 
 const BondPage = () => {
-  // const [pfmuBalance, setPfmuBalance] = useState<number | null>(null); // ✅ Commented out (not currently needed)
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState(true);
+  const [pendingBonds, setPendingBonds] = useState<any[]>([]);
   const [stakeMessage, setStakeMessage] = useState<string | null>(null);
-  const [pendingBonds, setPendingBonds] = useState<any[]>([]); // ✅ Store pending bonds
 
-  // ✅ Fetch pending bonds on mount
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // const balance = await getUserPFMUs(); // ✅ Commented out (not currently needed)
         const bonds = await getPendingBonds();
-        // setPfmuBalance(balance); // ✅ Commented out (not currently needed)
         setPendingBonds(bonds);
       } catch (error) {
-        console.error("Error fetching data:", error);
+        console.error("Error fetching pending bonds:", error);
       } finally {
         setIsLoading(false);
       }
@@ -29,8 +21,7 @@ const BondPage = () => {
     fetchData();
   }, []);
 
-  // ✅ Commented out staking functionality
-  /*
+  // ✅ Handle Staking
   const handleStake = async (bondId: string) => {
     setStakeMessage(null);
     try {
@@ -40,7 +31,6 @@ const BondPage = () => {
       setStakeMessage("Error staking. Try again.");
     }
   };
-  */
 
   return (
     <div className="min-h-screen flex flex-col items-center">
@@ -55,8 +45,10 @@ const BondPage = () => {
       </header>
 
       {/* Hero Section */}
-      <section className="mt-20 text-center">
-        <h2 className="text-4xl font-bold">Green Bond Offerings</h2>
+      <section className="mt-50 text-center">
+        <div className="green-bond-offerings">
+          <h2 className="text-4xl font-bold">Green Bond Offerings</h2>
+        </div>
         <p className="mt-2 text-lg opacity-75">
           Invest in verified environmental projects with transparent impact metrics and competitive returns.
         </p>
@@ -69,31 +61,40 @@ const BondPage = () => {
         ) : pendingBonds.length === 0 ? (
           <p>No pending bonds available.</p>
         ) : (
-          <div className="flex flex-wrap justify-center gap-8 mt-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-8 place-items-center w-full max-w-6xl">
             {pendingBonds.map((bond) => (
-              <div key={bond.id} className="glass-card p-6 w-96">
-                <h3 className="text-xl font-semibold">{bond.name}</h3> {/* ✅ Adjusted property to match API */}
+              <div key={bond.id} className="bond-card glass-card p-6 w-full max-w-[400px]">
+                <h3 className="text-xl font-semibold text-green-300">{bond.name}</h3> 
                 <p className="text-sm opacity-75"><strong>Issuer:</strong> {bond.issuer}</p>
-                <p><strong>Interest Rate:</strong> {bond.interestRate}</p>
+                <p><strong>Interest Rate:</strong> {bond.interestRate}%</p>
                 <p><strong>Created Date:</strong> {new Date(bond.createdDate).toLocaleDateString()}</p>
                 <p><strong>Maturity Date:</strong> {new Date(bond.maturityDate).toLocaleDateString()}</p>
                 <p><strong>Description:</strong> {bond.description}</p>
                 <p><strong>Capacity:</strong> {bond.pfmus_capacity}</p>
                 <p><strong>Investors:</strong> {bond.investors.length}</p>
 
-                {/* <button
-                  className="glass-button mt-4 w-full"
+                {/* ✅ New Field: Number of Stakers */}
+                <p><strong>Number of Stakers:</strong> {bond.pfmus.length}</p>
+
+                {/* ✅ Progress Bar */}
+                <div className="progress-bar-container mt-4">
+                  <div className="progress-bar" style={{ width: `${bond.pfmus_capacity * 100}%` }}></div>
+                </div>
+
+                {/* ✅ Stake PFMU Button */}
+                <button
+                  className="stake-button mt-4 w-full"
                   onClick={() => handleStake(bond.id)}
                 >
                   Stake PFMU
-                </button> */}
+                </button>
               </div>
             ))}
           </div>
         )}
       </div>
 
-      {/* Stake Message (Hidden for now) */}
+      {/* Stake Message */}
       {stakeMessage && (
         <div className="mt-4 text-center">
           <p className="text-lg font-semibold">{stakeMessage}</p>

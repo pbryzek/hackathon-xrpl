@@ -25,7 +25,7 @@ export const getUserPFMUs = async () => {
 export const stakePFMU = async (bondId: string) => {
   try {
     
-    const url = `${BOND_DOMAIN}/stake-pfmu`;
+    const url = `${BOND_DOMAIN}/stake?project=Brazil Rancho Da Montanha 03182024&issuanceDate=2025-01-31T00:00:00Z&userSecret=SECRETSECRETSECRETSECRET`;
     const response = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },

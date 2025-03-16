@@ -71,35 +71,34 @@ const CrossMarkAuth: React.FC = () => {
   return (
     <div className="container mx-auto mt-60 px-4">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-        {/* Hero Section */}
-        <div className="space-y-6 hero-text">
-          <h1 className="text-6xl md:text-7xl lg:text-8xl font-bold leading-tight">
-            Sustainable Investing on the <span className="text-green-800">XRPL</span>
-          </h1>
-          <p className="text-xl opacity-80 max-w-xl">
-            Access verified green bonds on the XRP Ledger blockchain — transparent, 
-            secure, and environmentally conscious investing for a sustainable future.
-          </p>
-          <div className="pt-4 flex flex-wrap gap-4">
-            <div className="connect-wallet1">
+          {/* Left Side: Text & Buttons */}
+          <div className="space-y-6">
+            <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold leading-tight">
+              Sustainable Investing on the <span className="text-green-500">XRPL</span>
+            </h1>
+            <p className="text-lg md:text-xl opacity-80 max-w-xl">
+              Access verified green bonds on the XRP Ledger blockchain — transparent, 
+              secure, and environmentally conscious investing for a sustainable future.
+            </p>
+            
+            {/* ✅ Adjusted Button Spacing */}
+            <div className="flex flex-wrap gap-4 mt-6">
               <button 
                 onClick={signInWithCrossmark}
                 disabled={isLoading}
-                className="glass-button"
+                className="glass-button px-6 py-3"
               >
                 {isLoading ? "Connecting..." : "Connect Wallet"}
               </button>
-            </div>
-            <div className="explore-marketplace">
+
               <button 
                 onClick={handleMarketplaceClick}
-                className="bg-transparent text-white px-6 py-3 rounded-xl 
-                          hover:bg-white/10 transition-all duration-300"
+                className="bg-white/20 text-white px-6 py-3 rounded-xl 
+                          hover:bg-white/30 transition-all duration-300"
               >
                 Explore Marketplace
               </button>
             </div>
-          </div>
 
           <div></div>
           
