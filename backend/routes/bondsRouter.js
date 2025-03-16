@@ -14,6 +14,7 @@ const {
 
 const { successJSON, failJSON } = require("../utils/responseUtils");
 const Bond = require("../models/Bond");
+const XRPLStaking = require("../services/xrplService");
 
 // Get all Active Green Bonds
 router.get("/active", async (req, res) => {
@@ -105,7 +106,10 @@ router.post("/:id/stake", async (req, res) => {
     const bond = await getBondById(req.params.id);
     if (!bond) return res.status(404).json(failJSON("Bond not found"));
 
-    await stakePFMU(walletSecret, amount, project, issuanceDate, expirationDate, bond);
+    let resStake = await stakePFMU(walletSecret, amount, project, issuanceDate, expirationDate, bond);
+    if (!resStake) {
+      // TODO: Make API to create Green Bond.
+    }
 
     await updateBondsFile(bond);
 
@@ -126,6 +130,10 @@ router.post("/:id/invest", async (req, res) => {
     if (!bond) return res.status(404).json(failJSON("Bond not found"));
     const investor = new Investor(name, amount, bondId, walletAddress);
     bond.investors.push(investor);
+
+    // TODO: Make API to transfer fractionalized tokens of Green Bond to investor.
+    // Error check if there is still fractions/value available.
+
     await updateBondsFile(bond);
     res.status(200).json(successJSON("Investment successful", bond));
   } catch (err) {
@@ -133,4 +141,18 @@ router.post("/:id/invest", async (req, res) => {
   }
 });
 
+// Issue a new Green Bond
+router.post("/:id/tokenize", async (req, res) => {
+  try {
+    const bond = await getBondById(req.params.id);
+    if (!bond) return res.status(404).json(failJSON("Bond not found"));
+    // TODO add in the tokenization.
+    // TODO have all of the PFMUs into escrow.
+    let xrpl_service = new XRPLStaking();
+    xrpl_service.tokenizeGreenBond();
+    res.status(200).json(successJSON("Green Bond tokenized successfully", newBond));
+  } catch (err) {
+    res.status(500).json(failJSON(err.message));
+  }
+});
 module.exports = router;

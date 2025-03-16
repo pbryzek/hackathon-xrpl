@@ -222,6 +222,17 @@ class XRPLStaking {
       await client.disconnect();
     }
   }
+  // ✅ Stake PFMU Tokens
+  async tokenizeGreenBond(walletSecret, bond) {
+    try {
+      console.log("tokenizeGreenBond:\n");
+      return [];
+    } catch (error) {
+      console.error("Error tokenizeGreenBond:", error.message);
+    } finally {
+      await client.disconnect();
+    }
+  }
 }
 
 module.exports = XRPLStaking;
