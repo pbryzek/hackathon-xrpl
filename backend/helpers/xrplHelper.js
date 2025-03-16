@@ -99,6 +99,7 @@ async function getExistingOffers(client, currencyCode, issuerAddress) {
  * Places a Buy Order for CRUs on XRPL DEX
  */
 async function purchaseCruViaMakeOfferABI(client, classicAddress, offer, amount) {
+  console.log("purchaseCruViaMakeOfferABI flow 1");
   const preBuyAmt = await getBalancefromLines(classicAddress, client, offer.TakerGets.currency);
   console.log("purchaseCruViaMakeOfferABI" + offer);
   const cruResults = await offerCreate(client, classicAddress, offer.TakerGets, offer.TakerPays, amount);

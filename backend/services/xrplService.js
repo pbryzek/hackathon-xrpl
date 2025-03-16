@@ -27,6 +27,14 @@ class XRPLStaking {
     this.issuerWallet = null; // Will be set after connecting
   }
 
+  async encodeCurrency(currency) {
+    if (currency.length > 3) {
+      let hex = Buffer.from(currency, "utf8").toString("hex").toUpperCase();
+      return (hex + "0".repeat(40)).slice(0, 40); // ✅ Ensure 40-character HEX
+    }
+    return currency; // ✅ If it's 3 characters (ISO), use it as-is
+  }
+
   // ✅ Connect to XRPL (from the first class)
   async connectClient() {
     this.client = new xrpl.Client(XRPLStaking.XRPL_SERVER);
@@ -166,6 +174,7 @@ class XRPLStaking {
         taker_gets: XRPLStaking.PFMU_TOKEN,
         ledger_index: "validated",
       });
+
       console.log("xrpBuyResponse", xrpBuyResponse);
       const formattedXRPBuyOffers = await this.formatOffers(xrpBuyResponse.result.offers, true, "XRP");
       const usdBuyResponse = await this.client.request({
@@ -182,7 +191,7 @@ class XRPLStaking {
       console.log("Buy Offers:\n", combinedBuyOffers);
       return combinedBuyOffers;
     } catch (error) {
-      console.error("Error fetching offers:", error.message);
+      console.error("Error fetching getBuyOffers:", error.message);
     } finally {
       await this.disconnectClient();
     }
@@ -190,27 +199,49 @@ class XRPLStaking {
 
   async getSellOffers() {
     try {
+      console.log("Sell Offers: 1");
+
       await this.connectClient();
+
       const xrpSellResponse = await this.client.request({
         command: "book_offers",
-        taker_pays: XRPLStaking.PFMU_TOKEN,
+        taker_pays: {
+          currency: await this.encodeCurrency(XRPLStaking.PFMU_CURRENCY),
+          issuer: "rAzPNHTi8ydnARBRDUFVobEHpJ6SmbZqv",
+        },
         taker_gets: { currency: "XRP" },
         ledger_index: "validated",
       });
+
+      console.log("Sell Offers: 3");
+
       const formattedXRPSellOffers = await this.formatOffers(xrpSellResponse.result.offers, false, "XRP");
+      /*
       const usdSellResponse = await this.client.request({
         command: "book_offers",
         taker_pays: XRPLStaking.PFMU_TOKEN,
         taker_gets: { currency: "USD", issuer: "rvYAfWj5gh67oV6fW32ZzP3Aw4Eubs59B" },
         ledger_index: "validated",
       });
+      */
+
+      const usdSellResponse = await this.client.request({
+        command: "book_offers",
+        taker_pays: {
+          currency: await this.encodeCurrency(XRPLStaking.PFMU_CURRENCY),
+          issuer: "rAzPNHTi8ydnARBRDUFVobEHpJ6SmbZqv",
+        },
+        taker_gets: { currency: "USD", issuer: "rvYAfWj5gh67oV6fW32ZzP3Aw4Eubs59B" },
+        ledger_index: "validated",
+      });
+
       const formattedUSDSellOffers = await this.formatOffers(usdSellResponse.result.offers, false, "USD");
       //const combinedSellOffers = [...formattedXRPSellOffers, ...formattedUSDSellOffers];
       const combinedSellOffers = [...xrpSellResponse.result.offers, ...usdSellResponse.result.offers];
       console.log("Sell Offers:\n", combinedSellOffers);
       return combinedSellOffers;
     } catch (error) {
-      console.error("Error fetching offers:", error.message);
+      console.error("Error fetching getSellOffers:", error.message);
       return [];
     } finally {
       await this.client.disconnect();

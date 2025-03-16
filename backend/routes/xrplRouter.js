@@ -123,6 +123,7 @@ router.post("/buy-pfmu", validateRequest, async (req, res) => {
         command: "account_lines",
         account: XRPLStaking.ISSUER_ADDRESS,
       });
+      console.log("XRPLStaking.ISSUER_ADDRESS");
       console.log(trustLines);
     }
 
