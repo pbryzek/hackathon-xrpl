@@ -76,7 +76,7 @@ function getInvestedTotal(bond) {
 
 // Function to get Active bonds: Active defined when pfmus quantity_total >= pfmus_capacity
 async function getActiveBonds() {
-  const bonds = await getOpenBonds();
+  const bonds = await getAllBonds();
   let activeBonds = [];
   for (const bond of bonds) {
     let pfmusStaked = getPfmuStaked(bond);
@@ -89,10 +89,13 @@ async function getActiveBonds() {
 
 // Open bonds are active bonds that haven't met the financial threshold.
 async function getOpenBonds() {
+  console.log("getOpenBonds");
   try {
     let activeBonds = await getActiveBonds();
     let openBonds = [];
     for (const bond of activeBonds) {
+      console.log("bond", bond);
+
       let pfmusStaked = getPfmuStaked(bond);
       const xrpTotal = convertPfmuToXrp(pfmusStaked);
       let investedTotal = getInvestedTotal(bond);

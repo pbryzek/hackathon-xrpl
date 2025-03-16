@@ -22,7 +22,8 @@ export interface Bond {
   investors?: any[];
   stakers?: any[];
 }
-
+export const mockBonds: Bond[] = [];
+/*
 export const mockBonds: Bond[] = [
   {
     id: "b1",
@@ -121,7 +122,7 @@ export const mockBonds: Bond[] = [
     description: "A corporate bond issued by Amazon, offering a competitive yield from one of the world's largest e-commerce and cloud computing companies."
   }
 ];
-
+*/
 export type TradeAction = "Buy" | "Sell";
 
 export interface TradeDetails {
@@ -139,24 +140,24 @@ export interface TradeDetails {
 export function calculateTimeToMaturity(maturityDate: string): string {
   const now = new Date();
   const maturity = new Date(maturityDate);
-  
+
   // If the date is invalid, return N/A
   if (isNaN(maturity.getTime())) {
     return "N/A";
   }
-  
+
   // If the bond has already matured
   if (maturity < now) {
     return "Matured";
   }
-  
+
   const diffTime = Math.abs(maturity.getTime() - now.getTime());
   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-  
+
   // Convert to years and months
   const years = Math.floor(diffDays / 365);
   const months = Math.floor((diffDays % 365) / 30);
-  
+
   if (years > 0 && months > 0) {
     return `${years}y ${months}m`;
   } else if (years > 0) {
