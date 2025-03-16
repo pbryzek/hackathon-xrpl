@@ -3,7 +3,7 @@ import BondTradePanel from "@/components/BondTradePanel";
 import ActiveBondsList from "@/components/ActiveBondsList";
 import BondDetailPanel from "@/components/BondDetailPanel";
 import { mockBonds, Bond } from "@/lib/bonds";
-import { getOpenBonds } from "@/services/bondService";
+import { getAllActiveBonds } from "@/services/bondService";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 const Index = () => {
@@ -26,20 +26,20 @@ const Index = () => {
     setError(null);
     
     try {
-      console.log("Fetching open bonds from API...");
-      const openBonds = await getOpenBonds();
+      console.log("Fetching all active bonds from API...");
+      const activeBonds = await getAllActiveBonds();
       
-      console.log("Received open bonds data:", openBonds);
+      console.log("Received active bonds data:", activeBonds);
       
       // Check if we got a valid response
-      if (openBonds && Array.isArray(openBonds)) {
+      if (activeBonds && Array.isArray(activeBonds)) {
         // Set bonds regardless of whether the array is empty or not
-        setBonds(openBonds);
+        setBonds(activeBonds);
         setLastUpdated(new Date());
         
         // If we had a selected bond, update it with the new data
         if (selectedBond) {
-          const updatedBond = openBonds.find(bond => bond.id === selectedBond.id);
+          const updatedBond = activeBonds.find(bond => bond.id === selectedBond.id);
           if (updatedBond) {
             setSelectedBond(updatedBond);
           } else {
@@ -48,14 +48,14 @@ const Index = () => {
           }
         }
       } else {
-        console.error("API returned invalid data format:", openBonds);
-        setError("Failed to load open bonds. The API returned an invalid response format.");
+        console.error("API returned invalid data format:", activeBonds);
+        setError("Failed to load active bonds. The API returned an invalid response format.");
         // Set bonds to empty array instead of using mock data
         setBonds([]);
       }
     } catch (error) {
       console.error("Error loading bonds:", error);
-      setError("Failed to load open bonds. Please try again later.");
+      setError("Failed to load active bonds. Please try again later.");
       
       // Set bonds to empty array instead of using mock data
       setBonds([]);
@@ -67,7 +67,7 @@ const Index = () => {
 
   // Initial load - only once when component mounts
   useEffect(() => {
-    console.log("Initial load of open bonds");
+    console.log("Initial load of active bonds");
     loadBonds(false);
   }, []); // Empty dependency array to run only once
 
@@ -76,8 +76,19 @@ const Index = () => {
   };
 
   const handleSelectBond = (bond: Bond) => {
-    console.log("Index component: Bond selected:", bond);
-    setSelectedBond(bond);
+    // Only allow selecting open bonds
+    if (bond.status !== 'closed') {
+      console.log("Index component: Bond selected:", bond);
+      setSelectedBond(bond);
+    } else {
+      console.log("Index component: Closed bond not selectable:", bond);
+      // Optionally show a toast notification
+      // toast({
+      //   title: "Bond Unavailable",
+      //   description: "This bond is closed and not available for trading.",
+      //   variant: "warning",
+      // });
+    }
   };
 
   if (isLoading) {
@@ -100,7 +111,7 @@ const Index = () => {
             alt="BNP Paribas - World Economic Forum" 
             width="300"></img>
             <br></br>
-            <span className="text-gray-600 mt-1 text-sm sm:text-base">France’s premier multinational bank, Leading the Green Bond Revolution 🌍💚</span>
+            <span className="text-gray-600 mt-1 text-sm sm:text-base">France's premier multinational bank, Leading the Green Bond Revolution 🌍💚</span>
             {/* <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">BNP Paribas</h1>
             <p className="text-gray-600 mt-1 text-sm sm:text-base">France's premier multinational bank, Leading the Green Bond Revolution 🌍💚</p> */}
           </div>

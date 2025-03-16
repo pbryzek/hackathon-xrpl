@@ -64,7 +64,7 @@ const ActiveBondsList = ({
     <TransitionWrapper delay={100} className="h-full">
       {/* <div className="glass-panel h-full rounded-2xl p-6"> */}
         <div className="mb-4 flex items-center">
-          <h2 className="text-2xl font-semibold">Open Bonds</h2>
+          <h2 className="text-2xl font-semibold">Active Bonds</h2>
           <div className="ml-auto flex items-center gap-2">
             <button
               onClick={handleRefresh}
@@ -120,7 +120,7 @@ const ActiveBondsList = ({
                   <TableHead>
                     <div className="flex items-center">
                       <Users className="h-4 w-4 mr-1" />
-                      <span>Investors</span>
+                      <span>Investor</span>
                     </div>
                   </TableHead>
                   <TableHead>
@@ -132,6 +132,7 @@ const ActiveBondsList = ({
                   <TableHead>PFMU Capacity</TableHead>
                   <TableHead>PFMU Staked</TableHead>
                   <TableHead>Amount</TableHead>
+                  <TableHead>Status</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -139,11 +140,17 @@ const ActiveBondsList = ({
                   <TableRow 
                     key={bond.id}
                     onClick={() => {
-                      console.log("Bond selected:", bond);
-                      onSelectBond(bond);
+                      // Only allow clicking on open bonds
+                      if (bond.status !== 'closed') {
+                        console.log("Bond selected:", bond);
+                        onSelectBond(bond);
+                      }
                     }}
                     className={cn(
-                      "cursor-pointer transition-all bond-hover",
+                      "transition-all",
+                      bond.status === 'closed' 
+                        ? "opacity-60 cursor-not-allowed" 
+                        : "cursor-pointer bond-hover",
                       selectedBondId === bond.id 
                         ? "bg-bond-blue/10 hover:bg-bond-blue/20" 
                         : "hover:bg-bond-gray-light"
@@ -222,7 +229,7 @@ const ActiveBondsList = ({
                           )}
                         </div>
                       ) : (
-                        <span className="text-muted-foreground text-sm">No investors</span>
+                        <span className="text-muted-foreground text-sm">BNP</span>
                       )}
                     </TableCell>
                     <TableCell>
@@ -263,6 +270,18 @@ const ActiveBondsList = ({
                         <span className="text-muted-foreground text-sm">Not specified</span>
                       )}
                     </TableCell>
+                    <TableCell>
+                      {bond.status ? (
+                        <Chip 
+                          variant={bond.status === 'open' ? 'success' : 'warning'}
+                          className="font-medium"
+                        >
+                          {bond.status === 'open' ? 'Open' : 'Closed'}
+                        </Chip>
+                      ) : (
+                        <span className="text-muted-foreground text-sm">Unknown</span>
+                      )}
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -270,10 +289,10 @@ const ActiveBondsList = ({
           ) : (
             <div className="flex flex-col items-center justify-center h-full text-center">
               <AlertCircle className="w-12 h-12 text-bond-gray mb-4" />
-              <h3 className="text-lg font-medium mb-2">No Open Bonds Available</h3>
+              <h3 className="text-lg font-medium mb-2">No Active Bonds Available</h3>
               <p className="text-muted-foreground max-w-md">
-                There are currently no open bonds available for trading. 
-                Open bonds are active bonds that have met their PFMU capacity but haven't reached their financial threshold.
+                There are currently no active bonds available for viewing. 
+                Active bonds include both open bonds (available for trading) and closed bonds (completed offerings).
               </p>
               <button
                 onClick={handleRefresh}

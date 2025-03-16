@@ -33,7 +33,7 @@ const BondTradePanel = ({ selectedBond }: BondTradePanelProps) => {
     
     try {
       // Call the invest API
-      const bondId = selectedBond.bondId?.toString() || "1"; // Default to "1" if id is undefined
+      const bondId = selectedBond.id?.toString() || "1"; // Default to "1" if id is undefined
       const bondName = selectedBond.name || "Unnamed Bond";
       
       const response = await investInBond(bondId, totalCost, bondName);
@@ -125,20 +125,46 @@ const BondTradePanel = ({ selectedBond }: BondTradePanelProps) => {
             </div>
           </div>
           
-          <div className="bg-bond-gray-light rounded-lg p-4 flex justify-between items-center">
-            <div>
-              <p className="text-sm text-muted-foreground">Total Amount</p>
-              <p className="text-2xl font-semibold">${totalCost.toLocaleString()}</p>
+          {selectedBond.status === 'closed' ? (
+            <div className="bg-gray-100 rounded-lg p-4 text-center">
+              <div className="text-gray-500 mb-2">
+                {/* <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mx-auto mb-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m0 0v2m0-2h2m-2 0H9m3-3V9m0 0V7m0 2h2m-2 0H9" />
+                </svg> */}
+                <h3 className="text-lg font-medium">This Bond is Closed</h3>
+                <p className="text-sm mt-1">
+                  This bond offering has been completed and is no longer available for purchase.
+                </p>
+              </div>
             </div>
-            <button 
-              onClick={handleTrade} 
-              className="buy-tokens-button flex items-center"
-              disabled={isLoading}
-            >
-              Buy Now
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </button>
-          </div>
+          ) : (
+            <div className="bg-bond-gray-light rounded-lg p-4 flex justify-between items-center">
+              <div>
+                <p className="text-sm text-muted-foreground">Total Amount</p>
+                <p className="text-2xl font-semibold">${totalCost.toLocaleString()}</p>
+              </div>
+              <button 
+                onClick={handleTrade} 
+                className="buy-tokens-button flex items-center"
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <>
+                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Processing...
+                  </>
+                ) : (
+                  <>
+                    Buy Now
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </>
+                )}
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </TransitionWrapper>

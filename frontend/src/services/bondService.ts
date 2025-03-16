@@ -253,5 +253,78 @@ export const investInBond = async (bondId: string, amount: number, name: string)
   }
 };
 
+// ✅ Fetch All Active Bonds (both open and closed)
+export const getAllActiveBonds = async () => {
+  try {
+    console.log("Fetching all active bonds (open and closed)...");
+    
+    // Fetch both open and closed bonds in parallel
+    const [openBondsResponse, closedBondsResponse] = await Promise.all([
+      getOpenBonds(),
+      getClosedBonds()
+    ]);
+    
+    // Add status field to each bond
+    const openBonds = Array.isArray(openBondsResponse) 
+      ? openBondsResponse.map(bond => ({ ...bond, status: 'open' }))
+      : [];
+      
+    const closedBonds = Array.isArray(closedBondsResponse) 
+      ? closedBondsResponse.map(bond => ({ ...bond, status: 'closed' }))
+      : [];
+    
+    // Combine the two arrays
+    const allActiveBonds = [...openBonds, ...closedBonds];
+    
+    console.log(`Combined ${openBonds.length} open bonds and ${closedBonds.length} closed bonds`);
+    
+    return allActiveBonds;
+  } catch (error) {
+    console.error("Error fetching all active bonds:", error);
+    return []; // Return empty array instead of throwing to prevent cascading errors
+  }
+};
+
+// ✅ Fetch Closed Bonds
+export const getClosedBonds = async () => {
+  try {
+    const url = `${BOND_DOMAIN}/bonds/closed`;
+    console.log("Fetching closed bonds from:", url);
+
+    const response = await fetch(url, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" }
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    console.log("Closed bonds response:", data);
+
+    // Handle different possible response structures
+    if (data.data && data.data.closed_bonds && Array.isArray(data.data.closed_bonds)) {
+      return data.data.closed_bonds;
+    } else if (data.data && data.data.bonds && Array.isArray(data.data.bonds)) {
+      return data.data.bonds;
+    } else if (data.closed_bonds && Array.isArray(data.closed_bonds)) {
+      return data.closed_bonds;
+    } else if (data.bonds && Array.isArray(data.bonds)) {
+      return data.bonds;
+    } else if (Array.isArray(data)) {
+      return data;
+    } else if (data.success && data.data && Array.isArray(data.data)) {
+      return data.data;
+    } else {
+      console.warn("Unexpected response structure from bonds/closed:", data);
+      return [];
+    }
+  } catch (error) {
+    console.error("Error fetching closed bonds:", error);
+    return []; // Return empty array instead of throwing to prevent cascading errors
+  }
+};
+
 
 

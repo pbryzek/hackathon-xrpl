@@ -9,7 +9,7 @@ export interface Bond {
   price: number;
   couponRate: number;
   minimumInvestment: number;
-  status: "Active" | "Inactive" | "Pending";
+  status: "Active" | "Inactive" | "Pending" | "open" | "closed";
   risk: "Low" | "Medium" | "High";
   term: string;
   description: string;
