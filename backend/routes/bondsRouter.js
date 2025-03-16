@@ -10,6 +10,7 @@ const {
   updateBondsFile,
   getActiveBonds,
   getOpenBonds,
+  getWalletByClassicAddress,
 } = require("../services/bondService");
 const Investor = require("../models/Investor");
 const { successJSON, failJSON } = require("../utils/responseUtils");
@@ -181,9 +182,19 @@ router.post("/:id/invest", async (req, res) => {
 // Issue a new Green Bond
 router.post("/:id/tokenize", async (req, res) => {
   try {
+    const { walletAddress } = req.body;
+    if (!walletAddress) {
+      return res.status(400).json(failJSON("Missing required fields: walletAddress"));
+    }
     const bond = await getBondById(req.params.id);
     if (!bond) return res.status(404).json(failJSON("Bond not found"));
+
+    let wallet = await getWalletByClassicAddress(walletAddress);
+    let xrplWallet = xrpl.Wallet.fromSeed(wallet.seed);
+
     // TODO add in the tokenization.
+    // Access all of the pfmus bond.pfmus;
+
     // TODO have all of the PFMUs into escrow.
     let xrpl_service = new XRPLStaking();
     if (xrpl_service.tokenizeGreenBond()) {
