@@ -30,6 +30,7 @@ class XRPLStaking {
   async connectClient() {
     this.client = new xrpl.Client(XRPLStaking.XRPL_SERVER);
     await this.client.connect();
+    this.issuerWallet = xrpl.Wallet.fromSeed(process.env.ISSUER_WALLET_SECRET);
     console.log("✅ Connected to XRPL");
   }
 
@@ -39,14 +40,6 @@ class XRPLStaking {
       await this.client.disconnect();
       console.log("✅ Disconnected from XRPL");
     }
-  }
-
-  // ✅ Connect to XRPL (from the second class)
-  async connect() {
-    this.client = new xrpl.Client("wss://s.altnet.rippletest.net/");
-    await this.client.connect();
-    this.issuerWallet = xrpl.Wallet.fromSeed(process.env.ISSUER_WALLET_SECRET);
-    console.log("✅ Connected to XRPL and initialized issuer wallet");
   }
 
   // ✅ Stake PFMU Tokens
@@ -176,7 +169,6 @@ class XRPLStaking {
       });
 
       console.log("xrpBuyResponse", xrpBuyResponse);
-
       const formattedXRPBuyOffers = await this.formatOffers(xrpBuyResponse.result.offers, true, "XRP");
 
       const usdBuyResponse = await this.client.request({
@@ -246,17 +238,28 @@ class XRPLStaking {
   // ✅ Mint Green Bond NFT
   async mintGreenBond() {
     try {
-      await this.connect();
+      console.log(`🎉 mintGreenBondmintGreenBondmintGreenBond`);
+
+      await this.connectClient();
+
+      // To stake, 1. Send PFMU
+      // 2. Receive Derivative PFMU (new token)
+      console.log(`🎉 mintGreenBond`);
+      console.log(`🎉 this.issuerWallet`);
+      console.log(this.issuerWallet);
 
       const txn = {
         TransactionType: "NFTokenMint",
         Account: this.issuerWallet.classicAddress,
         URI: xrpl.convertStringToHex("https://metadata-url.com/greenbond"),
         NFTokenTaxon: 0,
+        Flags: 8,
       };
+      console.log(`🎉 txn: ${txn}`);
 
       let response = await this.client.submitAndWait(txn, { wallet: this.issuerWallet });
-      
+      console.log(`🎉 response: ${response}`);
+
       if (!response.result.meta) throw new Error("NFT minting failed");
 
       let GREEN_BOND_NFT_ID = response.result.meta.nftoken_id;
@@ -274,8 +277,8 @@ class XRPLStaking {
   // ✅ Issue fractionalized Green Bond Tokens
   async issueGBNDTokens() {
     try {
-      await this.connect();
-      
+      await this.connectClient();
+
       const txn = {
         TransactionType: "Payment",
         Account: this.issuerWallet.classicAddress,

@@ -1,9 +1,6 @@
+backend/data/bonds.json
 .DS_Store
 package-lock.json
 node_modules
 .env
-<<<<<<< HEAD
 .history
-=======
-.history
->>>>>>> ba63ef682e0d1cf507f7ea1aa0825b1c6a8be3ad

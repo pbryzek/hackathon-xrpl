@@ -108,7 +108,7 @@ router.post("/mint", async (req, res) => {
     }
 
     console.log(`🎉 Green Bond NFT Minted: ${nftId}`);
-    
+
     // Call issue_gbnd_tokens() to fractionalize bond after minting
     await xrpl_service.issueGBNDTokens();
 
@@ -118,7 +118,6 @@ router.post("/mint", async (req, res) => {
     res.status(500).json(failJSON(err.message));
   }
 });
-
 
 // Stake in a Green Bond
 router.post("/:id/stake", async (req, res) => {
@@ -138,25 +137,21 @@ router.post("/:id/stake", async (req, res) => {
       // ✅ Step 2: Mint Green Bond NFT if not already minted
       if (!bond.nftId) {
         console.log("🔄 No NFT found for this bond. Minting NFT now...");
+        let xrplService = new XRPLStaking();
         let nftId = await xrplService.mintGreenBond();
-
         if (!nftId) {
           return res.status(200).json(successJSON("PFMU stake successful & Green Bond minted", bond));
         }
-
         console.log(`🎉 Green Bond NFT Minted: ${nftId}`);
         bond.nftId = nftId; // ✅ Store the minted NFT ID
       } else {
         console.log(`✅ Green Bond already has NFT: ${bond.nftId}`);
       }
-
       return res.status(500).json(failJSON("PFMU staking failed"));
     }
-
     console.log("✅ Stake successful, checking NFT status...");
-
-
     await updateBondsFile(bond);
+    res.status(200).json(successJSON("Stake successful", bond));
   } catch (err) {
     console.error("❌ Error during staking & minting:", err);
     res.status(500).json(failJSON(err.message));
@@ -174,10 +169,8 @@ router.post("/:id/invest", async (req, res) => {
     if (!bond) return res.status(404).json(failJSON("Bond not found"));
     const investor = new Investor(name, amount, bondId, walletAddress);
     bond.investors.push(investor);
-
     // TODO: Make API to transfer fractionalized tokens of Green Bond to investor.
     // Error check if there is still fractions/value available.
-
     await updateBondsFile(bond);
     res.status(200).json(successJSON("Investment successful", bond));
   } catch (err) {
