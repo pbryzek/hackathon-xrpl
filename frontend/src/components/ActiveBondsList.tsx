@@ -12,7 +12,7 @@ import {
   TableRow 
 } from "@/components/ui/table";
 import { TrendingUp, AlertCircle, RefreshCw, Users, Shield } from "lucide-react";
-import { getAllBonds } from "@/services/bondService";
+import { getOpenBonds } from "@/services/bondService";
 
 interface ActiveBondsListProps {
   bonds: Bond[];
@@ -38,15 +38,15 @@ const ActiveBondsList = ({
     setLoading(true);
     setError(null);
     try {
-      // Use getAllBonds instead of getActiveBonds
-      const allBonds = await getAllBonds();
-      console.log("Response from getAllBonds:", allBonds);
+      // Use getOpenBonds instead of getAllBonds
+      const openBonds = await getOpenBonds();
+      console.log("Response from getOpenBonds:", openBonds);
       
       // Set bonds directly from the response
-      if (allBonds && Array.isArray(allBonds)) {
-        setBonds(allBonds);
+      if (openBonds && Array.isArray(openBonds)) {
+        setBonds(openBonds);
       } else {
-        console.warn("Unexpected response structure from getAllBonds:", allBonds);
+        console.warn("Unexpected response structure from getOpenBonds:", openBonds);
         setBonds([]);
       }
       
@@ -97,7 +97,7 @@ const ActiveBondsList = ({
     <TransitionWrapper delay={100} className="h-full">
       {/* <div className="glass-panel h-full rounded-2xl p-6"> */}
         <div className="mb-4 flex items-center">
-          <h2 className="text-2xl font-semibold">Active Bonds</h2>
+          <h2 className="text-2xl font-semibold">Open Bonds</h2>
           <div className="ml-auto flex items-center gap-2">
             <button
               onClick={handleRefresh}
@@ -142,6 +142,8 @@ const ActiveBondsList = ({
                   <TableHead>Maturity Date</TableHead>
                   <TableHead className="text-center">Investors</TableHead>
                   <TableHead className="text-center">Stakers</TableHead>
+                  <TableHead className="text-center">PFMU Capacity</TableHead>
+                  <TableHead>Status</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -169,6 +171,17 @@ const ActiveBondsList = ({
                     <TableCell className="text-center">
                       {bond.stakers && Array.isArray(bond.stakers) ? bond.stakers.length : 0}
                     </TableCell>
+                    <TableCell className="text-center">
+                      {bond.pfmus_capacity || 0}
+                    </TableCell>
+                    <TableCell>
+                      <Chip
+                        variant={bond.status === "Active" ? "success" : "outline"}
+                        size="sm"
+                      >
+                        {bond.status || "Unknown"}
+                      </Chip>
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -176,9 +189,9 @@ const ActiveBondsList = ({
           ) : (
             <div className="flex flex-col items-center justify-center h-full text-center">
               <AlertCircle className="w-12 h-12 text-bond-gray mb-4" />
-              <h3 className="text-lg font-medium mb-2">No Active Bonds</h3>
+              <h3 className="text-lg font-medium mb-2">No Open Bonds</h3>
               <p className="text-muted-foreground max-w-md">
-                There are currently no active bonds available for trading. 
+                There are currently no open bonds available for trading. 
                 Please check back later or contact support for more information.
               </p>
               <button
