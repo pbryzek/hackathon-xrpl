@@ -5,7 +5,7 @@ import { Separator } from "@/components/ui/separator";
 import { Progress } from "@/components/ui/progress";
 import TransitionWrapper from "./TransitionWrapper";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
-import { CalendarIcon, BarChart3, TrendingUp, Info, Award, AlertCircle } from "lucide-react";
+import { CalendarIcon, BarChart3, TrendingUp, Info, Award, AlertCircle, Users, Shield } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface BondDetailPanelProps {
@@ -163,16 +163,22 @@ const BondDetailPanel = ({ selectedBond }: BondDetailPanelProps) => {
               <p className="text-xs text-muted-foreground mb-1">Min Investment</p>
               <p className="font-medium">${(selectedBond.minimumInvestment || 0).toLocaleString()}</p>
             </div>
+            <div>
+              <p className="text-xs text-muted-foreground mb-1">Investors</p>
+              <p className="font-medium">
+                {selectedBond.investors && Array.isArray(selectedBond.investors) ? selectedBond.investors.length : 0}
+              </p>
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground mb-1">Stakers</p>
+              <p className="font-medium">
+                {selectedBond.stakers && Array.isArray(selectedBond.stakers) ? selectedBond.stakers.length : 0}
+              </p>
+            </div>
             {selectedBond.pfmus_capacity !== undefined && (
               <div>
                 <p className="text-xs text-muted-foreground mb-1">PFMU Capacity</p>
                 <p className="font-medium">{selectedBond.pfmus_capacity}</p>
-              </div>
-            )}
-            {selectedBond.investors && (
-              <div>
-                <p className="text-xs text-muted-foreground mb-1">Investors</p>
-                <p className="font-medium">{selectedBond.investors.length}</p>
               </div>
             )}
           </div>

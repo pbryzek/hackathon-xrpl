@@ -18,6 +18,7 @@ export interface Bond {
   createdDate?: string;
   pfmus_capacity?: number;
   investors?: any[];
+  stakers?: any[];
 }
 
 export const mockBonds: Bond[] = [

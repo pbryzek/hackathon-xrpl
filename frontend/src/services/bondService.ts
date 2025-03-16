@@ -141,5 +141,45 @@ export const getAllBonds = async () => {
   }
 };
 
+// ✅ Fetch Open Bonds
+export const getOpenBonds = async () => {
+  try {
+    const url = `${BOND_DOMAIN}/bonds/open`;
+    console.log("Fetching open bonds from:", url);
+
+    const response = await fetch(url, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+    });
+
+    if (!response.ok) {
+      console.error(`HTTP error! Status: ${response.status}`);
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    console.log("Open bonds response:", data);
+
+    // Handle different possible response structures
+    if (data.data && data.data.open_bonds && Array.isArray(data.data.open_bonds)) {
+      return data.data.open_bonds;
+    } else if (data.data && data.data.bonds && Array.isArray(data.data.bonds)) {
+      return data.data.bonds;
+    } else if (data.open_bonds && Array.isArray(data.open_bonds)) {
+      return data.open_bonds;
+    } else if (data.bonds && Array.isArray(data.bonds)) {
+      return data.bonds;
+    } else if (Array.isArray(data)) {
+      return data;
+    } else {
+      console.warn("Unexpected response structure from bonds/open:", data);
+      return [];
+    }
+  } catch (error) {
+    console.error("Error fetching open bonds:", error);
+    return []; // Return empty array instead of throwing to prevent cascading errors
+  }
+};
+
 
 
