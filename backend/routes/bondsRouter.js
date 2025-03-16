@@ -194,8 +194,11 @@ router.post("/:id/tokenize", async (req, res) => {
     // TODO add in the tokenization.
     // TODO have all of the PFMUs into escrow.
     let xrpl_service = new XRPLStaking();
-    xrpl_service.tokenizeGreenBond();
-    res.status(200).json(successJSON("Green Bond tokenized successfully", newBond));
+    if (xrpl_service.tokenizeGreenBond()) {
+      res.status(200).json(successJSON("Green Bond tokenized successfully", bond));
+    } else {
+      res.status(500).json(successJSON("Green Bond tokenized not successfull", bond));
+    }
   } catch (err) {
     res.status(500).json(failJSON(err.message));
   }

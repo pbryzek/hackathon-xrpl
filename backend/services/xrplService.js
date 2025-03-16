@@ -189,48 +189,44 @@ class XRPLStaking {
   }
 
   async getSellOffers() {
-    const client = new xrpl.Client("wss://s2.ripple.com");
-    await client.connect();
-
     try {
+      await this.connectClient();
       const xrpSellResponse = await client.request({
         command: "book_offers",
         taker_pays: XRPLStaking.PFMU_TOKEN,
         taker_gets: { currency: "XRP" },
         ledger_index: "validated",
       });
-
       const formattedXRPSellOffers = await this.formatOffers(xrpSellResponse.result.offers, false, "XRP");
-
       const usdSellResponse = await client.request({
         command: "book_offers",
         taker_pays: XRPLStaking.PFMU_TOKEN,
         taker_gets: { currency: "USD", issuer: "rvYAfWj5gh67oV6fW32ZzP3Aw4Eubs59B" },
         ledger_index: "validated",
       });
-
       const formattedUSDSellOffers = await this.formatOffers(usdSellResponse.result.offers, false, "USD");
-
       //const combinedSellOffers = [...formattedXRPSellOffers, ...formattedUSDSellOffers];
       const combinedSellOffers = [...xrpSellResponse.result.offers, ...usdSellResponse.result.offers];
-
       console.log("Sell Offers:\n", combinedSellOffers);
       return combinedSellOffers;
     } catch (error) {
       console.error("Error fetching offers:", error.message);
     } finally {
-      await client.disconnect();
+      await this.client.disconnect();
     }
   }
+
   // ✅ Stake PFMU Tokens
   async tokenizeGreenBond(walletSecret, bond) {
     try {
+      await this.connectClient();
       console.log("tokenizeGreenBond:\n");
-      return [];
+      return true;
     } catch (error) {
       console.error("Error tokenizeGreenBond:", error.message);
     } finally {
-      await client.disconnect();
+      await this.client.disconnect();
+      return false;
     }
   }
 }

@@ -190,7 +190,7 @@ async function offerCreate(client, wallet, takerGets, takerPays) {
   console.log("offerCreate takerPays: ", takerPays);
 
   let takerPaysStr = "" + takerPays * 100000;
-  let takerPays = {
+  let takerPaysDict = {
     currency: "TOKEN_CODE",
     issuer: "rIssuerAddress",
     value: takerPaysStr,
@@ -200,7 +200,7 @@ async function offerCreate(client, wallet, takerGets, takerPays) {
     TransactionType: "OfferCreate",
     Account: wallet.classicAddress,
     TakerGets: takerGets,
-    TakerPays: takerPaysStr,
+    TakerPays: takerPaysDict,
   };
   return await prepareSignSubmitTxWithRetry(client, offerCreateTx, wallet);
 }
