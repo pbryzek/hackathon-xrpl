@@ -2,10 +2,9 @@ import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Chip } from "@/components/ui/chip";
 import { Bond, TradeAction } from "@/lib/bonds";
-import { ArrowRight, TrendingUp, TrendingDown } from "lucide-react";
+import { ArrowRight, TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 import TransitionWrapper from "./TransitionWrapper";
 import { toast } from "@/components/ui/use-toast";
@@ -15,7 +14,6 @@ interface BondTradePanelProps {
 }
 
 const BondTradePanel = ({ selectedBond }: BondTradePanelProps) => {
-  const [action, setAction] = useState<TradeAction>("Buy");
   const [quantity, setQuantity] = useState<number>(1);
   const [totalCost, setTotalCost] = useState<number>(0);
 
@@ -41,8 +39,8 @@ const BondTradePanel = ({ selectedBond }: BondTradePanelProps) => {
     if (!selectedBond) return;
     
     toast({
-      title: `${action} Order Submitted`,
-      description: `You have successfully ${action.toLowerCase()}ed ${quantity} unit${quantity > 1 ? 's' : ''} of ${selectedBond.name} for $${totalCost.toLocaleString()}`,
+      title: "Buy Order Submitted",
+      description: `You have successfully bought ${quantity} unit${quantity > 1 ? 's' : ''} of ${selectedBond.name} for $${totalCost.toLocaleString()}`,
       variant: "default",
     });
   };
@@ -70,10 +68,10 @@ const BondTradePanel = ({ selectedBond }: BondTradePanelProps) => {
 
   return (
     <TransitionWrapper className="h-full">
-      <div className="glass-card h-full p-6">
+      <div className="glass-card h-full p-6 overflow-y-auto">
         <div className="mb-6">
           <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-semibold">{action} Bond</h2>
+            <h2 className="text-2xl font-semibold">Buy Bond</h2>
             <Chip 
               variant="outline" 
               className="font-medium"
@@ -83,17 +81,6 @@ const BondTradePanel = ({ selectedBond }: BondTradePanelProps) => {
           </div>
           <p className="text-muted-foreground text-sm mt-0.5">{selectedBond.name || "Unnamed Bond"}</p>
         </div>
-        
-        <Tabs defaultValue="buy" className="mb-6" onValueChange={(value) => setAction(value as TradeAction)}>
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="Buy" className="data-[state=active]:bg-bond-blue data-[state=active]:text-white">
-              Buy
-            </TabsTrigger>
-            <TabsTrigger value="Sell" className="data-[state=active]:bg-bond-red data-[state=active]:text-white">
-              Sell
-            </TabsTrigger>
-          </TabsList>
-        </Tabs>
         
         <div className="space-y-6">
           <div className="space-y-2">
@@ -158,12 +145,9 @@ const BondTradePanel = ({ selectedBond }: BondTradePanelProps) => {
             </div>
             <Button 
               onClick={handleTrade} 
-              className={cn(
-                "px-6",
-                action === "Buy" ? "bg-bond-blue hover:bg-bond-blue-dark" : "bg-bond-red hover:bg-destructive/90" 
-              )}
+              className="px-6 bg-bond-blue hover:bg-bond-blue-dark"
             >
-              {action} Now
+              Buy Now
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </div>
