@@ -17,6 +17,8 @@ export interface Bond {
   interestRate?: number;
   createdDate?: string;
   pfmus_capacity?: number;
+  pfmus_staked?: number;
+  amount?: number;
   investors?: any[];
   stakers?: any[];
 }

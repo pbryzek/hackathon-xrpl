@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/table";
 import { TrendingUp, AlertCircle, RefreshCw, Users, Shield } from "lucide-react";
 import { getOpenBonds } from "@/services/bondService";
+import { formatDistanceToNow } from "date-fns";
 
 interface ActiveBondsListProps {
   bonds: Bond[];
@@ -136,14 +137,35 @@ const ActiveBondsList = ({
             <Table>
               <TableHeader className="sticky top-0 bg-white z-10">
                 <TableRow className="hover:bg-transparent">
-                  <TableHead>Name</TableHead>
+                  <TableHead>Bond Name</TableHead>
                   <TableHead>Issuer</TableHead>
-                  <TableHead>Interest Rate</TableHead>
-                  <TableHead>Maturity Date</TableHead>
-                  <TableHead className="text-center">Investors</TableHead>
-                  <TableHead className="text-center">Stakers</TableHead>
-                  <TableHead className="text-center">PFMU Capacity</TableHead>
-                  <TableHead>Status</TableHead>
+                  <TableHead>
+                    <div className="flex items-center">
+                      <TrendingUp className="h-4 w-4 mr-1" />
+                      <span>Interest Rate</span>
+                    </div>
+                  </TableHead>
+                  <TableHead>
+                    <div className="flex items-center">
+                      <RefreshCw className="h-4 w-4 mr-1" />
+                      <span>Maturity Date</span>
+                    </div>
+                  </TableHead>
+                  <TableHead>
+                    <div className="flex items-center">
+                      <Users className="h-4 w-4 mr-1" />
+                      <span>Investors</span>
+                    </div>
+                  </TableHead>
+                  <TableHead>
+                    <div className="flex items-center">
+                      <Shield className="h-4 w-4 mr-1" />
+                      <span>Stakers</span>
+                    </div>
+                  </TableHead>
+                  <TableHead>PFMU Capacity</TableHead>
+                  <TableHead>PFMU Staked</TableHead>
+                  <TableHead>Amount</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -161,26 +183,119 @@ const ActiveBondsList = ({
                         : "hover:bg-bond-gray-light"
                     )}
                   >
-                    <TableCell className="font-medium">{bond.name || 'Unnamed Bond'}</TableCell>
-                    <TableCell>{bond.issuer || 'Unknown Issuer'}</TableCell>
-                    <TableCell>{bond.interestRate ? `${bond.interestRate}%` : (bond.couponRate ? `${bond.couponRate}%` : 'N/A')}</TableCell>
-                    <TableCell>{bond.maturityDate ? new Date(bond.maturityDate).toLocaleDateString() : 'No date specified'}</TableCell>
-                    <TableCell className="text-center">
-                      {bond.investors && Array.isArray(bond.investors) ? bond.investors.length : 0}
-                    </TableCell>
-                    <TableCell className="text-center">
-                      {bond.stakers && Array.isArray(bond.stakers) ? bond.stakers.length : 0}
-                    </TableCell>
-                    <TableCell className="text-center">
-                      {bond.pfmus_capacity || 0}
+                    <TableCell>
+                      {bond.name ? (
+                        <div className="font-medium">{bond.name}</div>
+                      ) : (
+                        <div className="text-muted-foreground text-sm">Unnamed Bond</div>
+                      )}
+
                     </TableCell>
                     <TableCell>
-                      <Chip
-                        variant={bond.status === "Active" ? "success" : "outline"}
-                        size="sm"
-                      >
-                        {bond.status || "Unknown"}
-                      </Chip>
+                      {bond.issuer ? (
+                        <div className="flex items-center">
+                          <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center mr-2">
+                            {bond.issuer.charAt(0).toUpperCase()}
+                          </div>
+                          <span className="font-medium">{bond.issuer}</span>
+                        </div>
+                      ) : (
+                        <span className="text-muted-foreground text-sm">Unknown Issuer</span>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {bond.interestRate || bond.couponRate ? (
+                        <div className="flex items-center">
+                          <span className="font-medium mr-1">
+                            {bond.interestRate ? bond.interestRate : bond.couponRate}%
+                          </span>
+                          <TrendingUp className="h-4 w-4 text-green-500" />
+                        </div>
+                      ) : (
+                        <span className="text-muted-foreground text-sm">N/A</span>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {bond.maturityDate ? (
+                        <div>
+                          <div className="font-medium">
+                            {new Date(bond.maturityDate).toLocaleDateString(undefined, {
+                              year: 'numeric',
+                              month: 'short',
+                              day: 'numeric'
+                            })}
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            {formatDistanceToNow(new Date(bond.maturityDate), { addSuffix: true })}
+                          </div>
+                        </div>
+                      ) : (
+                        <span className="text-muted-foreground text-sm">No date specified</span>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {bond.investors && Array.isArray(bond.investors) && bond.investors.length > 0 ? (
+                        <div>
+                          {bond.investors.slice(0, 3).map((investor, index) => {
+                            let investorName = 'Investor';
+                            if (typeof investor === 'string') {
+                              investorName = investor;
+                            } else if (investor && typeof investor === 'object') {
+                              investorName = investor.id || investor.name || investor.address || 'Investor';
+                            }
+                            return (
+                              <div key={index} className="text-xs text-muted-foreground truncate max-w-[150px]">
+                                {investorName}
+                              </div>
+                            );
+                          })}
+                          {bond.investors.length > 3 && (
+                            <div className="text-xs text-muted-foreground mt-1">
+                              +{bond.investors.length - 3} more
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <span className="text-muted-foreground text-sm">No investors</span>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {bond.stakers && Array.isArray(bond.stakers) ? (
+                        <div className="flex items-center">
+                          <span className="font-medium mr-1">{bond.stakers.length}</span>
+                          {bond.stakers.length > 0 ? (
+                            <Shield className="h-4 w-4 text-green-500" />
+                          ) : (
+                            <Shield className="h-4 w-4 text-muted-foreground" />
+                          )}
+                        </div>
+                      ) : (
+                        <div className="flex items-center">
+                          <span className="font-medium mr-1">0</span>
+                          <Shield className="h-4 w-4 text-muted-foreground" />
+                        </div>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {bond.pfmus_capacity ? (
+                        <span className="font-medium">{Number(bond.pfmus_capacity).toLocaleString()} PFMU</span>
+                      ) : (
+                        <span className="text-muted-foreground text-sm">Not specified</span>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {bond.pfmus_staked ? (
+                        <span className="font-medium">{Number(bond.pfmus_staked).toLocaleString()} PFMU</span>
+                      ) : (
+                        <span className="text-muted-foreground text-sm">Not specified</span>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {bond.amount ? (
+                        <span className="font-medium">${Number(bond.amount).toLocaleString()}</span>
+                      ) : (
+                        <span className="text-muted-foreground text-sm">Not specified</span>
+                      )}
                     </TableCell>
                   </TableRow>
                 ))}
