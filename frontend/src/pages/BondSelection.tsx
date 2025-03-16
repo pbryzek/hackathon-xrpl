@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getPendingBonds, stakePFMU, buyPFMUTokens } from "../services/bondService"; // ✅ Import API services
+import { useWallet } from "../components/WalletContext";
+
 
 const BondPage = () => {
+  const { walletAddress } = useWallet();
   const [isLoading, setIsLoading] = useState(true);
   const [pendingBonds, setPendingBonds] = useState<any[]>([]);
   const [stakeMessage, setStakeMessage] = useState<string | null>(null);
@@ -43,7 +46,7 @@ const BondPage = () => {
   const handleStake = async (bondId: string) => {
     setStakeMessage(null);
     try {
-      await stakePFMU(bondId);
+      await stakePFMU(walletAddress, bondId);
       setStakeMessage(`Successfully staked in ${bondId}!`);
       setShowSuccessNotification(true);
     } catch (error) {
@@ -51,19 +54,26 @@ const BondPage = () => {
     }
   };
 
-  // ✅ Handle Buy PFMU Tokens
   const handleBuyTokens = async () => {
     setBuyTokensLoading(true);
     setStakeMessage(null);
-    
+  
     try {
-      const result = await buyPFMUTokens(tokenAmount);
-      console.log("Token purchase successful:", result);
+      if (!walletAddress) {
+        console.error("❌ No Wallet Address Found!");
+        setStakeMessage("No wallet connected.");
+        return;
+      }
+  
+      console.log("🔹 Calling buyPFMUTokens with wallet:", walletAddress);
+      const result = await buyPFMUTokens(tokenAmount, walletAddress);
+  
+      console.log("✅ Token purchase successful:", result);
       setStakeMessage(`Successfully purchased ${tokenAmount} PFMU tokens!`);
       setShowSuccessNotification(true);
       setShowTokenModal(false);
     } catch (error) {
-      console.error("Error purchasing tokens:", error);
+      console.error("❌ Error purchasing tokens:", error);
       setStakeMessage("Error purchasing tokens. Please try again.");
     } finally {
       setBuyTokensLoading(false);

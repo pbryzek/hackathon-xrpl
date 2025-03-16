@@ -3,17 +3,20 @@ import sdk from "@crossmarkio/sdk";
 import * as xrpl from "xrpl";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+// import { WalletContext } from "../components/Wallet";
+import { useWallet } from "../components/WalletContext";
 
 const CrossMarkAuth: React.FC = () => {
+  const { walletAddress, walletBalance, setWalletAddress, setWalletBalance } = useWallet(); // ✅ Import setWalletBalance
   const [account, setAccount] = useState<string | null>(null);
   const [balance, setBalance] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    console.log("Crossmark session will not restore automatically.");
-    // Do NOT check localStorage or auto-authenticate
-  }, []);
+  // useEffect(() => {
+  //   console.log("Crossmark session will not restore automatically.");
+  //   // Do NOT check localStorage or auto-authenticate
+  // }, []);
 
   const signInWithCrossmark = async () => {
     setIsLoading(true);
@@ -28,15 +31,21 @@ const CrossMarkAuth: React.FC = () => {
 
       const userAccount = response.data.address;
       setAccount(userAccount);
-      fetchBalance(userAccount);
+      console.log("✅ Wallet Address:", userAccount); // ✅ Debugging
+      setWalletAddress(userAccount); // ✅ Store in Context
+
+      // ✅ Fetch Balance
+      const xrpBalance = await fetchBalance(userAccount) || '0';
+      setWalletBalance(xrpBalance);
+      console.log("✅ Wallet Balance:", xrpBalance);
       
       // Step 2: Authentication successful, inform user
       toast.success("Successfully connected to CrossMark wallet");
       
       // Navigate to bonds after successful authentication
-      setTimeout(() => {
-        navigate("/bonds");
-      }, 1500);
+      // setTimeout(() => {
+      //   navigate("/bonds");
+      // }, 1500);
       
     } catch (error) {
       console.error("Crossmark sign-in failed:", error);
@@ -46,7 +55,7 @@ const CrossMarkAuth: React.FC = () => {
     }
   };
 
-  const fetchBalance = async (walletAddress: string) => {
+  const fetchBalance = async (walletAddress: string): Promise<string> => {
     try {
       const client = new xrpl.Client("wss://s.altnet.rippletest.net/");
       await client.connect();
@@ -56,12 +65,15 @@ const CrossMarkAuth: React.FC = () => {
         ledger_index: "validated",
       });
       const xrpBalance = xrpl.dropsToXrp(response.result.account_data.Balance);
-      setBalance(xrpBalance.toString());
       client.disconnect();
+  
+      return xrpBalance.toString(); // ✅ Ensure a string is returned
     } catch (error) {
       console.error("Error fetching balance:", error);
+      return "0"; // ✅ Return "0" if there's an error
     }
   };
+  
 
   const handleMarketplaceClick = () => {
     navigate("/marketplace");
@@ -152,7 +164,7 @@ const CrossMarkAuth: React.FC = () => {
                     <div className="p-4 bg-green-800/20 rounded-lg">
                       <p className="text-lg text-white font-medium">Wallet Connected</p>
                       <p className="text-sm font-mono bg-black/20 p-2 rounded mt-2 break-all">{account}</p>
-                      <p className="text-sm mt-3 text-green-300">Balance: {balance} XRP</p>
+                      <p className="text-sm mt-3 text-green-300">Balance: {balance || 0} XRP</p>
                     </div>
                   </div>
                 </>

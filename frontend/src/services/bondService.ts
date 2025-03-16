@@ -21,39 +21,45 @@ export const getUserPFMUs = async () => {
   }
 };
 
-// ✅ Buy PFMU Tokens
-export const buyPFMUTokens = async (amount: number) => {
+export const buyPFMUTokens = async (amount: number, walletAddress: string) => {
   try {
     const url = `${BOND_DOMAIN}/xrpl/buy-pfmu`;
-    // TODO: add the walletaddress to the walletSecret. 
-    // hard coded tho?
+    console.log("🔹 API Request: ", url);
+    console.log("🔹 Sending Wallet Address:", walletAddress, "Amount:", amount);
+
     const response = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         amount: amount,
-        walletSecret: "SECRETSECRETSECRETSECRET"
-      })
+        walletSecret: walletAddress, // 🔹 Make sure this matches the backend
+      }),
     });
+
     if (!response.ok) {
+      console.error("❌ HTTP error! Status:", response.status);
       throw new Error(`HTTP error! Status: ${response.status}`);
     }
-    return await response.json();
+
+    const data = await response.json();
+    console.log("✅ API Response:", data);
+    return data;
   } catch (error) {
-    console.error("Error buying PFMU tokens:", error);
+    console.error("❌ Error buying PFMU tokens:", error);
     throw error;
   }
 };
 
-// ✅ Stake PFMU
-export const stakePFMU = async (bondId: string) => {
-  try {
 
-    const url = `${BOND_DOMAIN}/stake?project=Brazil Rancho Da Montanha 03182024&issuanceDate=2025-01-31T00:00:00Z&userSecret=SECRETSECRETSECRETSECRET`;
+// ✅ Stake PFMU with Wallet Address
+export const stakePFMU = async (walletAddress: string, bondId: string) => {
+  try {
+    const url = `${BOND_DOMAIN}/stake?project=Brazil Rancho Da Montanha 03182024&issuanceDate=2025-01-31T00:00:00Z&userSecret=${walletAddress}`;
+
     const response = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ bondId })
+      body: JSON.stringify({ bondId }),
     });
 
     if (!response.ok) {
@@ -66,6 +72,7 @@ export const stakePFMU = async (bondId: string) => {
     throw error;
   }
 };
+
 
 // ✅ Fetch Active Bonds
 export const getActiveBonds = async () => {
