@@ -15,13 +15,13 @@ const Header: React.FC = () => {
           <span className="text-green-600">XRPL</span> Green Bonds
         </Link>
         <nav className="flex space-x-6">
-          <Link to="/bonds" className={`nav-link ${isActive('/bonds') ? 'active' : ''}`}>
+          <Link to="/bonds" className={`nav-link ${isActive('/bonds')}`}>
             Bonds
           </Link>
-          <Link to="/marketplace" className={`nav-link ${isActive('/marketplace') ? 'active' : ''}`}>
+          <Link to="/marketplace" className={`nav-link ${isActive('/marketplace')}`}>
             Marketplace
           </Link>
-          <Link to="/" className={`nav-link ${isActive('/') ? 'active' : ''}`}>
+          <Link to="/" className={`nav-link ${isActive('/')}`}>
             Sign In
           </Link>
         </nav>
