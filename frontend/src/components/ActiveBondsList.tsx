@@ -12,7 +12,7 @@ import {
   TableRow 
 } from "@/components/ui/table";
 import { TrendingUp, AlertCircle, RefreshCw } from "lucide-react";
-import { getActiveBonds } from "@/services/bondService";
+import { getAllBonds } from "@/services/bondService";
 
 interface ActiveBondsListProps {
   bonds: Bond[];
@@ -38,21 +38,17 @@ const ActiveBondsList = ({
     setLoading(true);
     setError(null);
     try {
-      // Use the getActiveBonds function without parameters
-      const response = await getActiveBonds();
-      console.log("Response from getActiveBonds:", response);
+      // Use getAllBonds instead of getActiveBonds
+      const allBonds = await getAllBonds();
+      console.log("Response from getAllBonds:", allBonds);
       
-      // Extract bonds from the response based on its structure
-      let activeBonds = [];
-      if (response.bonds) {
-        activeBonds = response.bonds;
-      } else if (response.data && response.data.bonds) {
-        activeBonds = response.data.bonds;
-      } else if (Array.isArray(response)) {
-        activeBonds = response;
+      // Set bonds directly from the response
+      if (allBonds && Array.isArray(allBonds)) {
+        setBonds(allBonds);
+      } else {
+        console.warn("Unexpected response structure from getAllBonds:", allBonds);
+        setBonds([]);
       }
-      
-      setBonds(activeBonds);
       
       // If parent component provided an onRefresh callback, call it
       if (onRefresh) {
@@ -142,18 +138,18 @@ const ActiveBondsList = ({
                 <TableRow className="hover:bg-transparent">
                   <TableHead>Name</TableHead>
                   <TableHead>Issuer</TableHead>
-                  <TableHead>Price</TableHead>
-                  <TableHead>Term</TableHead>
-                  <TableHead>Maturity</TableHead>
-                  <TableHead>Yield</TableHead>
-                  <TableHead>Risk</TableHead>
+                  <TableHead>Interest Rate</TableHead>
+                  <TableHead>Maturity Date</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {bondsWithTimeToMaturity.map((bond) => (
                   <TableRow 
                     key={bond.id}
-                    onClick={() => onSelectBond(bond)}
+                    onClick={() => {
+                      console.log("Bond selected:", bond);
+                      onSelectBond(bond);
+                    }}
                     className={cn(
                       "cursor-pointer transition-all bond-hover",
                       selectedBondId === bond.id 
@@ -161,29 +157,10 @@ const ActiveBondsList = ({
                         : "hover:bg-bond-gray-light"
                     )}
                   >
-                    <TableCell className="font-medium">{bond.name}</TableCell>
-                    <TableCell>{bond.issuer}</TableCell>
-                    <TableCell>${bond.price}</TableCell>
-                    <TableCell>{bond.term}</TableCell>
-                    <TableCell>{bond.timeToMaturity || "N/A"}</TableCell>
-                    <TableCell className="text-bond-green flex items-center">
-                      <TrendingUp className="w-3 h-3 mr-0.5" />
-                      {bond.yield}%
-                    </TableCell>
-                    <TableCell>
-                      <Chip
-                        variant={
-                          bond.risk === "Low"
-                            ? "success"
-                            : bond.risk === "Medium"
-                            ? "warning"
-                            : "danger"
-                        }
-                        size="sm"
-                      >
-                        {bond.risk}
-                      </Chip>
-                    </TableCell>
+                    <TableCell className="font-medium">{bond.name || 'Unnamed Bond'}</TableCell>
+                    <TableCell>{bond.issuer || 'Unknown Issuer'}</TableCell>
+                    <TableCell>{bond.interestRate ? `${bond.interestRate}%` : (bond.couponRate ? `${bond.couponRate}%` : 'N/A')}</TableCell>
+                    <TableCell>{bond.maturityDate ? new Date(bond.maturityDate).toLocaleDateString() : 'No date specified'}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>

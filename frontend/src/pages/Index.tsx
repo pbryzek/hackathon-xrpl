@@ -83,6 +83,7 @@ const Index = () => {
   };
 
   const handleSelectBond = (bond: Bond) => {
+    console.log("Index component: Bond selected:", bond);
     setSelectedBond(bond);
   };
 

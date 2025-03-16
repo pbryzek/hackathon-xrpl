@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Bond } from "@/lib/bonds";
 import { Chip } from "@/components/ui/chip";
 import { Separator } from "@/components/ui/separator";
@@ -30,6 +30,12 @@ const generateYieldData = (baseYield: number) => {
 };
 
 const BondDetailPanel = ({ selectedBond }: BondDetailPanelProps) => {
+  useEffect(() => {
+    if (selectedBond) {
+      console.log("BondDetailPanel received bond:", selectedBond);
+    }
+  }, [selectedBond]);
+
   if (!selectedBond) {
     return (
       <div className="glass-card h-full p-6 flex flex-col justify-center items-center text-center">
@@ -44,7 +50,9 @@ const BondDetailPanel = ({ selectedBond }: BondDetailPanelProps) => {
     );
   }
 
-  const yieldData = generateYieldData(selectedBond.yield);
+  // Use interestRate if available, otherwise fall back to yield or couponRate
+  const effectiveYield = selectedBond.interestRate || selectedBond.yield || selectedBond.couponRate || 0;
+  const yieldData = generateYieldData(effectiveYield);
   
   // Calculate risk score (1-100)
   const getRiskScore = (risk: string) => {
@@ -56,7 +64,7 @@ const BondDetailPanel = ({ selectedBond }: BondDetailPanelProps) => {
     }
   };
   
-  const riskScore = getRiskScore(selectedBond.risk);
+  const riskScore = getRiskScore(selectedBond.risk || "Medium");
 
   return (
     <TransitionWrapper delay={200} className="h-full">
@@ -68,10 +76,10 @@ const BondDetailPanel = ({ selectedBond }: BondDetailPanelProps) => {
               variant={selectedBond.status === "Active" ? "success" : "outline"}
               size="sm"
             >
-              {selectedBond.status}
+              {selectedBond.status || "Unknown"}
             </Chip>
           </div>
-          <p className="text-muted-foreground">{selectedBond.name}</p>
+          <p className="text-muted-foreground">{selectedBond.name || "Unnamed Bond"}</p>
         </div>
 
         <div className="space-y-6">
@@ -91,7 +99,7 @@ const BondDetailPanel = ({ selectedBond }: BondDetailPanelProps) => {
                     axisLine={false}
                   />
                   <YAxis 
-                    domain={[Math.floor(selectedBond.yield - 1), Math.ceil(selectedBond.yield + 1)]} 
+                    domain={[Math.floor(effectiveYield - 1), Math.ceil(effectiveYield + 1)]} 
                     tick={{ fontSize: 12 }} 
                     tickLine={false}
                     axisLine={false}
@@ -123,38 +131,50 @@ const BondDetailPanel = ({ selectedBond }: BondDetailPanelProps) => {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <p className="text-xs text-muted-foreground mb-1">Issuer</p>
-              <p className="font-medium">{selectedBond.issuer}</p>
+              <p className="font-medium">{selectedBond.issuer || "Unknown"}</p>
             </div>
             <div>
               <p className="text-xs text-muted-foreground mb-1">Type</p>
-              <p className="font-medium">{selectedBond.type}</p>
+              <p className="font-medium">{selectedBond.type || "Unknown"}</p>
             </div>
             <div>
-              <p className="text-xs text-muted-foreground mb-1">Coupon Rate</p>
-              <p className="font-medium">{selectedBond.couponRate}%</p>
+              <p className="text-xs text-muted-foreground mb-1">Interest Rate</p>
+              <p className="font-medium">{selectedBond.interestRate || selectedBond.couponRate || "N/A"}%</p>
             </div>
             <div>
               <p className="text-xs text-muted-foreground mb-1">Yield</p>
               <p className="font-medium text-bond-green flex items-center">
                 <TrendingUp className="w-3 h-3 mr-1" />
-                {selectedBond.yield}%
+                {effectiveYield}%
               </p>
             </div>
             <div>
               <p className="text-xs text-muted-foreground mb-1">Maturity Date</p>
               <p className="font-medium flex items-center">
                 <CalendarIcon className="w-3 h-3 mr-1 text-muted-foreground" />
-                {new Date(selectedBond.maturityDate).toLocaleDateString('en-US', {
+                {selectedBond.maturityDate ? new Date(selectedBond.maturityDate).toLocaleDateString('en-US', {
                   year: 'numeric',
                   month: 'short',
                   day: 'numeric'
-                })}
+                }) : "Not specified"}
               </p>
             </div>
             <div>
               <p className="text-xs text-muted-foreground mb-1">Min Investment</p>
-              <p className="font-medium">${selectedBond.minimumInvestment.toLocaleString()}</p>
+              <p className="font-medium">${(selectedBond.minimumInvestment || 0).toLocaleString()}</p>
             </div>
+            {selectedBond.pfmus_capacity !== undefined && (
+              <div>
+                <p className="text-xs text-muted-foreground mb-1">PFMU Capacity</p>
+                <p className="font-medium">{selectedBond.pfmus_capacity}</p>
+              </div>
+            )}
+            {selectedBond.investors && (
+              <div>
+                <p className="text-xs text-muted-foreground mb-1">Investors</p>
+                <p className="font-medium">{selectedBond.investors.length}</p>
+              </div>
+            )}
           </div>
 
           <Separator className="bg-bond-gray" />
@@ -162,10 +182,10 @@ const BondDetailPanel = ({ selectedBond }: BondDetailPanelProps) => {
           <div>
             <div className="flex items-center mb-2">
               <Award className="w-4 h-4 mr-2 text-bond-blue" />
-              <h3 className="text-sm font-medium">Credit Rating: {selectedBond.rating}</h3>
+              <h3 className="text-sm font-medium">Credit Rating: {selectedBond.rating || "Not Rated"}</h3>
             </div>
             <p className="text-sm text-muted-foreground mb-4">
-              {selectedBond.rating.includes("A") 
+              {selectedBond.rating && selectedBond.rating.includes("A") 
                 ? "Investment grade bond with strong capacity to meet financial commitments."
                 : "Medium-grade bond with adequate capacity to meet financial commitments."}
             </p>
@@ -177,7 +197,7 @@ const BondDetailPanel = ({ selectedBond }: BondDetailPanelProps) => {
                   <span className="text-sm font-medium">Risk Assessment</span>
                 </div>
                 <span className="text-sm font-medium">
-                  {selectedBond.risk} Risk
+                  {selectedBond.risk || "Medium"} Risk
                 </span>
               </div>
               <Progress 
@@ -204,7 +224,7 @@ const BondDetailPanel = ({ selectedBond }: BondDetailPanelProps) => {
           <div>
             <h3 className="text-sm font-medium mb-2">Description</h3>
             <p className="text-sm text-muted-foreground">
-              {selectedBond.description}
+              {selectedBond.description || "No description available."}
             </p>
           </div>
         </div>

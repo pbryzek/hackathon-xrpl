@@ -21,7 +21,10 @@ const BondTradePanel = ({ selectedBond }: BondTradePanelProps) => {
 
   useEffect(() => {
     if (selectedBond) {
-      setTotalCost(Number((selectedBond.price * quantity).toFixed(2)));
+      console.log("BondTradePanel received bond:", selectedBond);
+      // Use price if available, otherwise default to 100
+      const bondPrice = selectedBond.price || 100;
+      setTotalCost(Number((bondPrice * quantity).toFixed(2)));
     }
   }, [selectedBond, quantity]);
 
@@ -58,6 +61,13 @@ const BondTradePanel = ({ selectedBond }: BondTradePanelProps) => {
     );
   }
 
+  // Use price if available, otherwise default to 100
+  const bondPrice = selectedBond.price || 100;
+  // Use interestRate if available, otherwise fall back to yield or couponRate
+  const effectiveYield = selectedBond.interestRate || selectedBond.yield || selectedBond.couponRate || 0;
+  // Use minimumInvestment if available, otherwise default to 1000
+  const minInvestment = selectedBond.minimumInvestment || 1000;
+
   return (
     <TransitionWrapper className="h-full">
       <div className="glass-card h-full p-6">
@@ -68,10 +78,10 @@ const BondTradePanel = ({ selectedBond }: BondTradePanelProps) => {
               variant="outline" 
               className="font-medium"
             >
-              {selectedBond.type}
+              {selectedBond.type || "Bond"}
             </Chip>
           </div>
-          <p className="text-muted-foreground text-sm mt-0.5">{selectedBond.name}</p>
+          <p className="text-muted-foreground text-sm mt-0.5">{selectedBond.name || "Unnamed Bond"}</p>
         </div>
         
         <Tabs defaultValue="buy" className="mb-6" onValueChange={(value) => setAction(value as TradeAction)}>
@@ -89,12 +99,12 @@ const BondTradePanel = ({ selectedBond }: BondTradePanelProps) => {
           <div className="space-y-2">
             <div className="flex justify-between">
               <Label htmlFor="price">Price per Bond</Label>
-              <span className="text-sm text-bond-blue font-medium">${selectedBond.price}</span>
+              <span className="text-sm text-bond-blue font-medium">${bondPrice}</span>
             </div>
             <div className="relative">
               <Input
                 id="price"
-                value={`$${selectedBond.price}`}
+                value={`$${bondPrice}`}
                 disabled
                 className="bg-bond-gray-light text-muted-foreground"
               />
@@ -104,7 +114,7 @@ const BondTradePanel = ({ selectedBond }: BondTradePanelProps) => {
           <div className="space-y-2">
             <div className="flex justify-between">
               <Label htmlFor="quantity">Quantity</Label>
-              <span className="text-sm text-muted-foreground">Min: {selectedBond.minimumInvestment / selectedBond.price} units</span>
+              <span className="text-sm text-muted-foreground">Min: {Math.ceil(minInvestment / bondPrice)} units</span>
             </div>
             <Input
               id="quantity"
@@ -119,25 +129,25 @@ const BondTradePanel = ({ selectedBond }: BondTradePanelProps) => {
           
           <div className="pt-4 border-t border-bond-gray">
             <div className="flex justify-between mb-2">
-              <span className="text-sm text-muted-foreground">Yield Rate</span>
+              <span className="text-sm text-muted-foreground">Interest Rate</span>
               <span className="text-sm font-medium flex items-center">
                 <TrendingUp className="w-4 h-4 mr-1 text-bond-green" />
-                {selectedBond.yield}%
+                {effectiveYield}%
               </span>
             </div>
             <div className="flex justify-between mb-2">
               <span className="text-sm text-muted-foreground">Maturity Date</span>
               <span className="text-sm font-medium">
-                {new Date(selectedBond.maturityDate).toLocaleDateString('en-US', {
+                {selectedBond.maturityDate ? new Date(selectedBond.maturityDate).toLocaleDateString('en-US', {
                   year: 'numeric',
                   month: 'short',
                   day: 'numeric'
-                })}
+                }) : "Not specified"}
               </span>
             </div>
             <div className="flex justify-between mb-2">
               <span className="text-sm text-muted-foreground">Rating</span>
-              <span className="text-sm font-medium">{selectedBond.rating}</span>
+              <span className="text-sm font-medium">{selectedBond.rating || "Not Rated"}</span>
             </div>
           </div>
           

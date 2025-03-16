@@ -14,6 +14,10 @@ export interface Bond {
   term: string;
   description: string;
   timeToMaturity?: string;
+  interestRate?: number;
+  createdDate?: string;
+  pfmus_capacity?: number;
+  investors?: any[];
 }
 
 export const mockBonds: Bond[] = [
