@@ -251,7 +251,7 @@ const ActiveBondsList = ({
                           )}
                         </div>
                       ) : (
-                        <span className="text-muted-foreground text-sm">BNP</span>
+                        <span className="text-muted-foreground text-sm">None</span>
                       )}
                     </TableCell>
                     <TableCell>

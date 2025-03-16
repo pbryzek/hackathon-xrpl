@@ -36,7 +36,7 @@ const BondTradePanel = ({ selectedBond }: BondTradePanelProps) => {
       const bondId = selectedBond.id?.toString() || "1"; // Default to "1" if id is undefined
       
       // Create a distinctive investor name that won't be confused with bond name or ID
-      const investorName = "BNP Paribas Multinational Bank";
+      const investorName = "BNP Paribas Bank";
       
       console.log("Investing in bond with investor name:", investorName); // Add logging for debugging
       
