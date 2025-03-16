@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect, useCallback } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { Bond, calculateTimeToMaturity } from "@/lib/bonds";
 import { Chip } from "@/components/ui/chip";
 import { cn } from "@/lib/utils";
@@ -12,7 +12,6 @@ import {
   TableRow 
 } from "@/components/ui/table";
 import { TrendingUp, AlertCircle, RefreshCw, Users, Shield } from "lucide-react";
-import { getOpenBonds } from "@/services/bondService";
 import { formatDistanceToNow } from "date-fns";
 
 interface ActiveBondsListProps {
@@ -34,73 +33,16 @@ const ActiveBondsList = ({
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Function to fetch bonds from the API
-  const fetchBonds = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      // Use getOpenBonds to fetch open bonds
-      const openBonds = await getOpenBonds();
-      console.log("ActiveBondsList: Response from getOpenBonds:", openBonds);
-      
-      // Set bonds directly from the response
-      if (openBonds && Array.isArray(openBonds)) {
-        if (openBonds.length > 0) {
-          console.log(`ActiveBondsList: Received ${openBonds.length} open bonds`);
-          setBonds(openBonds);
-        } else {
-          console.log("ActiveBondsList: No open bonds available, using initial bonds");
-          // If no open bonds are available, use the initial bonds provided by parent
-          if (initialBonds.length > 0) {
-            setBonds(initialBonds);
-          } else {
-            setBonds([]);
-          }
-        }
-      } else {
-        console.warn("ActiveBondsList: Unexpected response structure from getOpenBonds:", openBonds);
-        // Fall back to initial bonds if available
-        if (initialBonds.length > 0) {
-          setBonds(initialBonds);
-        } else {
-          setBonds([]);
-        }
-      }
-      
-      // If parent component provided an onRefresh callback, call it
-      if (onRefresh) {
-        onRefresh();
-      }
-    } catch (err) {
-      console.error("ActiveBondsList: Error fetching bonds:", err);
-      setError("Failed to load open bonds. Please try again.");
-      
-      // Fall back to initial bonds if available
-      if (initialBonds.length > 0) {
-        setBonds(initialBonds);
-      }
-    } finally {
-      setLoading(false);
-    }
-  }, [onRefresh, initialBonds]);
-
-  // Initial fetch on component mount if no bonds are provided
+  // Initial setup - just log that we're using the bonds from the parent
   useEffect(() => {
-    // Only fetch if we have no bonds AND we're not already loading
-    if (initialBonds.length === 0 && !loading) {
-      console.log("No initial bonds provided, fetching from API...");
-      fetchBonds();
-    } else {
-      console.log("Using bonds provided by parent:", initialBonds.length);
-    }
-  }, [initialBonds.length, fetchBonds, loading]);
+    console.log("Using bonds provided by parent:", initialBonds.length);
+  }, [initialBonds.length]);
 
-  // Update local bonds state when initialBonds changes, but only if we have bonds
+  // Update local bonds state when initialBonds changes
   useEffect(() => {
-    if (initialBonds.length > 0) {
-      setBonds(initialBonds);
-    }
-  }, [initialBonds]);
+    setBonds(initialBonds);
+    setLoading(isRefreshing); // Set loading state based on parent's isRefreshing
+  }, [initialBonds, isRefreshing]);
 
   // Calculate time to maturity for each bond
   const bondsWithTimeToMaturity = useMemo(() => {
@@ -112,7 +54,10 @@ const ActiveBondsList = ({
 
   // Handle refresh button click
   const handleRefresh = () => {
-    fetchBonds();
+    // Only call parent's onRefresh when user explicitly clicks refresh
+    if (onRefresh) {
+      onRefresh();
+    }
   };
 
   return (
@@ -325,10 +270,10 @@ const ActiveBondsList = ({
           ) : (
             <div className="flex flex-col items-center justify-center h-full text-center">
               <AlertCircle className="w-12 h-12 text-bond-gray mb-4" />
-              <h3 className="text-lg font-medium mb-2">No Open Bonds</h3>
+              <h3 className="text-lg font-medium mb-2">No Open Bonds Available</h3>
               <p className="text-muted-foreground max-w-md">
                 There are currently no open bonds available for trading. 
-                Please check back later or contact support for more information.
+                Open bonds are active bonds that have met their PFMU capacity but haven't reached their financial threshold.
               </p>
               <button
                 onClick={handleRefresh}

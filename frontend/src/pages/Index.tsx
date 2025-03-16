@@ -33,39 +33,32 @@ const Index = () => {
       
       // Check if we got a valid response
       if (openBonds && Array.isArray(openBonds)) {
-        if (openBonds.length > 0) {
-          console.log(`Received ${openBonds.length} open bonds from API`);
-          setBonds(openBonds);
-          setLastUpdated(new Date());
-          
-          // If we had a selected bond, update it with the new data
-          if (selectedBond) {
-            const updatedBond = openBonds.find(bond => bond.id === selectedBond.id);
-            if (updatedBond) {
-              setSelectedBond(updatedBond);
-            } else {
-              // If the selected bond is no longer in the list, deselect it
-              setSelectedBond(null);
-            }
+        // Set bonds regardless of whether the array is empty or not
+        setBonds(openBonds);
+        setLastUpdated(new Date());
+        
+        // If we had a selected bond, update it with the new data
+        if (selectedBond) {
+          const updatedBond = openBonds.find(bond => bond.id === selectedBond.id);
+          if (updatedBond) {
+            setSelectedBond(updatedBond);
+          } else {
+            // If the selected bond is no longer in the list, deselect it
+            setSelectedBond(null);
           }
-        } else {
-          console.log("API returned empty bonds array, using mock data");
-          setBonds(mockBonds);
-          setLastUpdated(new Date());
         }
       } else {
         console.error("API returned invalid data format:", openBonds);
-        setBonds(mockBonds);
-        setLastUpdated(new Date());
+        setError("Failed to load open bonds. The API returned an invalid response format.");
+        // Set bonds to empty array instead of using mock data
+        setBonds([]);
       }
     } catch (error) {
       console.error("Error loading bonds:", error);
-      setError("Failed to load open bonds. Using mock data as fallback.");
+      setError("Failed to load open bonds. Please try again later.");
       
-      // Use mock data as fallback
-      console.log("Using mock data as fallback due to error");
-      setBonds(mockBonds);
-      setLastUpdated(new Date());
+      // Set bonds to empty array instead of using mock data
+      setBonds([]);
     } finally {
       setIsLoading(false);
       setIsRefreshing(false);
