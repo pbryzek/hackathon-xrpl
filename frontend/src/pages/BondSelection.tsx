@@ -44,15 +44,33 @@ const BondPage = () => {
         </nav>
       </header>
 
-      {/* Hero Section */}
-      <section className="mt-50 text-center">
-        <div className="green-bond-offerings">
-          <h2 className="text-4xl font-bold">Green Bond Offerings</h2>
+      {/* Hero Section with Buy Tokens Button */}
+      <div className="container mx-auto px-6 mt-50">
+        <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
+          <div className="green-bond-offerings text-center sm:text-left">
+            <h2 className="text-4xl font-bold">Green Bond Offerings</h2>
+          </div>
+          {/* Buy Tokens Button */}
+          <button 
+            className="buy-tokens-button flex items-center gap-2"
+            onClick={() => {
+              // Add token purchase functionality here
+              alert("Token purchase functionality coming soon!");
+            }}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white">
+              <circle cx="8" cy="8" r="6" />
+              <path d="M18.09 10.37A6 6 0 1 1 10.34 18" />
+              <path d="M7 6h1v4" />
+              <path d="m16.71 13.88.7.71-2.82 2.82" />
+            </svg>
+            Buy Tokens
+          </button>
         </div>
-        <p className="mt-2 text-lg opacity-75">
+        <p className="text-lg opacity-75 text-center mb-8">
           Invest in verified environmental projects with transparent impact metrics and competitive returns.
         </p>
-      </section>
+      </div>
 
       {/* Pending Bonds Listing */}
       <div className="mt-6 text-center">
