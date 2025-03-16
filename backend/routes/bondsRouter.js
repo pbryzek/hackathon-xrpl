@@ -12,6 +12,8 @@ const {
   getOpenBonds,
 } = require("../services/bondService");
 
+const Investor = require("../models/Investor");
+
 const { successJSON, failJSON } = require("../utils/responseUtils");
 const Bond = require("../models/Bond");
 const XRPLStaking = require("../services/xrplService");
