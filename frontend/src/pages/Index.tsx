@@ -5,6 +5,8 @@ import BondDetailPanel from "@/components/BondDetailPanel";
 import { mockBonds, Bond } from "@/lib/bonds";
 import { getAllActiveBonds } from "@/services/bondService";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { Link } from "react-router-dom";
+
 
 const Index = () => {
   const [bonds, setBonds] = useState<Bond[]>([]);
@@ -104,16 +106,23 @@ const Index = () => {
 
   return (
     <div className="min-h-screen w-full bg-gradient-to-br from-bond-gray-light to-white p-4 md:p-8">
-      <header className="max-w-7xl mx-auto mb-6">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <header className="header flex justify-between items-center w-full px-6">
+        <Link to="/" className="logo text-2xl no-underline flex items-center gap-2">
+          <span className="text-green-600">XRPL</span> Green Bonds
+        </Link>
+        <nav className="flex space-x-4">
+          <Link to="/bonds" className="nav-link">Bonds</Link>
+          <Link to="/marketplace" className="nav-link active">Marketplace</Link>
+          <Link to="/" className="nav-link">Sign In</Link>
+        </nav>
+      </header>
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
           <img src="https://assets.weforum.org/organization/image/ZNfR4l-FX0KuRASO1gp_aNmqv4afaFKDbB-D85jEf20.jpg"
             alt="BNP Paribas - World Economic Forum" 
             width="300"></img>
             <br></br>
             <span className="text-gray-600 mt-1 text-sm sm:text-base">France's premier multinational bank, Leading the Green Bond Revolution 🌍💚</span>
-            {/* <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">BNP Paribas</h1>
-            <p className="text-gray-600 mt-1 text-sm sm:text-base">France's premier multinational bank, Leading the Green Bond Revolution 🌍💚</p> */}
           </div>
           <div className="flex items-center space-x-3 self-end sm:self-auto">
             <div className="glass-card-compact">
@@ -127,7 +136,6 @@ const Index = () => {
             </div>
           </div>
         </div>
-      </header>
 
       <main className="max-w-7xl mx-auto flex flex-col gap-6">
         {/* Error message if any */}
